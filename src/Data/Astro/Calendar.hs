@@ -1,33 +1,101 @@
 module Data.Astro.Calendar
 (
-  Date(..)
+  Day(..)
+  , TimeOfDay(..)
+  , LocalTime(..)
+  , JulianDayNumber(..)
   , isLeapYear
   , dayNumber
   , easterDayInYear
+  , fromTime
+  , fromDateTime
 )
 where
 
-data Date = Date {
-  getYear :: Int
-  , getMonth :: Int
-  , getDay :: Int
-  } deriving (Show, Eq)
+import Data.Time.Calendar (Day(..), fromGregorian, toGregorian)
+import Data.Time.LocalTime (LocalTime(..), TimeOfDay(..))
+
+type DateBaseType = Double
+
+
+-- | A number of days since noon of 1 January 4713 BC
+newtype JulianDayNumber = JulianDayNumber DateBaseType
+                     deriving (Show, Eq)
+
+
+julianStartDateTime = LocalTime (fromGregorian (-4712) 1 1) (TimeOfDay 12 0 0)
+
+
+instance Num JulianDayNumber where
+  (+) (JulianDayNumber d1) (JulianDayNumber d2) = JulianDayNumber (d1+d2)
+  (-) (JulianDayNumber d1) (JulianDayNumber d2) = JulianDayNumber (d1-d2)
+  (*) (JulianDayNumber d1) (JulianDayNumber d2) = JulianDayNumber (d1*d2)
+  negate (JulianDayNumber d) = JulianDayNumber (negate d)
+  abs (JulianDayNumber d) = JulianDayNumber (abs d)
+  signum (JulianDayNumber d) = JulianDayNumber (signum d)
+  fromInteger int = JulianDayNumber (fromInteger int)
+
+
+-- | Create Julian Day Number from DateTime
+fromDateTime :: LocalTime -> JulianDayNumber
+fromDateTime (LocalTime date time) =
+  let (year, month, day) = toGregorian date
+      (y, m) = if month < 3 then (year-1, month+12) else (year, month)
+      y' = fromIntegral y
+      m' = fromIntegral m
+      b = gregorianDateAdjustment date
+      c = if y < 0
+          then truncate (365.25*y' - 0.75)
+          else truncate (365.25*y')
+      d = truncate (30.6001 * (m'+1))
+      e = fromTime time
+      jd = fromIntegral (b + c + d + day) + e + 1720994.5
+  in JulianDayNumber jd
+
+
+------------------------------------------------------
+-- Gregorian Calendar
+
+-- convert Time to a fraction of Date
+fromTime :: TimeOfDay -> DateBaseType
+fromTime (TimeOfDay hours minutes _) = (hours' + (minutes') / 60) / 24
+  where hours' = fromIntegral hours
+        minutes' = fromIntegral minutes
+
+
+-- Date after 15 October 1582 belongs to Gregorian Calendar
+-- Before this date - to Julian Calendar
+isGregorianDate :: Day -> Bool
+isGregorianDate date = date >= moveToGregorianCalendarDate
+  where moveToGregorianCalendarDate = fromGregorian 1582 10 15
+
+
+gregorianDateAdjustment :: Day -> Int
+gregorianDateAdjustment date =
+  if isGregorianDate date
+  then let (year, month, _) = toGregorian date
+           y = if month < 3 then year - 1 else year
+           y' = fromIntegral y
+           a = truncate (y' / 100)
+       in 2 - a + truncate(fromIntegral a/4)
+  else 0
 
 
 -- | Check Gregorian calendar leap year
-isLeapYear :: Int -> Bool
+isLeapYear :: Integer -> Bool
 isLeapYear year =
   year `mod` 4 == 0
   && (year `mod` 100 /= 0 || year `mod` 400 == 0)
 
 
 -- | Day Number in a year
-dayNumber :: Date -> Int
-dayNumber (Date year month day) =
+dayNumber :: Day -> Int
+dayNumber date =
   (daysBeforeMonth year month) + day
+  where (year, month, day) = toGregorian date
   
 
-daysBeforeMonth :: Int -> Int -> Int
+daysBeforeMonth :: Integer -> Int -> Int
 daysBeforeMonth year month =
   let a = if isLeapYear year then 62 else 63
       month' = (fromIntegral month) :: Double
@@ -37,7 +105,7 @@ daysBeforeMonth year month =
 
 -- | Get Easter date
 -- function uses absolutely crazy Butcher's algorithm
-easterDayInYear :: Int -> Date
+easterDayInYear :: Int -> Day
 easterDayInYear year =
   let  a = year `mod` 19
        b = year `div` 100
@@ -54,4 +122,4 @@ easterDayInYear year =
        n' = (h+l-7*m+114)
        n = n' `div` 31
        p = n' `mod` 31
-  in Date year n (p+1)
+  in fromGregorian (fromIntegral year) n (p+1)

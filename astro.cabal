@@ -17,6 +17,7 @@ library
   hs-source-dirs:      src
   exposed-modules:     Data.Astro.Calendar
   build-depends:       base >= 4.7 && < 5
+                     , time
   default-language:    Haskell2010
 
 executable astro-exe
@@ -33,6 +34,7 @@ test-suite astro-test
   main-is:             Main.hs
   build-depends:       base
                      , astro
+                     , time
                      , test-framework
                      , test-framework-hunit
                      , test-framework-quickcheck2

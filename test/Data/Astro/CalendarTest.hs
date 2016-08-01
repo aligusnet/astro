@@ -11,6 +11,8 @@ import Test.Framework.Providers.QuickCheck2 (testProperty)
 import Test.HUnit
 import Test.QuickCheck
 
+import Data.Time.Calendar (fromGregorian, toGregorian)
+
 import Data.Astro.Calendar
 
 tests = [testGroup "easter day" [
@@ -27,26 +29,37 @@ tests = [testGroup "easter day" [
              , testCase "1800" (isLeapYear 1800 @?= False)
            ]
          , testGroup "day number" [
-             testCase "1 Jan of leap year" (dayNumber (Date 2016 1 1) @?= 1)
-             , testCase "11 Feb of leap year" (dayNumber (Date 2016 2 11) @?= 42)
-             , testCase "10 Mar of leap year" (dayNumber (Date 2016 3 10) @?= 70)
-             , testCase "15 Nov of leap year" (dayNumber (Date 2016 11 15) @?= 320)
-             , testCase "31 Dec of leap year" (dayNumber (Date 2016 12 31) @?= 366)
-             , testCase "1 Jan of non-leap year" (dayNumber (Date 2015 1 1) @?= 1)
-             , testCase "11 Feb of non-leap year" (dayNumber (Date 2015 2 11) @?= 42)
-             , testCase "10 Mar of non-leap year" (dayNumber (Date 2015 3 10) @?= 69)
-             , testCase "15 Nov of non-leap year" (dayNumber (Date 2015 11 15) @?= 319)
-             , testCase "31 Dec of non-leap year" (dayNumber (Date 2015 12 31) @?= 365)
+             testCase "1 Jan of leap year" (dayNumber (fromGregorian 2016 1 1) @?= 1)
+             , testCase "11 Feb of leap year" (dayNumber (fromGregorian 2016 2 11) @?= 42)
+             , testCase "10 Mar of leap year" (dayNumber (fromGregorian 2016 3 10) @?= 70)
+             , testCase "15 Nov of leap year" (dayNumber (fromGregorian 2016 11 15) @?= 320)
+             , testCase "31 Dec of leap year" (dayNumber (fromGregorian 2016 12 31) @?= 366)
+             , testCase "1 Jan of non-leap year" (dayNumber (fromGregorian 2015 1 1) @?= 1)
+             , testCase "11 Feb of non-leap year" (dayNumber (fromGregorian 2015 2 11) @?= 42)
+             , testCase "10 Mar of non-leap year" (dayNumber (fromGregorian 2015 3 10) @?= 69)
+             , testCase "15 Nov of non-leap year" (dayNumber (fromGregorian 2015 11 15) @?= 319)
+             , testCase "31 Dec of non-leap year" (dayNumber (fromGregorian 2015 12 31) @?= 365)
              ]
+        , testGroup "from time" [
+            testCase "6:00" $ fromTime (TimeOfDay 6 0 0) @?= 0.25
+            , testCase "18:00" $ fromTime (TimeOfDay 18 0 0) @?= 0.75
+            ]
+        , testGroup "to julian day" [
+            testCase "19 Jun 2009 18:00" (fromDateTime (LocalTime (fromGregorian 2009 6 19) (TimeOfDay 18 0 0)) @?= JulianDayNumber 2455002.25)
+            , testCase "1 Aug 2009 12:00" (fromDateTime (LocalTime (fromGregorian 2016 8 1) (TimeOfDay 12 0 0)) @?= JulianDayNumber 2457602)
+            , testCase "Gregorian start day" (fromDateTime (LocalTime (fromGregorian 1582 10 15) (TimeOfDay 0 0 0)) @?= JulianDayNumber 2299160.5)
+            , testCase "Gregorian before start" (fromDateTime (LocalTime (fromGregorian 1582 10 14) (TimeOfDay 12 0 0)) @?= JulianDayNumber 2299170)
+            ]
         ]
 
-easterDay2009 = easterDayInYear 2009 @?= Date 2009 4 12
-easterDay2016 = easterDayInYear 2016 @?= Date 2016 3 27
-easterDay2027 = easterDayInYear 2027 @?= Date 2027 3 28
+easterDay2009 = easterDayInYear 2009 @?= fromGregorian 2009 4 12
+easterDay2016 = easterDayInYear 2016 @?= fromGregorian 2016 3 27
+easterDay2027 = easterDayInYear 2027 @?= fromGregorian 2027 3 28
 
 prop_Easter =
   forAll (choose (1583, 999900)) $ checkEasterProperties
 
 checkEasterProperties year = let date = easterDayInYear year
-                           in getYear date == year && (getMonth date == 3 || getMonth date == 4)
+                                 (y, m, _) = toGregorian date
+                             in fromIntegral y == year && (m == 3 || m == 4)
 
