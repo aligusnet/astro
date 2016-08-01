@@ -1,6 +1,8 @@
 module Data.Astro.Calendar
 (
   Date(..)
+  , isLeapYear
+  , dayNumber
   , easterDayInYear
 )
 where
@@ -10,6 +12,28 @@ data Date = Date {
   , getMonth :: Int
   , getDay :: Int
   } deriving (Show, Eq)
+
+
+-- | Check Gregorian calendar leap year
+isLeapYear :: Int -> Bool
+isLeapYear year =
+  year `mod` 4 == 0
+  && (year `mod` 100 /= 0 || year `mod` 400 == 0)
+
+
+-- | Day Number in a year
+dayNumber :: Date -> Int
+dayNumber (Date year month day) =
+  (daysBeforeMonth year month) + day
+  
+
+daysBeforeMonth :: Int -> Int -> Int
+daysBeforeMonth year month =
+  let a = if isLeapYear year then 62 else 63
+      month' = (fromIntegral month) :: Double
+  in if month > 2 then
+    truncate $ ((month' + 1.0) * 30.6) - a
+  else truncate $ (month' - 1.0)*a*0.5
 
 -- | Get Easter date
 -- function uses absolutely crazy Butcher's algorithm
