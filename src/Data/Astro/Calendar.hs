@@ -14,6 +14,7 @@ where
 
 import Data.Time.Calendar (Day(..), fromGregorian, toGregorian)
 import Data.Time.LocalTime (LocalTime(..), TimeOfDay(..))
+import Data.Fixed(Fixed(MkFixed), HasResolution(resolution))
 
 type DateBaseType = Double
 
@@ -57,10 +58,11 @@ fromDateTime (LocalTime date time) =
 -- Gregorian Calendar
 
 -- convert Time to a fraction of Date
-fromTime :: TimeOfDay -> DateBaseType
-fromTime (TimeOfDay hours minutes _) = (hours' + (minutes') / 60) / 24
+fromTime :: Fractional a => TimeOfDay -> a
+fromTime (TimeOfDay hours minutes seconds) = (hours' + (minutes' + seconds' / 60) / 60) / 24
   where hours' = fromIntegral hours
         minutes' = fromIntegral minutes
+        seconds' = fromFixed seconds
 
 
 -- Date after 15 October 1582 belongs to Gregorian Calendar
@@ -123,3 +125,9 @@ easterDayInYear year =
        n = n' `div` 31
        p = n' `mod` 31
   in fromGregorian (fromIntegral year) n (p+1)
+
+
+-- Utils
+
+fromFixed :: (Fractional a, HasResolution b) => Fixed b -> a
+fromFixed fv@(MkFixed v) = (fromIntegral v) / (fromIntegral $ resolution fv)

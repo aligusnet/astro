@@ -9,6 +9,7 @@ import Test.Framework (testGroup)
 import Test.Framework.Providers.HUnit
 import Test.Framework.Providers.QuickCheck2 (testProperty)
 import Test.HUnit
+import Test.HUnit.Approx
 import Test.QuickCheck
 
 import Data.Time.Calendar (fromGregorian, toGregorian)
@@ -43,6 +44,10 @@ tests = [testGroup "easter day" [
         , testGroup "from time" [
             testCase "6:00" $ fromTime (TimeOfDay 6 0 0) @?= 0.25
             , testCase "18:00" $ fromTime (TimeOfDay 18 0 0) @?= 0.75
+            , testCase "18:30" $ fromTime (TimeOfDay 18 30 0) @?= (18*2 + 1) / 48
+            , testCase "00:00:30" $ fromTime (TimeOfDay 0 0 30) @?= 30 / (60*60*24)
+            , testCase "00:00:10" $ assertApproxEqual "" 0.00000001 (10/(60*60*24)) $ fromTime (TimeOfDay 0 0 10)
+            , testCase "23:59:59.99999" $ assertApproxEqual "" 0.00000001 1.0 $ fromTime (TimeOfDay 23 59 59.99999)
             ]
         , testGroup "to julian day" [
             testCase "19 Jun 2009 18:00" (fromDateTime (LocalTime (fromGregorian 2009 6 19) (TimeOfDay 18 0 0)) @?= JulianDayNumber 2455002.25)
@@ -62,4 +67,3 @@ prop_Easter =
 checkEasterProperties year = let date = easterDayInYear year
                                  (y, m, _) = toGregorian date
                              in fromIntegral y == year && (m == 3 || m == 4)
-
