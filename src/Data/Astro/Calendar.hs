@@ -76,7 +76,7 @@ toDateTime (JulianDayNumber jd) =
 ------------------------------------------------------
 -- Gregorian Calendar
 
--- convert Time to a fraction of Date
+-- | Convert Time to Decimal Hours (fraction of Date)
 toDecimalHours :: RealFrac a => TimeOfDay -> a
 toDecimalHours (TimeOfDay hours minutes seconds) = (hours' + (minutes' + seconds' / 60) / 60) / 24
   where hours' = fromIntegral hours
@@ -84,6 +84,7 @@ toDecimalHours (TimeOfDay hours minutes seconds) = (hours' + (minutes' + seconds
         seconds' = fromFixed seconds
 
 
+-- | Convert Decimal Hours to Time
 fromDecimalHours :: RealFrac a => a -> TimeOfDay
 fromDecimalHours n =
   let hours = n*24
@@ -134,6 +135,7 @@ daysBeforeMonth year month =
     truncate $ ((month' + 1.0) * 30.6) - a
   else truncate $ (month' - 1.0)*a*0.5
 
+
 -- | Get Easter date
 -- function uses absolutely crazy Butcher's algorithm
 easterDayInYear :: Int -> Day
@@ -158,6 +160,7 @@ easterDayInYear year =
 
 -- Utils
 
+-- | Convert From Fixed to Fractional
 fromFixed :: (Fractional a, HasResolution b) => Fixed b -> a
 fromFixed fv@(MkFixed v) = (fromIntegral v) / (fromIntegral $ resolution fv)
 
