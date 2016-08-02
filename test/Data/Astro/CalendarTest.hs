@@ -41,13 +41,22 @@ tests = [testGroup "easter day" [
              , testCase "15 Nov of non-leap year" (dayNumber (fromGregorian 2015 11 15) @?= 319)
              , testCase "31 Dec of non-leap year" (dayNumber (fromGregorian 2015 12 31) @?= 365)
              ]
-        , testGroup "from time" [
-            testCase "6:00" $ fromTime (TimeOfDay 6 0 0) @?= 0.25
-            , testCase "18:00" $ fromTime (TimeOfDay 18 0 0) @?= 0.75
-            , testCase "18:30" $ fromTime (TimeOfDay 18 30 0) @?= (18*2 + 1) / 48
-            , testCase "00:00:30" $ fromTime (TimeOfDay 0 0 30) @?= 30 / (60*60*24)
-            , testCase "00:00:10" $ assertApproxEqual "" 0.00000001 (10/(60*60*24)) $ fromTime (TimeOfDay 0 0 10)
-            , testCase "23:59:59.99999" $ assertApproxEqual "" 0.00000001 1.0 $ fromTime (TimeOfDay 23 59 59.99999)
+        , testGroup "to decimal hours" [
+            testCase "6:00" $ toDecimalHours (TimeOfDay 6 0 0) @?= 0.25
+            , testCase "18:00" $ toDecimalHours (TimeOfDay 18 0 0) @?= 0.75
+            , testCase "18:30" $ toDecimalHours (TimeOfDay 18 30 0) @?= (18*2 + 1) / 48
+            , testCase "00:00:30" $ toDecimalHours (TimeOfDay 0 0 30) @?= 30 / (60*60*24)
+            , testCase "00:00:10" $ assertApproxEqual "" 0.00000001 (10/(60*60*24)) $ toDecimalHours (TimeOfDay 0 0 10)
+            , testCase "23:59:59.99999" $ assertApproxEqual "" 0.00000001 1.0 $ toDecimalHours (TimeOfDay 23 59 59.99999)
+            ]
+        , testGroup "from decimal hours" [
+            testCase "6:00" $ fromDecimalHours 0.25  @?= TimeOfDay 6 0 0
+            , testCase "18:00" $ fromDecimalHours 0.75 @?= TimeOfDay 18 0 0
+            , testCase "18:30" $ fromDecimalHours  ((18*2 + 1) / 48) @?= TimeOfDay 18 30 0
+            , testCase "00:00:30" $ fromDecimalHours (30 / (60*60*24)) @?= TimeOfDay 0 0 30
+            ]
+        , testGroup "decimal hours conversion properties" [
+            testProperty "" prop_decimalHoursConversion 
             ]
         , testGroup "to julian day" [
             testCase "19 Jun 2009 18:00" (fromDateTime (LocalTime (fromGregorian 2009 6 19) (TimeOfDay 18 0 0)) @?= JulianDayNumber 2455002.25)
@@ -55,6 +64,15 @@ tests = [testGroup "easter day" [
             , testCase "Gregorian start day" (fromDateTime (LocalTime (fromGregorian 1582 10 15) (TimeOfDay 0 0 0)) @?= JulianDayNumber 2299160.5)
             , testCase "Gregorian before start" (fromDateTime (LocalTime (fromGregorian 1582 10 14) (TimeOfDay 12 0 0)) @?= JulianDayNumber 2299170)
             ]
+        , testGroup "from julian day" [
+            testCase "19 Jun 2009 18:00" (toDateTime (JulianDayNumber 2455002.25) @?= LocalTime (fromGregorian 2009 6 19) (TimeOfDay 18 0 0))
+            , testCase "1 Aug 2009 12:00" (toDateTime (JulianDayNumber 2457602) @?= LocalTime (fromGregorian 2016 8 1) (TimeOfDay 12 0 0))
+            , testCase "Gregorian start day" (toDateTime (JulianDayNumber 2299160.5) @?= LocalTime (fromGregorian 1582 10 15) (TimeOfDay 0 0 0))
+            , testCase "Gregorian before start" (toDateTime (JulianDayNumber 2299160) @?= LocalTime (fromGregorian 1582 10 4) (TimeOfDay 12 0 0))
+            ]
+        , testGroup "julian conversion properties" [
+            testProperty "before George" prop_JulianConversionsBeforeGeorge
+          , testProperty "after George" prop_JulianConversionsAfterGeorge                                                   ]
         ]
 
 easterDay2009 = easterDayInYear 2009 @?= fromGregorian 2009 4 12
@@ -67,3 +85,28 @@ prop_Easter =
 checkEasterProperties year = let date = easterDayInYear year
                                  (y, m, _) = toGregorian date
                              in fromIntegral y == year && (m == 3 || m == 4)
+
+
+prop_decimalHoursConversion =
+  forAll (choose (0, 1.0)) $ checkDecimalHoursConversionProperties
+
+checkDecimalHoursConversionProperties :: Double -> Bool
+checkDecimalHoursConversionProperties n =
+  let n2 = toDecimalHours $ fromDecimalHours n
+  in abs (n-n2) < 0.00000001
+
+prop_JulianConversionsAfterGeorge =
+  forAll (choose (2299161, 999999999)) $ checkJulianConverionProperties
+
+
+prop_JulianConversionsBeforeGeorge =
+  forAll (choose (0, 2299161)) $ checkJulianConverionProperties
+
+
+checkJulianConverionProperties :: Double -> Bool
+checkJulianConverionProperties n =
+  let jd = JulianDayNumber n
+      dt = toDateTime jd
+      jd2 = fromDateTime dt
+      JulianDayNumber n2 = jd2
+  in abs(n - n2) < 0.00000001

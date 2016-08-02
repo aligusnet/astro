@@ -7,8 +7,10 @@ module Data.Astro.Calendar
   , isLeapYear
   , dayNumber
   , easterDayInYear
-  , fromTime
+  , toDecimalHours
+  , fromDecimalHours
   , fromDateTime
+  , toDateTime
 )
 where
 
@@ -49,21 +51,48 @@ fromDateTime (LocalTime date time) =
           then truncate (365.25*y' - 0.75)
           else truncate (365.25*y')
       d = truncate (30.6001 * (m'+1))
-      e = fromTime time
+      e = toDecimalHours time
       jd = fromIntegral (b + c + d + day) + e + 1720994.5
   in JulianDayNumber jd
+
+
+toDateTime :: JulianDayNumber -> LocalTime
+toDateTime (JulianDayNumber jd) =
+  let (i, f) = fraction (jd + 0.5)
+      b = if i > 2299160  -- 2299161 - first day of Georgian Calendar
+          then let a = trunc $ (i-1867216.25)/36524.25
+               in i + a - trunc (a*0.25) + 1
+          else i
+      c = b + 1524
+      d = trunc $ (c-122.1)/365.25
+      e = trunc $ d * 365.25
+      g = trunc $ (c-e)/30.6001
+      day = truncate $ c - e - trunc (30.6001*g)
+      month = truncate $ if g < 13.5 then g - 1 else g - 13
+      year = truncate $ if month > 2 then d-4716 else d-4715
+   in (LocalTime (fromGregorian year month day) (fromDecimalHours f))
 
 
 ------------------------------------------------------
 -- Gregorian Calendar
 
 -- convert Time to a fraction of Date
-fromTime :: Fractional a => TimeOfDay -> a
-fromTime (TimeOfDay hours minutes seconds) = (hours' + (minutes' + seconds' / 60) / 60) / 24
+toDecimalHours :: RealFrac a => TimeOfDay -> a
+toDecimalHours (TimeOfDay hours minutes seconds) = (hours' + (minutes' + seconds' / 60) / 60) / 24
   where hours' = fromIntegral hours
         minutes' = fromIntegral minutes
         seconds' = fromFixed seconds
 
+
+fromDecimalHours :: RealFrac a => a -> TimeOfDay
+fromDecimalHours n =
+  let hours = n*24
+      hours' = truncate hours
+      minutes = (hours - fromIntegral hours')*60
+      minutes' = truncate minutes
+      seconds = (minutes - fromIntegral minutes') * 60
+      seconds' = realToFrac seconds
+  in TimeOfDay hours' minutes' seconds'
 
 -- Date after 15 October 1582 belongs to Gregorian Calendar
 -- Before this date - to Julian Calendar
@@ -131,3 +160,15 @@ easterDayInYear year =
 
 fromFixed :: (Fractional a, HasResolution b) => Fixed b -> a
 fromFixed fv@(MkFixed v) = (fromIntegral v) / (fromIntegral $ resolution fv)
+
+
+-- | return the integral part of a number
+-- almost the same as truncate but result type is Real
+trunc :: RealFrac a => a -> a
+trunc = fromIntegral . truncate
+
+
+-- | Almost the same the properFraction function but result type
+fraction :: (RealFrac a, Num b) => a -> (b, a)
+fraction v = let (i, f) = (properFraction v)
+             in (fromIntegral i, f)
