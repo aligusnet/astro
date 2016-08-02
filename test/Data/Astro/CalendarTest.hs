@@ -72,7 +72,15 @@ tests = [testGroup "easter day" [
             ]
         , testGroup "julian conversion properties" [
             testProperty "before George" prop_JulianConversionsBeforeGeorge
-          , testProperty "after George" prop_JulianConversionsAfterGeorge                                                   ]
+          , testProperty "after George" prop_JulianConversionsAfterGeorge
+          ]
+        , testGroup "day of the week" [
+            testCase "friday at midnight" $ dayOfWeek (JulianDayNumber 2455001.5) @?= 5
+            , testCase "friday before moon" $ dayOfWeek (JulianDayNumber 2455001.75) @?= 5
+            , testCase "friday after moon" $ dayOfWeek (JulianDayNumber 2455002.25) @?= 5
+            , testCase "thursday after moon" $ dayOfWeek (JulianDayNumber 2455001.3) @?= 4
+            , testCase "sunday at midnight" $ dayOfWeek (JulianDayNumber 2455003.5) @?= 0
+          ]
         ]
 
 easterDay2009 = easterDayInYear 2009 @?= fromGregorian 2009 4 12

@@ -11,6 +11,7 @@ module Data.Astro.Calendar
   , fromDecimalHours
   , fromDateTime
   , toDateTime
+  , dayOfWeek
 )
 where
 
@@ -52,7 +53,7 @@ fromDateTime (LocalTime date time) =
           else truncate (365.25*y')
       d = truncate (30.6001 * (m'+1))
       e = toDecimalHours time
-      jd = fromIntegral (b + c + d + day) + e + 1720994.5
+      jd = fromIntegral (b + c + d + day) + e + 1720994.5  -- add 1720994.5 to process BC/AC border
   in JulianDayNumber jd
 
 
@@ -72,6 +73,21 @@ toDateTime (JulianDayNumber jd) =
       year = truncate $ if month > 2 then d-4716 else d-4715
    in (LocalTime (fromGregorian year month day) (fromDecimalHours f))
 
+
+-- | Get Julian date corresponding to midnight
+removeHours :: JulianDayNumber -> JulianDayNumber
+removeHours (JulianDayNumber n) = JulianDayNumber $ 0.5 + trunc (n - 0.5)
+--  let (d, h) = fraction n
+--  in if h < 0.5 then JulianDayNumber $ d - 0.5
+--     else JulianDayNumber $ d + 0.5
+
+-- | Get Day of the Week
+-- 0 is for Sunday, 1 for manday and 6 for Saturday
+dayOfWeek :: JulianDayNumber -> Int
+dayOfWeek jd =
+  let JulianDayNumber d = removeHours jd
+      (_, f) = properFraction $ (d+1.5) / 7
+  in round (7*f)
 
 ------------------------------------------------------
 -- Gregorian Calendar
@@ -94,6 +110,7 @@ fromDecimalHours n =
       seconds = (minutes - fromIntegral minutes') * 60
       seconds' = realToFrac seconds
   in TimeOfDay hours' minutes' seconds'
+
 
 -- Date after 15 October 1582 belongs to Gregorian Calendar
 -- Before this date - to Julian Calendar
@@ -158,7 +175,9 @@ easterDayInYear year =
   in fromGregorian (fromIntegral year) n (p+1)
 
 
+---------------------------------------------------------------------------
 -- Utils
+
 
 -- | Convert From Fixed to Fractional
 fromFixed :: (Fractional a, HasResolution b) => Fixed b -> a
