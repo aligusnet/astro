@@ -23,6 +23,9 @@ tests = [testGroup "fromFixed" [
             ]
         , testGroup "fraction" [
             testProperty "property" prop_fraction
+            , testCase "5.562" $ assertFraction 5.562
+            , testCase "-7.93" $ assertFraction (-7.93)
+            , testCase "-999.9999" $ assertFraction (-999.9999)
             ]
         , testGroup "trunc" [
             testProperty "property" prop_trunc
@@ -33,6 +36,11 @@ tests = [testGroup "fromFixed" [
 
 toPico :: Real a => a -> Pico
 toPico = realToFrac
+
+fromFraction :: Real a => (Int, a) -> a
+fromFraction (i, f) = f + fromIntegral i
+
+assertFraction d = assertApproxEqual "" 0.0000001 d $ fromFraction $ fraction d
 
 prop_fromFixed d =
   abs((fromFixed ((realToFrac d)::Pico))-d) < 0.0000001
