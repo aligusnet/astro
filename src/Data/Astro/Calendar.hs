@@ -17,7 +17,8 @@ where
 
 import Data.Time.Calendar (Day(..), fromGregorian, toGregorian)
 import Data.Time.LocalTime (LocalTime(..), TimeOfDay(..))
-import Data.Fixed(Fixed(MkFixed), HasResolution(resolution))
+
+import Data.Astro.Utils (fromFixed, trunc, fraction)
 
 type DateBaseType = Double
 
@@ -49,7 +50,7 @@ fromDateTime (LocalTime date time) =
       m' = fromIntegral m
       b = gregorianDateAdjustment date
       c = if y < 0
-          then truncate (365.25*y' - 0.75)
+          then truncate (365.25*y' - 0.75)  -- 365.25 - number of solar days in a year
           else truncate (365.25*y')
       d = truncate (30.6001 * (m'+1))
       e = toDecimalHours time
@@ -77,9 +78,7 @@ toDateTime (JulianDayNumber jd) =
 -- | Get Julian date corresponding to midnight
 removeHours :: JulianDayNumber -> JulianDayNumber
 removeHours (JulianDayNumber n) = JulianDayNumber $ 0.5 + trunc (n - 0.5)
---  let (d, h) = fraction n
---  in if h < 0.5 then JulianDayNumber $ d - 0.5
---     else JulianDayNumber $ d + 0.5
+
 
 -- | Get Day of the Week
 -- 0 is for Sunday, 1 for manday and 6 for Saturday
@@ -173,24 +172,3 @@ easterDayInYear year =
        n = n' `div` 31
        p = n' `mod` 31
   in fromGregorian (fromIntegral year) n (p+1)
-
-
----------------------------------------------------------------------------
--- Utils
-
-
--- | Convert From Fixed to Fractional
-fromFixed :: (Fractional a, HasResolution b) => Fixed b -> a
-fromFixed fv@(MkFixed v) = (fromIntegral v) / (fromIntegral $ resolution fv)
-
-
--- | return the integral part of a number
--- almost the same as truncate but result type is Real
-trunc :: RealFrac a => a -> a
-trunc = fromIntegral . truncate
-
-
--- | Almost the same the properFraction function but result type
-fraction :: (RealFrac a, Num b) => a -> (b, a)
-fraction v = let (i, f) = (properFraction v)
-             in (fromIntegral i, f)
