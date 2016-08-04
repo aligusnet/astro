@@ -12,13 +12,15 @@ module Data.Astro.Calendar
   , fromDateTime
   , toDateTime
   , dayOfWeek
+  , toSiderealTime
+  , splitToDayAndTime
 )
 where
 
 import Data.Time.Calendar (Day(..), fromGregorian, toGregorian)
 import Data.Time.LocalTime (LocalTime(..), TimeOfDay(..))
 
-import Data.Astro.Utils (fromFixed, trunc, fraction)
+import Data.Astro.Utils (fromFixed, trunc, fraction, reduceToZeroRange)
 
 type DateBaseType = Double
 
@@ -75,9 +77,36 @@ toDateTime (JulianDayNumber jd) =
    in (LocalTime (fromGregorian year month day) (fromDecimalHours f))
 
 
+-- | Extract Day and Time parts of Date
+splitToDayAndTime :: JulianDayNumber -> (JulianDayNumber, JulianDayNumber)
+splitToDayAndTime jd@(JulianDayNumber n) =
+  let day = JulianDayNumber $ 0.5 + trunc (n - 0.5)
+      time = jd - day
+  in (day, time)
+
+
 -- | Get Julian date corresponding to midnight
 removeHours :: JulianDayNumber -> JulianDayNumber
-removeHours (JulianDayNumber n) = JulianDayNumber $ 0.5 + trunc (n - 0.5)
+removeHours jd =
+  let (d, _) = splitToDayAndTime jd
+  in d
+
+----------------------------------------------------------------------
+-- Sidereal Time
+
+
+-- | Convert from Universal Time to Greenwich Sidereal Time (GST)
+toSiderealTime :: JulianDayNumber -> TimeOfDay
+toSiderealTime jd =
+  let (JulianDayNumber day, JulianDayNumber time) = splitToDayAndTime jd
+      s = day - 2451545.0
+      t = s/36525.0
+      t' = 6.697374558 + 2400.051336*t + 0.000025862*t*t
+      time' = reduceToZeroRange 24 $ t' + time*24*1.002737909
+  in fromDecimalHours (time'/24)
+
+
+------------------------------------------------------------------------
 
 
 -- | Get Day of the Week

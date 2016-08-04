@@ -13,6 +13,7 @@ import Test.HUnit.Approx
 import Test.QuickCheck
 
 import Data.Time.Calendar (fromGregorian, toGregorian)
+import Control.Monad (unless)
 
 import Data.Astro.Calendar
 
@@ -81,6 +82,19 @@ tests = [testGroup "easter day" [
             , testCase "thursday after moon" $ dayOfWeek (JulianDayNumber 2455001.3) @?= 4
             , testCase "sunday at midnight" $ dayOfWeek (JulianDayNumber 2455003.5) @?= 0
           ]
+        , testGroup "spliToDayAndTime" [
+            testCase "100000.5" $ splitToDayAndTime (JulianDayNumber 100000.5) @?= (JulianDayNumber 100000.5, JulianDayNumber 0)
+            , testCase "100000.7" $ assertJDPair 0.00001 (JulianDayNumber 100000.5, JulianDayNumber 0.2) $ splitToDayAndTime (JulianDayNumber 100000.7)
+            , testCase "100001.3" $ assertJDPair 0.00001 (JulianDayNumber 100000.5, JulianDayNumber 0.8) $ splitToDayAndTime (JulianDayNumber 100001.3)
+            , testCase "2444352.108931"
+                $ assertJDPair 0.00001 (JulianDayNumber 2444351.5, JulianDayNumber 0.608931)
+                $ splitToDayAndTime (JulianDayNumber 2444352.108931)
+            , testProperty "property" prop_splitToDayAndTime
+            ]
+        , testGroup "toSiderealTime" [
+            testTimeOfDay "1980-04-22 14:36:51.67" 0.01 (TimeOfDay 4 40 5.23) (toSiderealTime $ JulianDayNumber 2444352.108931366)
+            , testTimeOfDay "2016-08-04 19:28:43.15" 0.01 (TimeOfDay 16 23 52.94) (toSiderealTime $ JulianDayNumber 2457605.3116105325)
+            ]
         ]
 
 easterDay2009 = easterDayInYear 2009 @?= fromGregorian 2009 4 12
@@ -118,3 +132,26 @@ checkJulianConverionProperties n =
       jd2 = fromDateTime dt
       JulianDayNumber n2 = jd2
   in abs(n - n2) < 0.00000001
+
+assertJDPair :: Double -> (JulianDayNumber, JulianDayNumber) -> (JulianDayNumber, JulianDayNumber) -> Assertion
+assertJDPair eps e@(JulianDayNumber e1, JulianDayNumber e2) a@(JulianDayNumber a1, JulianDayNumber a2) = 
+  unless (abs(a1-e1) <= eps && abs(a2-e2) <= eps) (assertFailure msg)
+  where msg = "expected: " ++ show e ++ "\n but got: " ++ show a ++
+              "\n (maximum margin of error: " ++ show eps ++ ")"
+
+prop_splitToDayAndTime =
+  forAll (choose (0, 999999999)) $ check
+  where check jd =
+          let (JulianDayNumber d, JulianDayNumber t) = splitToDayAndTime $ JulianDayNumber jd
+              eps = 0.0000001
+          in abs(jd-d-t) < eps && t >= 0 && t < 1 
+
+
+testTimeOfDay msg eps expected actual =
+  testCase msg $ assertTimeOfDay eps expected actual
+
+assertTimeOfDay eps e@(TimeOfDay eh em es) a@(TimeOfDay ah am as) =
+  unless (eh == ah && em == am && abs(es-as) <= eps) (assertFailure msg)
+  where msg = "expected: " ++ show e ++ "\n but got: " ++ show a ++
+              "\n (maximum margin of error: " ++ show eps ++ ")"
+
