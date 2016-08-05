@@ -16,6 +16,9 @@ cabal-version:       >=1.10
 library
   hs-source-dirs:      src
   exposed-modules:     Data.Astro.Time
+                     , Data.Astro.Time.GregorianCalendar
+                     , Data.Astro.Time.JulianDate
+                     , Data.Astro.Time.Sidereal
                      , Data.Astro.Coordinate
                      , Data.Astro.Utils
   other-modules:       
