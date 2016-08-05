@@ -14,6 +14,7 @@ module Data.Astro.Calendar
   , dayOfWeek
   , toSiderealTime
   , splitToDayAndTime
+  , fromSiderealTime
 )
 where
 
@@ -95,19 +96,42 @@ removeHours jd =
 -- Sidereal Time
 
 
--- | Convert from Universal Time to Greenwich Sidereal Time (GST)
+-- | Convert from Universal Time (UT) to Greenwich Sidereal Time (GST)
 -- According to the SiderealClock any observed star returns to the same position
 -- in the sky every 24 hours.
 -- Each sidereal day is shorter than the solar day, 24 hours of sidereal time
--- corresponding to 23:56:04 of solar time.
+-- corresponding to 23:56:04.0916 of solar time.
 toSiderealTime :: JulianDayNumber -> JulianDayNumber
 toSiderealTime jd =
   let (JulianDayNumber day, JulianDayNumber time) = splitToDayAndTime jd
-      s = day - 2451545.0
-      t = s/36525.0
-      t' = 6.697374558 + 2400.051336*t + 0.000025862*t*t
-      time' = reduceToZeroRange 24 $ t' + time*24*1.002737909
+      t = solarSiderealTimesDiff day
+      time' = reduceToZeroRange 24 $ time*24/siderealDayLength + t
   in JulianDayNumber $ day + time'/24
+
+-- | Convert from Greenwich Sidereal Time (GST) to Universal Time (UT)
+-- because the sidereal day is shorter than the solar day (see comment to toSiderealTime).
+-- In case of such ambiguity the early time will be returned.
+-- You can easily check the ambiguity: if time is equal or less 00:03:56
+-- you can get the second time by adding 23:56:04
+fromSiderealTime :: JulianDayNumber -> JulianDayNumber
+fromSiderealTime jd =
+  let (JulianDayNumber day, JulianDayNumber time) = splitToDayAndTime jd
+      t = solarSiderealTimesDiff day
+      time' = (reduceToZeroRange 24 (time*24-t)) * siderealDayLength
+  in JulianDayNumber $ day + time'/24
+
+
+-- Sidereal time internal functions
+
+-- sidereal 24h correspond to 23:56:04 of solar time
+siderealDayLength :: DateBaseType
+siderealDayLength = toDecimalHours (TimeOfDay 23 56 04.0916)
+
+
+solarSiderealTimesDiff :: DateBaseType -> DateBaseType
+solarSiderealTimesDiff d =
+  let t = (d - 2451545.0)/36525.0
+  in 6.697374558 + 2400.051336*t + 0.000025862*t*t
 
 
 ------------------------------------------------------------------------

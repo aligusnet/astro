@@ -91,15 +91,24 @@ tests = [testGroup "easter day" [
                 $ splitToDayAndTime (JulianDayNumber 2444352.108931)
             , testProperty "property" prop_splitToDayAndTime
             ]
-        , testGroup "toSiderealTime" [
-            testJulianDayNumber "1980-04-22 14:36:51.67"
+        , testGroup "siderealTime" [
+            testJulianDayNumber "1980-04-22 14:36:51.67 UT"
                 0.0000001
                 (JulianDayNumber 2444351.694504972)
                 (toSiderealTime $ JulianDayNumber 2444352.108931366)
-            , testJulianDayNumber "2016-08-04 19:28:43.15"
+            , testJulianDayNumber "2016-08-04 19:28:43.15 UT"
                 0.0000001
                 (JulianDayNumber 2457605.183251656)
                 (toSiderealTime $ JulianDayNumber 2457605.3116105325)
+            , testJulianDayNumber "1980-04-22 04:40:05.23 GST"
+                0.0000001
+                (JulianDayNumber 2444352.108931366)
+                (fromSiderealTime $ JulianDayNumber 2444351.694504972)
+            , testJulianDayNumber "2016-08-04 16:23:52.84 GST"
+                0.0000001
+                (JulianDayNumber 2457605.3116105325)
+                (fromSiderealTime $ JulianDayNumber 2457605.183251656)
+            , testProperty "property" prop_siderealTimeConversions
             ]
         ]
 
@@ -160,3 +169,16 @@ assertJulianDayNumber eps (JulianDayNumber expected) (JulianDayNumber actual) =
   unless (abs(expected-actual) <= eps) (assertFailure msg)
   where msg = "expected: " ++ show expected ++ "\n but got: " ++ show actual ++
               "\n (maximum margin of error: " ++ show eps ++ ")"
+
+prop_siderealTimeConversions =
+  forAll (choose (0, 999999999)) $ check
+  where check utN =
+          let utJd = JulianDayNumber utN
+              sdJd = toSiderealTime utJd
+              utJd'@(JulianDayNumber utN') = fromSiderealTime sdJd
+              (JulianDayNumber utD, _) = splitToDayAndTime utJd
+              (JulianDayNumber sdD, _) = splitToDayAndTime sdJd
+              (_, JulianDayNumber utT') = splitToDayAndTime utJd'
+              hasAmbigity = utT' < toDecimalHours (TimeOfDay 0 3 57)
+              eps = 0.0000001
+          in (hasAmbigity || abs(utN-utN') < eps) && (truncate utD) == (truncate sdD)
