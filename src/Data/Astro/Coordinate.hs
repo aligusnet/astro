@@ -1,9 +1,11 @@
 module Data.Astro.Coordinate
 (
   DecimalDegrees(..)
+  , DecimalHours(..)
   , DegreeMS(..)
   , toDecimalDegrees
   , fromDecimalDegrees
+  , toDecimalHours
 )
 
 where
@@ -13,6 +15,7 @@ import Data.Fixed (Pico)
 import Data.Astro.Utils (fromFixed)
 
 type DecimalDegrees = Double
+type DecimalHours = Double
 
 
 -- | Degrees, Minutes, Seconds
@@ -40,3 +43,7 @@ fromDecimalDegrees d =
       s = realToFrac $ 60 * rs
   in DegreeMS h m s
 
+
+-- | Convert decimal degrees to decimal hours
+toDecimalHours :: DecimalDegrees -> DecimalHours
+toDecimalHours d = d/15  -- 360 / 24 = 15

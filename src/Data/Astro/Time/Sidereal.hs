@@ -1,6 +1,6 @@
 {-
-Module: Data.Astro.Time.Sideral
-Description: Sideral Time
+Module: Data.Astro.Time.Sidereal
+Description: Sidereal Time
 Copyright: Alexander Ignatyev, 2016
 
 According to the Sidereal Clock any observed star returns to the same position
@@ -11,34 +11,46 @@ corresponding to 23:56:04.0916 of solar time.
 -}
 module Data.Astro.Time.Sidereal
 (
-  toSiderealTime
-  , fromSiderealTime
+  utToGST
+  , gstToUT
+  , gstToLST
 )
 where
 
 import Data.Astro.Time (BaseType, TimeOfDay(..), toDecimalHours)
 import Data.Astro.Time.JulianDate (JulianDate(..), splitToDayAndTime)
 import Data.Astro.Utils (reduceToZeroRange)
+import qualified Data.Astro.Coordinate as C
 
 -- | Convert from Universal Time (UT) to Greenwich Sidereal Time (GST)
-toSiderealTime :: JulianDate -> JulianDate
-toSiderealTime jd =
+utToGST :: JulianDate -> JulianDate
+utToGST jd =
   let (JD day, JD time) = splitToDayAndTime jd
       t = solarSiderealTimesDiff day
       time' = reduceToZeroRange 24 $ time*24/siderealDayLength + t
   in JD $ day + time'/24
+
 
 -- | Convert from Greenwich Sidereal Time (GST) to Universal Time (UT)
 -- because the sidereal day is shorter than the solar day (see comment to the module).
 -- In case of such ambiguity the early time will be returned.
 -- You can easily check the ambiguity: if time is equal or less 00:03:56
 -- you can get the second time by adding 23:56:04
-fromSiderealTime :: JulianDate -> JulianDate
-fromSiderealTime jd =
+gstToUT :: JulianDate -> JulianDate
+gstToUT jd =
   let (JD day, JD time) = splitToDayAndTime jd
       t = solarSiderealTimesDiff day
       time' = (reduceToZeroRange 24 (time*24-t)) * siderealDayLength
   in JD $ day + time'/24
+
+
+-- | Convert Global Sidereal Time to Local SiderealTime.
+-- It takes GST and longitude in decimal degrees
+gstToLST :: C.DecimalDegrees -> JulianDate -> JulianDate
+gstToLST longitude jd =
+  let (JD day, JD time) = splitToDayAndTime jd
+      time' = time + (C.toDecimalHours longitude)/24
+  in JD $ day + time'
 
 
 -- Sidereal time internal functions

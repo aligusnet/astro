@@ -17,25 +17,35 @@ import Data.Astro.Time (TimeOfDay(..), toDecimalHours)
 import Data.Astro.Time.JulianDate (JulianDate(..), splitToDayAndTime)
 import Data.Astro.Time.Sidereal
 
-tests = [testGroup "siderealTime" [
+tests = [testGroup "GST <-> UT conversions" [
             testJD "1980-04-22 14:36:51.67 UT"
                 0.0000001
                 (JD 2444351.694504972)
-                (toSiderealTime $ JD 2444352.108931366)
+                (utToGST $ JD 2444352.108931366)
             , testJD "2016-08-04 19:28:43.15 UT"
                 0.0000001
                 (JD 2457605.183251656)
-                (toSiderealTime $ JD 2457605.3116105325)
+                (utToGST $ JD 2457605.3116105325)
             , testJD "1980-04-22 04:40:05.23 GST"
                 0.0000001
                 (JD 2444352.108931366)
-                (fromSiderealTime $ JD 2444351.694504972)
+                (gstToUT $ JD 2444351.694504972)
             , testJD "2016-08-04 16:23:52.84 GST"
                 0.0000001
                 (JD 2457605.3116105325)
-                (fromSiderealTime $ JD 2457605.183251656)
+                (gstToUT $ JD 2457605.183251656)
             , testProperty "property" prop_siderealTimeConversions
             ]
+         , testGroup "GST <-> LST converions" [
+             testJD "2016-08-05 04:40:05.23 GST"
+               0.00000001
+               (JD 2457605.516727199)
+               (gstToLST (-64) $ JD 2457605.6945049767)
+             , testJD "1980-04-22 15:25:35.12 GST"
+               0.00000001
+               (JD 2444352.34754537)
+               (gstToLST 73.72 $ JD 2444352.1427675923)
+             ]
         ]
 
 testJD msg eps expected actual =
@@ -50,8 +60,8 @@ prop_siderealTimeConversions =
   forAll (choose (0, 999999999)) $ check
   where check utN =
           let utJd = JD utN
-              sdJd = toSiderealTime utJd
-              utJd'@(JD utN') = fromSiderealTime sdJd
+              sdJd = utToGST utJd
+              utJd'@(JD utN') = gstToUT sdJd
               (JD utD, _) = splitToDayAndTime utJd
               (JD sdD, _) = splitToDayAndTime sdJd
               (_, JD utT') = splitToDayAndTime utJd'
