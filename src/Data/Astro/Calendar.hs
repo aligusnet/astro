@@ -96,14 +96,18 @@ removeHours jd =
 
 
 -- | Convert from Universal Time to Greenwich Sidereal Time (GST)
-toSiderealTime :: JulianDayNumber -> TimeOfDay
+-- According to the SiderealClock any observed star returns to the same position
+-- in the sky every 24 hours.
+-- Each sidereal day is shorter than the solar day, 24 hours of sidereal time
+-- corresponding to 23:56:04 of solar time.
+toSiderealTime :: JulianDayNumber -> JulianDayNumber
 toSiderealTime jd =
   let (JulianDayNumber day, JulianDayNumber time) = splitToDayAndTime jd
       s = day - 2451545.0
       t = s/36525.0
       t' = 6.697374558 + 2400.051336*t + 0.000025862*t*t
       time' = reduceToZeroRange 24 $ t' + time*24*1.002737909
-  in fromDecimalHours (time'/24)
+  in JulianDayNumber $ day + time'/24
 
 
 ------------------------------------------------------------------------

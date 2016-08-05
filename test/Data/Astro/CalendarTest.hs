@@ -92,8 +92,14 @@ tests = [testGroup "easter day" [
             , testProperty "property" prop_splitToDayAndTime
             ]
         , testGroup "toSiderealTime" [
-            testTimeOfDay "1980-04-22 14:36:51.67" 0.01 (TimeOfDay 4 40 5.23) (toSiderealTime $ JulianDayNumber 2444352.108931366)
-            , testTimeOfDay "2016-08-04 19:28:43.15" 0.01 (TimeOfDay 16 23 52.94) (toSiderealTime $ JulianDayNumber 2457605.3116105325)
+            testJulianDayNumber "1980-04-22 14:36:51.67"
+                0.0000001
+                (JulianDayNumber 2444351.694504972)
+                (toSiderealTime $ JulianDayNumber 2444352.108931366)
+            , testJulianDayNumber "2016-08-04 19:28:43.15"
+                0.0000001
+                (JulianDayNumber 2457605.183251656)
+                (toSiderealTime $ JulianDayNumber 2457605.3116105325)
             ]
         ]
 
@@ -147,11 +153,10 @@ prop_splitToDayAndTime =
           in abs(jd-d-t) < eps && t >= 0 && t < 1 
 
 
-testTimeOfDay msg eps expected actual =
-  testCase msg $ assertTimeOfDay eps expected actual
+testJulianDayNumber msg eps expected actual =
+  testCase msg $ assertJulianDayNumber eps expected actual
 
-assertTimeOfDay eps e@(TimeOfDay eh em es) a@(TimeOfDay ah am as) =
-  unless (eh == ah && em == am && abs(es-as) <= eps) (assertFailure msg)
-  where msg = "expected: " ++ show e ++ "\n but got: " ++ show a ++
+assertJulianDayNumber eps (JulianDayNumber expected) (JulianDayNumber actual) =
+  unless (abs(expected-actual) <= eps) (assertFailure msg)
+  where msg = "expected: " ++ show expected ++ "\n but got: " ++ show actual ++
               "\n (maximum margin of error: " ++ show eps ++ ")"
-
