@@ -50,7 +50,8 @@ gstToUT jd =
 gstToLST :: C.DecimalDegrees -> JulianDate -> JulianDate
 gstToLST longitude jd =
   let (JD day, JD time) = splitToDayAndTime jd
-      time' = time + (C.toDecimalHours longitude)/24
+      C.DH dhours = C.toDecimalHours longitude
+      time' = time + dhours/24
   in JD $ day + time'
 
 
@@ -59,7 +60,8 @@ gstToLST longitude jd =
 lstToGST :: C.DecimalDegrees -> JulianDate -> JulianDate
 lstToGST longitude jd =
   let (JD day, JD time) = splitToDayAndTime jd
-      time' = time - (C.toDecimalHours longitude)/24
+      C.DH dhours = C.toDecimalHours longitude
+      time' = time - dhours/24
   in JD $ day + time'
 
 

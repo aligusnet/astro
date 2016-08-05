@@ -14,8 +14,11 @@ import Data.Fixed (Pico)
 
 import Data.Astro.Utils (fromFixed)
 
-type DecimalDegrees = Double
-type DecimalHours = Double
+newtype DecimalDegrees = DD Double
+                         deriving (Show, Eq, Ord)
+
+newtype DecimalHours = DH Double
+                       deriving (Show, Eq, Ord)
 
 
 -- | Degrees, Minutes, Seconds
@@ -32,12 +35,12 @@ toDecimalDegrees (DegreeMS d m s) =
   let d' = fromIntegral d
       m' = fromIntegral m
       s' = fromFixed s
-  in d'+(m'+(s'/60))/60
+  in DD $ d'+(m'+(s'/60))/60
 
 
 -- | Convert from DecimalDegree to DegreeMS
 fromDecimalDegrees :: DecimalDegrees -> DegreeMS
-fromDecimalDegrees d =
+fromDecimalDegrees (DD d) =
   let (h, rm) = properFraction d
       (m, rs) = properFraction $ 60 * rm
       s = realToFrac $ 60 * rs
@@ -46,4 +49,4 @@ fromDecimalDegrees d =
 
 -- | Convert decimal degrees to decimal hours
 toDecimalHours :: DecimalDegrees -> DecimalHours
-toDecimalHours d = d/15  -- 360 / 24 = 15
+toDecimalHours (DD d) = DH $ d/15  -- 360 / 24 = 15
