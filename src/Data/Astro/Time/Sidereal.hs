@@ -14,6 +14,7 @@ module Data.Astro.Time.Sidereal
   utToGST
   , gstToUT
   , gstToLST
+  , lstToGST
 )
 where
 
@@ -44,12 +45,21 @@ gstToUT jd =
   in JD $ day + time'/24
 
 
--- | Convert Global Sidereal Time to Local SiderealTime.
+-- | Convert Global Sidereal Time to Local Sidereal Time.
 -- It takes GST and longitude in decimal degrees
 gstToLST :: C.DecimalDegrees -> JulianDate -> JulianDate
 gstToLST longitude jd =
   let (JD day, JD time) = splitToDayAndTime jd
       time' = time + (C.toDecimalHours longitude)/24
+  in JD $ day + time'
+
+
+-- | Convert Local Sidereal Time to Global Sidereal Time.
+-- It takes LST and longitude in decimal degrees
+lstToGST :: C.DecimalDegrees -> JulianDate -> JulianDate
+lstToGST longitude jd =
+  let (JD day, JD time) = splitToDayAndTime jd
+      time' = time - (C.toDecimalHours longitude)/24
   in JD $ day + time'
 
 
