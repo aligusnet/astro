@@ -15,7 +15,7 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Data.Astro.Calendar
+  exposed-modules:     Data.Astro.Time
                      , Data.Astro.Coordinate
                      , Data.Astro.Utils
   other-modules:       

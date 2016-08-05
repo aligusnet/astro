@@ -1,4 +1,4 @@
-module Data.Astro.CalendarTest
+module Data.Astro.TimeTest
 (
   tests
 )
@@ -15,7 +15,7 @@ import Test.QuickCheck
 import Data.Time.Calendar (fromGregorian, toGregorian)
 import Control.Monad (unless)
 
-import Data.Astro.Calendar
+import Data.Astro.Time
 
 tests = [testGroup "easter day" [
             testCase "2009" easterDay2009

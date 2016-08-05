@@ -1,4 +1,4 @@
-module Data.Astro.Calendar
+module Data.Astro.Time
 (
   Day(..)
   , TimeOfDay(..)
