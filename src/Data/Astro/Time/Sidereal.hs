@@ -1,4 +1,4 @@
-{-
+{-|
 Module: Data.Astro.Time.Sidereal
 Description: Sidereal Time
 Copyright: Alexander Ignatyev, 2016
@@ -9,6 +9,7 @@ in the sky every 24 hours.
 Each sidereal day is shorter than the solar day, 24 hours of sidereal time
 corresponding to 23:56:04.0916 of solar time.
 -}
+
 module Data.Astro.Time.Sidereal
 (
   utToGST

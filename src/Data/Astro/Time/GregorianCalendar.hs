@@ -1,4 +1,4 @@
-{-
+{-|
 Module: Data.Astro.Time.GregorianCalendar
 Description: Gregorian Calendar
 Copyright: Alexander Ignatyev, 2016
@@ -7,6 +7,7 @@ Copyright: Alexander Ignatyev, 2016
 Gregorian Calendar was introduced by Pope Gregory XIII.
 He abolished the days 1582-10-05 to 1582-10-14 inclusive to bring back civil and tropical years back to line.
 -}
+
 module Data.Astro.Time.GregorianCalendar
 (
   isLeapYear

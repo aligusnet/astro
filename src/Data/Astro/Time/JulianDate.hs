@@ -1,4 +1,4 @@
-{-
+{-|
 Module: Data.Astro.Time.JulianDate
 Description: Julian Date
 Copyright: Alexander Ignatyev, 2016
@@ -7,6 +7,7 @@ Copyright: Alexander Ignatyev, 2016
 Julian date is the continuous count of days since noon on January 1, 4713 BC,
 the beginning of the Julian Period.
 -}
+
 module Data.Astro.Time.JulianDate
 (
   JulianDate(..)
