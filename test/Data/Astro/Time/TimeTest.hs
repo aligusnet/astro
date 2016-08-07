@@ -1,4 +1,4 @@
-module Data.Astro.TimeTest
+module Data.Astro.Time.TimeTest
 (
   tests
 )
@@ -13,6 +13,7 @@ import Test.HUnit.Approx
 import Test.QuickCheck
 
 import Data.Astro.Time
+import Data.Astro.Time.Time
 
 tests = [testGroup "to decimal hours" [
             testCase "6:00" $ toDecimalHours (TimeOfDay 6 0 0) @?= 6.0
