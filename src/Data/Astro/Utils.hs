@@ -1,9 +1,20 @@
+{-|
+Module: Data.Astro.Utils
+Description: Utility functions
+Copyright: Alexander Ignatyev, 2016
+
+Utility functions.
+-}
+
+
 module Data.Astro.Utils
 (
   fromFixed
   , trunc
   , fraction
   , reduceToZeroRange
+  , toRadians
+  , fromRadians
 )
 
 where
@@ -32,3 +43,13 @@ reduceToZeroRange :: RealFrac a => a -> a -> a
 reduceToZeroRange r n =
   let b = n - (trunc (n / r)) * r
   in if b < 0 then b + r else b
+
+
+-- | Convert from degrees to radians
+toRadians :: Floating a => a -> a
+toRadians deg = deg*pi/180
+
+
+-- | Convert from radians to degrees
+fromRadians :: Floating a => a -> a
+fromRadians rad = rad*180/pi

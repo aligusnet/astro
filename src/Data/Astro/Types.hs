@@ -12,9 +12,13 @@ module Data.Astro.Types
   , DecimalHours (..)
   , toDecimalHours
   , fromDecimalHours
+  , toRadians
+  , fromRadians
 )
 
 where
+
+import qualified Data.Astro.Utils as U
 
 newtype DecimalDegrees = DD Double
                          deriving (Show, Eq, Ord)
@@ -30,3 +34,13 @@ toDecimalHours (DD d) = DH $ d/15  -- 360 / 24 = 15
 -- | Convert decimal hours to decimal degrees
 fromDecimalHours :: DecimalHours -> DecimalDegrees
 fromDecimalHours (DH h) = DD $ h*15
+
+
+-- | Convert from DecimalDegrees to Radians
+--toRadians :: Floating a => DecimalDegrees -> a
+toRadians (DD deg) = U.toRadians deg
+
+
+-- | Convert from Radians to DecimalDegrees
+--fromRadians :: Floating a => a -> DecimalDegrees
+fromRadians rad = DD $ U.fromRadians rad

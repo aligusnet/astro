@@ -12,6 +12,8 @@ import Test.HUnit
 import Test.HUnit.Approx
 import Test.QuickCheck
 
+import Control.Monad (unless)
+
 import Data.Astro.TypesTest (testDecimalDegrees, testDecimalHours)
 import Data.Astro.Time.JulianDate (JulianDate(..))
 import Data.Astro.Coordinate
@@ -35,6 +37,12 @@ tests = [testGroup "DecimalDegrees <-> DegreeMS" [
              , testProperty "RA <-> HA property for Novosibirsk" $ prop_HARAConv (DD 83) 7 (JD 2457607.97281)
              , testProperty "RA <-> HA property for Rio de Janeiro" $ prop_HARAConv (DD (-43)) (-3) (JD 2457607.97281)
              ]
+         , testGroup "EC <-> HC" [
+             testHC "EC2 23.219 5.862 -> HC 19.334 283.271"
+               0.00000001
+               (HC (DD 19.334345224) (DD 283.27102726))
+               (equatorialToHorizon (DD 52) (EC2 (DD 23.219444444) (DH 5.862222222222222)))
+             ]
         ]
 
 prop_DegreeMSConversion d =
@@ -50,3 +58,11 @@ prop_HARAConv longitude timeZone jd dh =
       eps = 0.00000001
   in abs (ra - dh') < eps && (ha - dh') < eps
   where types = (dh::Double)
+
+testHC msg eps expected actual =
+  testCase msg $ assertHC eps expected actual
+
+assertHC eps expected@(HC (DD eAlt) (DD eAz)) actual@(HC (DD aAlt) (DD aAz)) =
+  unless (abs(eAlt-aAlt) <= eps && abs(eAz-aAz) <= eps) (assertFailure msg)
+  where msg = "expected: " ++ show expected ++ "\n but got: " ++ show actual ++
+              "\n (maximum margin of error: " ++ show eps ++ ")"

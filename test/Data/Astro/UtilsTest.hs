@@ -37,6 +37,18 @@ tests = [testGroup "fromFixed" [
             , testProperty "property for r = 24" $ prop_reduceToZeroRange 24
             , testProperty "property for r = 1" $ prop_reduceToZeroRange 1
             ]
+        , testGroup "Degrees <-> Radians" [
+            testCase "0 -> 0 (rad)" $ assertApproxEqual "" 0.000000001 0 $ toRadians 0
+            , testCase "45 -> PI/4" $ assertApproxEqual "" 0.000000001 (pi*0.25) $ toRadians 45
+            , testCase "90 -> PI/2" $ assertApproxEqual "" 0.000000001 (pi*0.5) $ toRadians 90
+            , testCase "180 -> PI" $ assertApproxEqual "" 0.000000001 pi $ toRadians 180
+            , testCase "360 -> 2*PI" $ assertApproxEqual "" 0.000000001 (pi*2) $ toRadians 360
+            , testCase "0 -> 0 (deg)" $ assertApproxEqual "" 0.000000001 0 $ fromRadians 0
+            , testCase "pi/4 -> 45" $ assertApproxEqual "" 0.000000001 45 $ fromRadians (pi*0.25)
+            , testCase "pi/2 -> 90" $ assertApproxEqual "" 0.000000001 90 $ fromRadians (pi*0.5)
+            , testCase "pi -> 180" $ assertApproxEqual "" 0.000000001 180 $ fromRadians pi
+            , testCase "2*pi -> 360" $ assertApproxEqual "" 0.000000001 360 $ fromRadians (pi*2)
+            ]
         ]
 
 toPico :: Real a => a -> Pico
