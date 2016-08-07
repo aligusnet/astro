@@ -59,7 +59,7 @@ fromDateTime (LocalTime date time) =
           then truncate (365.25*y' - 0.75)  -- 365.25 - number of solar days in a year
           else truncate (365.25*y')
       d = truncate (30.6001 * (m'+1))
-      e = toDecimalHours time
+      e = (toDecimalHours time) / 24
       jd = fromIntegral (b + c + d + day) + e + 1720994.5  -- add 1720994.5 to process BC/AC border
   in JD jd
 
@@ -78,7 +78,7 @@ toDateTime (JD jd) =
       day = truncate $ c - e - trunc (30.6001*g)
       month = truncate $ if g < 13.5 then g - 1 else g - 13
       year = truncate $ if month > 2 then d-4716 else d-4715
-   in (LocalTime (fromGregorian year month day) (fromDecimalHours f))
+   in (LocalTime (fromGregorian year month day) (fromDecimalHours $ f*24))
 
 
 

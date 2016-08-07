@@ -70,7 +70,7 @@ lstToGST longitude jd =
 
 -- sidereal 24h correspond to 23:56:04 of solar time
 siderealDayLength :: BaseType
-siderealDayLength = toDecimalHours (TimeOfDay 23 56 04.0916)
+siderealDayLength = (toDecimalHours (TimeOfDay 23 56 04.0916)) / 24
 
 
 solarSiderealTimesDiff :: BaseType -> BaseType

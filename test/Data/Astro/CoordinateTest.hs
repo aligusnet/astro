@@ -39,11 +39,9 @@ prop_DegreeMSConversion d =
   in abs(d-d') < 0.0000001
   where types = (d::Double)
 
-
 prop_DHConversion n =
   let DH h = toDecimalHours . fromDecimalHours $ DH n
       DD d = fromDecimalHours . toDecimalHours $ DD n
       eps = 0.00000001
   in abs(n-h) < eps && abs(n-d) < eps
-  where types = (n::Double)
-      
+  where types = (n::Double)      
