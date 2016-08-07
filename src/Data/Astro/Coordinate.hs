@@ -36,6 +36,7 @@ module Data.Astro.Coordinate
   , fromDegreeMS
   , toDegreeMS
   , raToHA
+  , haToRA
 )
 
 where
@@ -73,10 +74,21 @@ toDegreeMS (DD d) =
       s = realToFrac $ 60 * rs
   in DegreeMS h m s
 
--- | Convert Right Ascension to Hour Angle for specified Julian Date, time zone and longitude
+
+-- | Convert Right Ascension to Hour Angle for specified longitude, time zone and Julian Date
 raToHA :: DecimalHours -> DecimalDegrees -> Double -> JulianDate -> DecimalHours
-raToHA (DH ra) longitude tz lct =
+raToHA = haRAConv
+
+
+-- | Convert Right Ascension to Hour Angle for specified longitude, time zone and Julian Date
+haToRA :: DecimalHours -> DecimalDegrees -> Double -> JulianDate -> DecimalHours
+haToRA = haRAConv
+
+
+-- | HA <-> RA Conversions
+haRAConv :: DecimalHours -> DecimalDegrees -> Double -> JulianDate -> DecimalHours
+haRAConv (DH dh) longitude tz lct =
   let lstJD = lctToLST longitude tz lct  -- Local Sidereal Time
       (_, JD lst) = splitToDayAndTime lstJD
-      hourAngle = lst*24 - ra
+      hourAngle = lst*24 - dh
   in if hourAngle < 0 then (DH $ hourAngle+24) else (DH hourAngle)
