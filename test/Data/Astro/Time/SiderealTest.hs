@@ -16,7 +16,7 @@ import Control.Monad (unless)
 import Data.Astro.Time.JulianDateTest (testJD)
 
 import Data.Astro.Coordinate (DecimalDegrees(..))
-import Data.Astro.Time (TimeOfDay(..))
+import Data.Astro.Time.Types (TimeOfDay(..))
 import qualified Data.Astro.Time.Time as T
 import Data.Astro.Time.JulianDate (JulianDate(..), splitToDayAndTime)
 import Data.Astro.Time.Sidereal

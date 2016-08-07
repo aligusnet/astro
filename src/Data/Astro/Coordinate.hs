@@ -35,22 +35,18 @@ module Data.Astro.Coordinate
   , DegreeMS(..)
   , fromDegreeMS
   , toDegreeMS
-  , toDecimalHours
-  , fromDecimalHours
+  , raToHA
 )
 
 where
 
+
 import Data.Fixed (Pico)
 
+import Data.Astro.Time (lctToLST)
+import Data.Astro.Time.JulianDate (JulianDate(..), splitToDayAndTime)
+import Data.Astro.Types (DecimalDegrees(..), DecimalHours(..))
 import Data.Astro.Utils (fromFixed)
-
-newtype DecimalDegrees = DD Double
-                         deriving (Show, Eq, Ord)
-
-newtype DecimalHours = DH Double
-                       deriving (Show, Eq, Ord)
-
 
 -- | Degrees, Minutes, Seconds
 data DegreeMS = DegreeMS {
@@ -77,11 +73,10 @@ toDegreeMS (DD d) =
       s = realToFrac $ 60 * rs
   in DegreeMS h m s
 
-
--- | Convert decimal degrees to decimal hours
-toDecimalHours :: DecimalDegrees -> DecimalHours
-toDecimalHours (DD d) = DH $ d/15  -- 360 / 24 = 15
-
--- | Convert decimal hours to decimal degrees
-fromDecimalHours :: DecimalHours -> DecimalDegrees
-fromDecimalHours (DH h) = DD $ h*15
+-- | Convert Right Ascension to Hour Angle for specified Julian Date, time zone and longitude
+raToHA :: DecimalHours -> DecimalDegrees -> Double -> JulianDate -> DecimalHours
+raToHA (DH ra) longitude tz lct =
+  let lstJD = lctToLST longitude tz lct  -- Local Sidereal Time
+      (_, JD lst) = splitToDayAndTime lstJD
+      hourAngle = lst*24 - ra
+  in if hourAngle < 0 then (DH $ hourAngle+24) else (DH hourAngle)

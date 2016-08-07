@@ -20,7 +20,9 @@ library
                      , Data.Astro.Time.JulianDate
                      , Data.Astro.Time.Sidereal
                      , Data.Astro.Time.Time
+                     , Data.Astro.Time.Types
                      , Data.Astro.Coordinate
+                     , Data.Astro.Types
                      , Data.Astro.Utils
   other-modules:       
   build-depends:       base >= 4.7 && < 5

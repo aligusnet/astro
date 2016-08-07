@@ -12,7 +12,7 @@ import Test.HUnit
 import Test.HUnit.Approx
 import Test.QuickCheck
 
-import Data.Astro.Time
+import Data.Astro.Time.Types
 import Data.Astro.Time.Time
 
 tests = [testGroup "to decimal hours" [

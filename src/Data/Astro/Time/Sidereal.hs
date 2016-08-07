@@ -19,11 +19,11 @@ module Data.Astro.Time.Sidereal
 )
 where
 
-import Data.Astro.Time (TimeOfDay(..))
+import Data.Astro.Time.Types (TimeOfDay(..))
 import qualified Data.Astro.Time.Time as T
 import Data.Astro.Time.JulianDate (JulianDate(..), splitToDayAndTime)
 import Data.Astro.Utils (reduceToZeroRange)
-import qualified Data.Astro.Coordinate as C
+import qualified Data.Astro.Types as C
 
 -- | Convert from Universal Time (UT) to Greenwich Sidereal Time (GST)
 utToGST :: JulianDate -> JulianDate
@@ -47,7 +47,7 @@ gstToUT jd =
   in JD $ day + time'/24
 
 
--- | Convert Global Sidereal Time to Local Sidereal Time.
+-- | Convert Greenwich Sidereal Time to Local Sidereal Time.
 -- It takes GST and longitude in decimal degrees
 gstToLST :: C.DecimalDegrees -> JulianDate -> JulianDate
 gstToLST longitude jd =
@@ -57,7 +57,7 @@ gstToLST longitude jd =
   in JD $ day + time'
 
 
--- | Convert Local Sidereal Time to Global Sidereal Time.
+-- | Convert Local Sidereal Time to Greenwich Sidereal Time.
 -- It takes LST and longitude in decimal degrees
 lstToGST :: C.DecimalDegrees -> JulianDate -> JulianDate
 lstToGST longitude jd =

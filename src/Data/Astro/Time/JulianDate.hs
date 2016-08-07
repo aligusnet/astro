@@ -21,9 +21,7 @@ module Data.Astro.Time.JulianDate
 
 where
 
-import Data.Time.Calendar (fromGregorian, toGregorian)
-import Data.Time.LocalTime (LocalTime(..), TimeOfDay(..))
-
+import Data.Astro.Time.Types(LocalTime(..), TimeOfDay(..), fromGregorian, toGregorian)
 import qualified Data.Astro.Time.Time as T
 import Data.Astro.Time.GregorianCalendar (gregorianDateAdjustment)
 import Data.Astro.Utils (trunc, fraction)

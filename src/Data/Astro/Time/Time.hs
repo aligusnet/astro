@@ -8,7 +8,7 @@ module Data.Astro.Time.Time
 where
 
 
-import Data.Astro.Time (TimeOfDay(..))
+import Data.Astro.Time.Types (TimeOfDay(..))
 import Data.Astro.Utils (fromFixed)
 
 type BaseType = Double

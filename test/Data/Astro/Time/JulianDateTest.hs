@@ -13,10 +13,9 @@ import Test.Framework.Providers.QuickCheck2 (testProperty)
 import Test.HUnit
 import Test.QuickCheck
 
-import Data.Time.Calendar (fromGregorian, toGregorian)
 import Control.Monad (unless)
 
-import Data.Astro.Time (TimeOfDay(..), LocalTime(..))
+import Data.Astro.Time.Types (TimeOfDay(..), LocalTime(..), fromGregorian, toGregorian)
 import Data.Astro.Time.JulianDate
 
 tests = [testGroup "to julian day" [
