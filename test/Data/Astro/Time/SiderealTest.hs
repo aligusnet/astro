@@ -13,6 +13,8 @@ import Test.QuickCheck
 
 import Control.Monad (unless)
 
+import Data.Astro.Time.JulianDateTest (testJD)
+
 import Data.Astro.Coordinate (DecimalDegrees(..))
 import Data.Astro.Time (TimeOfDay(..), toDecimalHours)
 import Data.Astro.Time.JulianDate (JulianDate(..), splitToDayAndTime)
@@ -66,14 +68,6 @@ tests = [testGroup "GST <-> UT conversions" [
            , testProperty "property longitude=-101.13" $ prop_localGlobalConverions (DD $ -101.13)
            , testProperty "property longitude=31.7" $ prop_localGlobalConverions (DD 31.7)
         ]
-
-testJD msg eps expected actual =
-  testCase msg $ assertJD eps expected actual
-
-assertJD eps (JD expected) (JD actual) =
-  unless (abs(expected-actual) <= eps) (assertFailure msg)
-  where msg = "expected: " ++ show expected ++ "\n but got: " ++ show actual ++
-              "\n (maximum margin of error: " ++ show eps ++ ")"
 
 prop_siderealTimeConversions =
   forAll (choose (0, 999999999)) $ check

@@ -15,7 +15,8 @@ module Data.Astro.Time.JulianDate
   , toDateTime
   , dayOfWeek
   , splitToDayAndTime
-
+  , utToLCT
+  , lctToUT
 )
 
 where
@@ -64,6 +65,7 @@ fromDateTime (LocalTime date time) =
   in JD jd
 
 
+-- | Comvert Julian Date to DateTime
 toDateTime :: JulianDate -> LocalTime
 toDateTime (JD jd) =
   let (i, f) = fraction (jd + 0.5)
@@ -104,3 +106,16 @@ removeHours :: JulianDate -> JulianDate
 removeHours jd =
   let (d, _) = splitToDayAndTime jd
   in d
+
+
+-- | Convert Local Civil Time (LCT) to Universal Time (UT)
+-- The function takes time zone offset in hours and julian date
+lctToUT :: Double -> JulianDate -> JulianDate
+lctToUT offset (JD jd) = JD $ jd - (offset/24.0)
+
+
+-- | Convert Universal Time (UT) to Local Civil Time (LCT)
+-- The function takes time zone offset in hours and julian date
+utToLCT :: Double -> JulianDate -> JulianDate
+utToLCT offset (JD jd) = JD $ jd + (offset/24)
+

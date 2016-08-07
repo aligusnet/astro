@@ -1,6 +1,7 @@
 module Data.Astro.Time.JulianDateTest
 (
   tests
+  , testJD
 )
 
 where
@@ -50,6 +51,16 @@ tests = [testGroup "to julian day" [
                 $ splitToDayAndTime (JD 2444352.108931)
             , testProperty "property" prop_splitToDayAndTime
             ]
+        , testGroup "UT <-> LCT" [
+            testJD "2016-08-07 02:10:10 +4 LCT -> UT"
+                0.000000001
+                (JD 2457607.423726852)
+                (lctToUT 4 $ JD 2457607.5903935186)
+            , testJD "2016-08-06 22:10:10 UT -> +4 LCT"
+                0.000000001
+                (JD 2457607.5903935186)
+                (utToLCT 4 $ JD 2457607.423726852)
+            ]
         ]
 
 prop_JulianConversionsAfterGeorge =
@@ -80,3 +91,11 @@ prop_splitToDayAndTime =
           let (JD d, JD t) = splitToDayAndTime $ JD jd
               eps = 0.0000001
           in abs(jd-d-t) < eps && t >= 0 && t < 1
+
+testJD msg eps expected actual =
+  testCase msg $ assertJD eps expected actual
+
+assertJD eps (JD expected) (JD actual) =
+  unless (abs(expected-actual) <= eps) (assertFailure msg)
+  where msg = "expected: " ++ show expected ++ "\n but got: " ++ show actual ++
+              "\n (maximum margin of error: " ++ show eps ++ ")"
