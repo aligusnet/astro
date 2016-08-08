@@ -41,6 +41,8 @@ module Data.Astro.Coordinate
   , raToHA
   , haToRA
   , equatorialToHorizon
+  , horizonToEquatorial
+  , ecHCConv
 )
 
 where
@@ -50,7 +52,7 @@ import Data.Fixed (Pico)
 
 import Data.Astro.Time (lctToLST)
 import Data.Astro.Time.JulianDate (JulianDate(..), splitToDayAndTime)
-import Data.Astro.Types (DecimalDegrees(..), DecimalHours(..), fromDecimalHours, toRadians, fromRadians)
+import Data.Astro.Types (DecimalDegrees(..), DecimalHours(..), fromDecimalHours, toDecimalHours, toRadians, fromRadians)
 import Data.Astro.Utils (fromFixed)
 
 
@@ -120,14 +122,37 @@ haRAConv (DH dh) longitude tz lct =
   in if hourAngle < 0 then (DH $ hourAngle+24) else (DH hourAngle)
 
 
--- | Convert Equatorial To Horizon Coordinates
+-- | Convert Equatorial Coordinates to Horizon Coordinates.
+-- It takes a latitude of the observer and 'EquatorialCoordinates2'. If you need to convert 'EquatorialCoordinates1'
+-- you should use 'raToHa' function to obtain 'EquatorialCoordinates2'.
+-- The functions returns 'HorizonCoordinates'.
 equatorialToHorizon :: DecimalDegrees -> EquatorialCoordinates2 -> HorizonCoordinates
-equatorialToHorizon latitude (EC2 dec ha) =
+equatorialToHorizon latitude (EC2 dec hourAngle) =
+  let hourAngle' = fromDecimalHours hourAngle
+      (altitude, azimuth) = ecHCConv latitude (dec, hourAngle')
+  in HC altitude azimuth
+
+
+-- | Convert Horizon Coordinates to Equatorial Coordinates.
+-- It takes a latitude of the observer and 'HorizonCoordinates'.
+-- The functions returns 'EquatorialCoordinates2'.
+-- If you need to obtain 'EquatorialCoordinates1' you should use 'haToRa' function.
+horizonToEquatorial :: DecimalDegrees -> HorizonCoordinates -> EquatorialCoordinates2
+horizonToEquatorial latitude (HC altitude azimuth) =
+  let (dec, hourAngle) = ecHCConv latitude (altitude, azimuth)
+  in EC2 dec $ toDecimalHours hourAngle
+
+
+-- | Function converts Convert Equatorial Coordinates To Horizon Coordinates and vice versa
+-- It takes a latitide of the observer as a first parameter and a pair of 'how far up' and 'how far round' coordinates
+-- as a second parameter. It returns a pair of 'how far up' and 'how far round' coordinates.
+ecHCConv :: DecimalDegrees -> (DecimalDegrees, DecimalDegrees) -> (DecimalDegrees, DecimalDegrees)
+ecHCConv latitude (up, round) =
   let latitude' = toRadians latitude
-      dec' = toRadians dec
-      ha' = toRadians $ fromDecimalHours ha
-      sinAlt = (sin dec')*(sin latitude') + (cos dec')*(cos latitude')*(cos ha')
-      altitude = asin sinAlt
-      azimuth = acos $ ((sin dec') - (sin latitude')*sinAlt) / ((cos latitude') * (cos altitude))
-      azimuth' = if (sin ha') < 0 then azimuth else (2*pi - azimuth)
-  in HC (fromRadians altitude) (fromRadians azimuth')
+      up' = toRadians up
+      round' = toRadians round
+      sinUpResult = (sin up')*(sin latitude') + (cos up')*(cos latitude')*(cos round')
+      upResult = asin sinUpResult
+      roundResult = acos $ ((sin up') - (sin latitude')*sinUpResult) / ((cos latitude') * (cos upResult))
+      roundResult' = if (sin round') < 0 then roundResult else (2*pi - roundResult)
+  in ((fromRadians upResult), (fromRadians roundResult'))

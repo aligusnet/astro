@@ -39,11 +39,16 @@ tests = [testGroup "DecimalDegrees <-> DegreeMS" [
              ]
          , testGroup "EC <-> HC" [
              testHC "EC2 23.219 5.862 -> HC 19.334 283.271"
-               0.00000001
-               (HC (DD 19.334345224) (DD 283.27102726))
-               (equatorialToHorizon (DD 52) (EC2 (DD 23.219444444) (DH 5.862222222222222)))
+                 0.00000001
+                 (HC (DD 19.334345224) (DD 283.27102726))
+                 (equatorialToHorizon (DD 52) (EC2 (DD 23.219444444) (DH 5.862222222222222)))
+             , testEC2 "HC 19.334 283.271 -> EC2 23.219 5.862"
+                 0.00000001
+                 (EC2 (DD 23.219444444) (DH 5.862222222222222))
+                 (horizonToEquatorial (DD 52) (HC (DD 19.334345224) (DD 283.27102726)))
+             , testProperty "property" prop_EC2HCConv
              ]
-        ]
+         ]
 
 prop_DegreeMSConversion d =
   let dms = toDegreeMS $ DD d
@@ -66,3 +71,20 @@ assertHC eps expected@(HC (DD eAlt) (DD eAz)) actual@(HC (DD aAlt) (DD aAz)) =
   unless (abs(eAlt-aAlt) <= eps && abs(eAz-aAz) <= eps) (assertFailure msg)
   where msg = "expected: " ++ show expected ++ "\n but got: " ++ show actual ++
               "\n (maximum margin of error: " ++ show eps ++ ")"
+
+testEC2 msg eps expected actual =
+  testCase msg $ assertEC2 eps expected actual
+
+assertEC2 eps expected@(EC2 (DD eDec) (DH eHa)) actual@(EC2 (DD aDec) (DH aHa)) =
+  unless (abs(eDec-aDec) <= eps && abs(eHa-aHa) <= eps) (assertFailure msg)
+  where msg = "expected: " ++ show expected ++ "\n but got: " ++ show actual ++
+              "\n (maximum margin of error: " ++ show eps ++ ")"
+
+prop_EC2HCConv (latitude, up, round) =
+  let latitude' = DD $ reduceToZeroRange 180 latitude
+      up' = reduceToZeroRange 90 up
+      round' = reduceToZeroRange 360 round
+      HC (DD up'') (DD round'') = equatorialToHorizon latitude' $ horizonToEquatorial latitude' (HC (DD up') (DD round'))
+      eps = 0.0001
+  in abs(up'-up'') < eps && abs(round'-round'') < eps
+  where types = ((latitude, up, round)::(Double, Double, Double))
