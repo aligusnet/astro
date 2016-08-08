@@ -48,6 +48,23 @@ tests = [testGroup "DecimalDegrees <-> DegreeMS" [
                  (horizonToEquatorial (DD 52) (HC (DD 19.334345224) (DD 283.27102726)))
              , testProperty "property" prop_EC2HCConv
              ]
+           , testGroup "obliquity" [
+               testDecimalDegrees "2009-06-06"
+                 0.000001
+                 (DD 23.43805498)
+                 (obliquity $ JD 2455018.5)
+               ]
+           , testGroup "Ecliptic <-> Equatorial" [
+               testEC1 "EcC 4.875 139.6861 on 2009-07-06 to EC1"
+                   0.000001
+                   (EC1 (DD 19.535003) (DH 9.581478))
+                   (eclipticToEquatorial (EcC (DD 4.875277777777778) (DD 139.6861111111111)) (JD 2455018.5))
+               , testEcC "EC1 19.535 9.581 to EcC on 2009-07-06"
+                   0.000001
+                   (EcC (DD 4.875278) (DD 139.686111))
+                   (equatorialToEcliptic (EC1 (DD 19.53500313448776) (DH 9.581478176556471)) (JD 2455018.5))
+               , testProperty "property" prop_EC1EcCConv
+               ]
          ]
 
 prop_DegreeMSConversion d =
@@ -85,6 +102,33 @@ prop_EC2HCConv (latitude, up, round) =
       up' = reduceToZeroRange 90 up
       round' = reduceToZeroRange 360 round
       HC (DD up'') (DD round'') = equatorialToHorizon latitude' $ horizonToEquatorial latitude' (HC (DD up') (DD round'))
-      eps = 0.0001
+      eps = 0.0000001
   in abs(up'-up'') < eps && abs(round'-round'') < eps
   where types = ((latitude, up, round)::(Double, Double, Double))
+
+
+testEC1 msg eps expected actual =
+  testCase msg $ assertEC1 eps expected actual
+
+assertEC1 eps expected@(EC1 (DD e1) (DH e2)) actual@(EC1 (DD a1) (DH a2)) =
+  unless (abs(e1-a1) <= eps && abs(e2-a2) <= eps) (assertFailure msg)
+  where msg = "expected: " ++ show expected ++ "\n but got: " ++ show actual ++
+              "\n (maximum margin of error: " ++ show eps ++ ")"
+
+
+testEcC msg eps expected actual =
+  testCase msg $ assertEcC eps expected actual
+
+assertEcC eps expected@(EcC (DD eLat) (DD eLon)) actual@(EcC (DD aLat) (DD aLon)) =
+  unless (abs(eLat-aLat) <= eps && abs(eLon-aLon) <= eps) (assertFailure msg)
+  where msg = "expected: " ++ show expected ++ "\n but got: " ++ show actual ++
+              "\n (maximum margin of error: " ++ show eps ++ ")"
+
+prop_EC1EcCConv (jd, up, round) =
+  let jd' = JD $ (reduceToZeroRange 10000  jd) + 2455018.5
+      up' = (reduceToZeroRange 178 up) - 89
+      round' = (reduceToZeroRange 360 round) - 180
+      EcC (DD up'') (DD round'') = equatorialToEcliptic (eclipticToEquatorial (EcC (DD up') (DD round')) jd') jd'
+      eps = 0.00000001
+  in abs(up'-up'') < eps && abs(round'-round'') < eps
+  where types = ((jd, up, round)::(Double, Double, Double))

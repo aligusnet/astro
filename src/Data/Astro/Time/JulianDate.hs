@@ -11,6 +11,8 @@ the beginning of the Julian Period.
 module Data.Astro.Time.JulianDate
 (
   JulianDate(..)
+  , j2000
+  , numberOfCenturies
   , fromDateTime
   , toDateTime
   , dayOfWeek
@@ -36,6 +38,11 @@ newtype JulianDate = JD T.BaseType
 julianStartDateTime = LocalTime (fromGregorian (-4712) 1 1) (TimeOfDay 12 0 0)
 
 
+-- | Epoch 2000, 12h on 1 January 2000
+j2000 :: JulianDate
+j2000 = JD 2451545.0
+
+
 instance Num JulianDate where
   (+) (JD d1) (JD d2) = JD (d1+d2)
   (-) (JD d1) (JD d2) = JD (d1-d2)
@@ -44,6 +51,11 @@ instance Num JulianDate where
   abs (JD d) = JD (abs d)
   signum (JD d) = JD (signum d)
   fromInteger int = JD (fromInteger int)
+
+
+-- | Return number of centuries since the first argument till the second one
+numberOfCenturies :: JulianDate -> JulianDate -> T.BaseType
+numberOfCenturies (JD jd1) (JD jd2) = (jd2-jd1) / 36525
 
 
 -- | Create Julian Date from DateTime

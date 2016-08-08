@@ -21,7 +21,7 @@ where
 
 import Data.Astro.Time.Types (TimeOfDay(..))
 import qualified Data.Astro.Time.Time as T
-import Data.Astro.Time.JulianDate (JulianDate(..), splitToDayAndTime)
+import Data.Astro.Time.JulianDate (JulianDate(..), j2000, numberOfCenturies, splitToDayAndTime)
 import Data.Astro.Utils (reduceToZeroRange)
 import qualified Data.Astro.Types as C
 
@@ -76,5 +76,5 @@ siderealDayLength = (T.toDecimalHours (TimeOfDay 23 56 04.0916)) / 24
 
 solarSiderealTimesDiff :: T.BaseType -> T.BaseType
 solarSiderealTimesDiff d =
-  let t = (d - 2451545.0)/36525.0
+  let t = numberOfCenturies j2000 (JD d)
   in 6.697374558 + 2400.051336*t + 0.000025862*t*t

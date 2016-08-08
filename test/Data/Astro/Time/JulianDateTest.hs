@@ -11,6 +11,7 @@ import Test.Framework (testGroup)
 import Test.Framework.Providers.HUnit
 import Test.Framework.Providers.QuickCheck2 (testProperty)
 import Test.HUnit
+import Test.HUnit.Approx
 import Test.QuickCheck
 
 import Control.Monad (unless)
@@ -59,6 +60,12 @@ tests = [testGroup "to julian day" [
                 0.000000001
                 (JD 2457607.5903935186)
                 (utToLCT 4 $ JD 2457607.423726852)
+            ]
+        , testGroup "numberOfCenturies" [
+            testCase "J2000..2009-06-06" $ assertApproxEqual ""
+              0.000000001
+              0.095099247
+              (numberOfCenturies j2000 $ JD 2455018.5)
             ]
         ]
 
