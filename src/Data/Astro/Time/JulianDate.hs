@@ -11,6 +11,7 @@ the beginning of the Julian Period.
 module Data.Astro.Time.JulianDate
 (
   JulianDate(..)
+  , TimeBaseType
   , j2000
   , numberOfCenturies
   , fromDateTime
@@ -24,13 +25,14 @@ module Data.Astro.Time.JulianDate
 where
 
 import Data.Astro.Time.Types(LocalTime(..), TimeOfDay(..), fromGregorian, toGregorian)
-import qualified Data.Astro.Time.Time as T
 import Data.Astro.Time.GregorianCalendar (gregorianDateAdjustment)
 import Data.Astro.Utils (trunc, fraction, fromFixed)
 
 
+type TimeBaseType = Double
+
 -- | A number of days since noon of 1 January 4713 BC
-newtype JulianDate = JD T.BaseType
+newtype JulianDate = JD TimeBaseType
                      deriving (Show, Eq)
 
 
@@ -54,7 +56,7 @@ instance Num JulianDate where
 
 
 -- | Return number of centuries since the first argument till the second one
-numberOfCenturies :: JulianDate -> JulianDate -> T.BaseType
+numberOfCenturies :: JulianDate -> JulianDate -> TimeBaseType
 numberOfCenturies (JD jd1) (JD jd2) = (jd2-jd1) / 36525
 
 
