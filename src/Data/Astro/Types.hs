@@ -14,6 +14,8 @@ module Data.Astro.Types
   , fromDecimalHours
   , toRadians
   , fromRadians
+  , fromDMS
+  , toDMS
 )
 
 where
@@ -37,10 +39,25 @@ fromDecimalHours (DH h) = DD $ h*15
 
 
 -- | Convert from DecimalDegrees to Radians
---toRadians :: Floating a => DecimalDegrees -> a
 toRadians (DD deg) = U.toRadians deg
 
 
 -- | Convert from Radians to DecimalDegrees
---fromRadians :: Floating a => a -> DecimalDegrees
 fromRadians rad = DD $ U.fromRadians rad
+
+
+-- | Convert Degrees, Minutes, Seconds to DecimalDegrees
+fromDMS :: RealFrac a => Int -> Int -> a -> DecimalDegrees
+fromDMS d m s =
+  let d' = fromIntegral d
+      m' = fromIntegral m
+      s' = realToFrac s
+  in DD $ d'+(m'+(s'/60))/60
+
+
+-- | Convert DecimalDegrees to Degrees, Minutes, Seconds
+toDMS (DD dd) =
+  let (d, rm) = properFraction dd
+      (m, rs) = properFraction $ 60 * rm
+      s = 60 * rs
+  in (d, m, s)

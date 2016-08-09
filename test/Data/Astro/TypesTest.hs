@@ -33,7 +33,11 @@ tests = [testGroup "DecimalDegrees <-> DecimalHours" [
             , testDecimalDegrees "pi -> 180" 0.000000001 (DD 180) (fromRadians pi)
             , testDecimalDegrees "2*pi -> 360" 0.000000001 (DD 360) (fromRadians (pi*2))
             ]
-
+          , testGroup "DecimalDegrees <-> DMS" [
+              testDecimalDegrees "182 31' 27''" 0.00001 (DD 182.52417) $ fromDMS 182 31 27
+              , testCase "182.5" $ toDMS (DD 182.5) @?= (182, 30, 0)
+              , testProperty "property" prop_DMSConversion
+            ]
         ]
 
 
@@ -49,3 +53,9 @@ prop_DHConversion n =
       eps = 0.00000001
   in abs(n-h) < eps && abs(n-d) < eps
   where types = (n::Double)      
+
+prop_DMSConversion dd =
+  let (d, m, s) = toDMS $ DD dd
+      DD d' = fromDMS d m s
+  in abs(dd-d') < 0.0000001
+  where types = (dd::Double)

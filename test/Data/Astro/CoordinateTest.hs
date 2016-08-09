@@ -20,12 +20,7 @@ import Data.Astro.Coordinate
 import Data.Astro.Types
 import Data.Astro.Utils (reduceToZeroRange)
 
-tests = [testGroup "DecimalDegrees <-> DegreeMS" [
-            testDecimalDegrees "182 31' 27''" 0.00001 (DD 182.52417) $ fromDegreeMS (DegreeMS 182 31 27)
-            , testCase "182.5" $ toDegreeMS (DD 182.5) @?= DegreeMS 182 30 0
-            , testProperty "property" prop_DegreeMSConversion
-            ]
-         , testGroup "RA <-> HA" [
+tests = [testGroup "RA <-> HA" [
              testDecimalHours "RA 18.53 in 1980-04-22 14:36:51.67-4 to HA"
                  0.0000001
                  (DH 9.873237)
@@ -78,11 +73,6 @@ tests = [testGroup "DecimalDegrees <-> DegreeMS" [
                ]
          ]
 
-prop_DegreeMSConversion d =
-  let dms = toDegreeMS $ DD d
-      DD d' = fromDegreeMS dms
-  in abs(d-d') < 0.0000001
-  where types = (d::Double)
 
 prop_HARAConv longitude timeZone jd dh =
   let dh' = reduceToZeroRange 24 dh

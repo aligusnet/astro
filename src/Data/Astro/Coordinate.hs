@@ -49,14 +49,11 @@ module Data.Astro.Coordinate
 (
   DecimalDegrees(..)
   , DecimalHours(..)
-  , DegreeMS(..)
   , HorizonCoordinates(..)
   , EquatorialCoordinates1(..)
   , EquatorialCoordinates2(..)
   , EclipticCoordinates(..)
   , GalacticCoordinates(..)
-  , fromDegreeMS
-  , toDegreeMS
   , raToHA
   , haToRA
   , equatorialToHorizon
@@ -71,20 +68,10 @@ module Data.Astro.Coordinate
 
 where
 
-import Data.Fixed (Pico)
-
 import Data.Astro.Time (lctToLST)
 import Data.Astro.Time.JulianDate (JulianDate(..), j2000, numberOfCenturies, splitToDayAndTime)
-import Data.Astro.Types (DecimalDegrees(..), DecimalHours(..), fromDecimalHours, toDecimalHours, toRadians, fromRadians)
+import Data.Astro.Types (DecimalDegrees(..), DecimalHours(..), fromDecimalHours, toDecimalHours, toRadians, fromRadians, fromDMS)
 import Data.Astro.Utils (fromFixed)
-
-
--- | Degrees, Minutes, Seconds
-data DegreeMS = DegreeMS {
-  dmsDegrees :: Int
-  , dmsMinutes :: Int
-  , dmsSeconds :: Pico
-  } deriving (Show, Eq)
 
 
 -- | Horizon Coordinates, for details see the module's description
@@ -120,24 +107,6 @@ data GalacticCoordinates = GC {
   gLatitude :: DecimalDegrees       -- ^ b
   , gLongitude :: DecimalDegrees    -- ^ l
   } deriving (Show, Eq)
-
-
--- | Convert DegreeMS to DecimalDegree
-fromDegreeMS :: DegreeMS -> DecimalDegrees
-fromDegreeMS (DegreeMS d m s) =
-  let d' = fromIntegral d
-      m' = fromIntegral m
-      s' = fromFixed s
-  in DD $ d'+(m'+(s'/60))/60
-
-
--- | Convert from DecimalDegree to DegreeMS
-toDegreeMS :: DecimalDegrees -> DegreeMS
-toDegreeMS (DD d) =
-  let (h, rm) = properFraction d
-      (m, rs) = properFraction $ 60 * rm
-      s = realToFrac $ 60 * rs
-  in DegreeMS h m s
 
 
 -- | Convert Right Ascension to Hour Angle for specified longitude, time zone and Julian Date
@@ -198,7 +167,7 @@ ecHCConv latitude (up, round) =
 -- | Calculate the obliquity of the ecpliptic on JulianDate
 obliquity :: JulianDate -> DecimalDegrees
 obliquity jd =
-  let DD baseObliquity = fromDegreeMS (DegreeMS 23 26 21.45)
+  let DD baseObliquity = fromDMS 23 26 21.45
       t = numberOfCenturies j2000 jd
       de = (46.815*t + 0.0006*t*t - 0.00181*t*t*t) / 3600  -- 3600 number of seconds in 1 degree
   in DD $ baseObliquity - de
