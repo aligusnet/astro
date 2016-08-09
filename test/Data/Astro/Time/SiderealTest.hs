@@ -15,9 +15,9 @@ import Control.Monad (unless)
 
 import Data.Astro.Time.JulianDateTest (testJD)
 
+import Data.Astro.Types (DecimalHours(..), fromHMS)
 import Data.Astro.Coordinate (DecimalDegrees(..))
 import Data.Astro.Time.Types (TimeOfDay(..))
-import qualified Data.Astro.Time.Time as T
 import Data.Astro.Time.JulianDate (JulianDate(..), splitToDayAndTime)
 import Data.Astro.Time.Sidereal
 
@@ -79,7 +79,8 @@ prop_siderealTimeConversions =
               (JD utD, _) = splitToDayAndTime utJd
               (JD sdD, _) = splitToDayAndTime sdJd
               (_, JD utT') = splitToDayAndTime utJd'
-              hasAmbigity = utT' < T.toDecimalHours (TimeOfDay 0 3 57)
+              DH diff = fromHMS 0 3 57
+              hasAmbigity = utT' < diff
               eps = 0.0000001
           in (hasAmbigity || abs(utN-utN') < eps) && (truncate utD) == (truncate sdD)
 

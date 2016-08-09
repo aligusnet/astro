@@ -26,7 +26,7 @@ where
 import Data.Astro.Time.Types(LocalTime(..), TimeOfDay(..), fromGregorian, toGregorian)
 import qualified Data.Astro.Time.Time as T
 import Data.Astro.Time.GregorianCalendar (gregorianDateAdjustment)
-import Data.Astro.Utils (trunc, fraction)
+import Data.Astro.Utils (trunc, fraction, fromFixed)
 
 
 -- | A number of days since noon of 1 January 4713 BC
@@ -70,7 +70,7 @@ fromDateTime (LocalTime date time) =
           then truncate (365.25*y' - 0.75)  -- 365.25 - number of solar days in a year
           else truncate (365.25*y')
       d = truncate (30.6001 * (m'+1))
-      e = (T.toDecimalHours time) / 24
+      e = toDecimalDays time
       jd = fromIntegral (b + c + d + day) + e + 1720994.5  -- add 1720994.5 to process BC/AC border
   in JD jd
 
@@ -90,7 +90,7 @@ toDateTime (JD jd) =
       day = truncate $ c - e - trunc (30.6001*g)
       month = truncate $ if g < 13.5 then g - 1 else g - 13
       year = truncate $ if month > 2 then d-4716 else d-4715
-   in (LocalTime (fromGregorian year month day) (T.fromDecimalHours $ f*24))
+   in (LocalTime (fromGregorian year month day) (fromDecimalDays f))
 
 
 
@@ -129,3 +129,21 @@ lctToUT offset (JD jd) = JD $ jd - (offset/24.0)
 utToLCT :: Double -> JulianDate -> JulianDate
 utToLCT offset (JD jd) = JD $ jd + (offset/24)
 
+
+
+toDecimalDays :: RealFrac a => TimeOfDay -> a
+toDecimalDays (TimeOfDay hours minutes seconds) = (hours' + (minutes' + seconds' / 60) / 60)/24
+  where hours' = fromIntegral hours
+        minutes' = fromIntegral minutes
+        seconds' = fromFixed seconds
+
+
+fromDecimalDays :: RealFrac a => a -> TimeOfDay
+fromDecimalDays days =
+  let hours = 24*days
+      hours' = truncate hours
+      minutes = (hours - fromIntegral hours')*60
+      minutes' = truncate minutes
+      seconds = (minutes - fromIntegral minutes') * 60
+      seconds' = realToFrac seconds
+  in TimeOfDay hours' minutes' seconds'

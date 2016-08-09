@@ -38,6 +38,19 @@ tests = [testGroup "DecimalDegrees <-> DecimalHours" [
               , testCase "182.5" $ toDMS (DD 182.5) @?= (182, 30, 0)
               , testProperty "property" prop_DMSConversion
             ]
+          , testGroup "DecimalHours <-> HMS" [
+              testDecimalHours "HMS -> DH 6:00" 0.00000001 (DH 6.0) (fromHMS 6 0 0)
+            , testDecimalHours "HMS -> DH 18:00" 0.00000001 (DH 18.0) (fromHMS 18 0 0)
+            , testDecimalHours "HMS -> DH 18:30" 0.00000001 (DH $ (18*2 + 1) / 2) (fromHMS 18 30 0)
+            , testDecimalHours "HMS -> DH 00:00:30" 0.00000001 (DH $ 30 / (60*60)) (fromHMS  0 0 30) 
+            , testDecimalHours "HMS -> DH 00:00:10" 0.00000001 (DH 0.002777777778) $ fromHMS 0 0 10
+            , testDecimalHours "HMS -> DH 23:59:59.99999" 0.00000001 (DH 24.0) $ fromHMS 23 59 59.99999
+            , testCase "DH -> HMS 6:00" $ toHMS (DH 6.0)  @?= (6, 0, 0)
+            , testCase "DH -> HMS 18:00" $ toHMS (DH 18.0) @?= (18, 0, 0)
+            , testCase "DH -> HMS 18:30" $ toHMS  (DH $ (18*2 + 1) / 2) @?= (18, 30, 0)
+            , testCase "DH -> HMS 00:00:30" $ toHMS (DH $ (30 / (60*60))) @?= (0, 0, 30)
+            , testProperty "property" prop_HMSConversion 
+            ]
         ]
 
 
@@ -59,3 +72,12 @@ prop_DMSConversion dd =
       DD d' = fromDMS d m s
   in abs(dd-d') < 0.0000001
   where types = (dd::Double)
+
+prop_HMSConversion =
+  forAll (choose (0, 1.0)) $ checkHMSConversionProperties
+
+checkHMSConversionProperties :: Double -> Bool
+checkHMSConversionProperties n =
+  let (h, m, s) = toHMS $ DH n
+      DH n2 = fromHMS h m s
+  in abs (n-n2) < 0.00000001

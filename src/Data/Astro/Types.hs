@@ -16,6 +16,8 @@ module Data.Astro.Types
   , fromRadians
   , fromDMS
   , toDMS
+  , fromHMS
+  , toHMS
 )
 
 where
@@ -28,7 +30,7 @@ newtype DecimalDegrees = DD Double
 newtype DecimalHours = DH Double
                        deriving (Show, Eq, Ord)
 
-     
+
 -- | Convert decimal degrees to decimal hours
 toDecimalHours :: DecimalDegrees -> DecimalHours
 toDecimalHours (DD d) = DH $ d/15  -- 360 / 24 = 15
@@ -61,3 +63,21 @@ toDMS (DD dd) =
       (m, rs) = properFraction $ 60 * rm
       s = 60 * rs
   in (d, m, s)
+
+
+-- | Comvert Hours, Minutes, Seconds to DecimalHours
+fromHMS :: RealFrac a => Int -> Int -> a -> DecimalHours
+fromHMS h m s =
+  let h' = fromIntegral h
+      m' = fromIntegral m
+      s' = realToFrac s
+  in DH $ h'+(m'+(s'/60))/60
+
+
+-- | Convert DecimalDegrees to Degrees, Minutes, Seconds
+toHMS (DH dh) =
+  let (h, rm) = properFraction dh
+      (m, rs) = properFraction $ 60 * rm
+      s = 60 * rs
+  in (h, m, s)
+

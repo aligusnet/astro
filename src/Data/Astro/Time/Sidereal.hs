@@ -19,6 +19,7 @@ module Data.Astro.Time.Sidereal
 )
 where
 
+import Data.Astro.Types (fromHMS)
 import Data.Astro.Time.Types (TimeOfDay(..))
 import qualified Data.Astro.Time.Time as T
 import Data.Astro.Time.JulianDate (JulianDate(..), j2000, numberOfCenturies, splitToDayAndTime)
@@ -71,7 +72,8 @@ lstToGST longitude jd =
 
 -- sidereal 24h correspond to 23:56:04 of solar time
 siderealDayLength :: T.BaseType
-siderealDayLength = (T.toDecimalHours (TimeOfDay 23 56 04.0916)) / 24
+siderealDayLength = hours/24
+  where C.DH hours = fromHMS 23 56 04.0916
 
 
 solarSiderealTimesDiff :: T.BaseType -> T.BaseType
