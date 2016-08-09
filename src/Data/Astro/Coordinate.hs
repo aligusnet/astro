@@ -67,7 +67,6 @@ module Data.Astro.Coordinate
   , equatorialToEcliptic
   , galacticToEquatorial
   , equatorialToGalactic
-  , reduceToZero2PI
 )
 
 where
