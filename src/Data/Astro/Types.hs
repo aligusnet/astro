@@ -24,8 +24,20 @@ where
 
 import qualified Data.Astro.Utils as U
 
+
 newtype DecimalDegrees = DD Double
                          deriving (Show, Eq, Ord)
+
+
+instance Num DecimalDegrees where
+  (+) (DD d1) (DD d2) = DD (d1+d2)
+  (-) (DD d1) (DD d2) = DD (d1-d2)
+  (*) (DD d1) (DD d2) = DD (d1*d2)
+  negate (DD d) = DD (negate d)
+  abs (DD d) = DD (abs d)
+  signum (DD d) = DD (signum d)
+  fromInteger int = DD (fromInteger int)
+
 
 newtype DecimalHours = DH Double
                        deriving (Show, Eq, Ord)

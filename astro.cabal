@@ -23,6 +23,7 @@ library
                      , Data.Astro.Coordinate
                      , Data.Astro.Types
                      , Data.Astro.Utils
+                     , Data.Astro.CelestialObject
   other-modules:       
   build-depends:       base >= 4.7 && < 5
                      , time

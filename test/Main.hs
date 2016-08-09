@@ -8,6 +8,7 @@ import qualified Data.Astro.Time.SiderealTest as Time.Sidereal
 import qualified Data.Astro.CoordinateTest as Coordinate
 import qualified Data.Astro.TypesTest as Types
 import qualified Data.Astro.UtilsTest as Utils
+import qualified Data.Astro.CelestialObjectTest as CelestialObject
 
 main = defaultMain tests
 
@@ -19,4 +20,5 @@ tests = [
   , testGroup "Data.Astro.Coordinate" Coordinate.tests
   , testGroup "Data.Astro.Types" Types.tests
   , testGroup "Data.Astro.Utils" Utils.tests
+  , testGroup "Data.Astro.CelestialObject" CelestialObject.tests
   ]
