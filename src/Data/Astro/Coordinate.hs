@@ -30,6 +30,12 @@ Accoring to the ecliptic coordinates system the Sun moves eastwards along the tr
 * __ecliptic longitude, &#x3BB;__ - /'how far round'/ angle from the /vernal equinox/ to the east
 
 
+== /Galactic Coordinates/
+
+* __galactic latitute, b__ - /'how far up'/ angle from the plane of the Galaxy
+* __galactiv longitude, l__ - - /'how far round'/ angle from the direction the Sun - the centre of the Galaxy
+
+
 == /Terms/
 
 * __ecliptic__ - the plane containing the Earth's orbit around the Sun
@@ -48,6 +54,7 @@ module Data.Astro.Coordinate
   , EquatorialCoordinates1(..)
   , EquatorialCoordinates2(..)
   , EclipticCoordinates(..)
+  , GalacticCoordinates(..)
   , fromDegreeMS
   , toDegreeMS
   , raToHA
@@ -58,6 +65,9 @@ module Data.Astro.Coordinate
   , obliquity
   , eclipticToEquatorial
   , equatorialToEcliptic
+  , galacticToEquatorial
+  , equatorialToGalactic
+  , reduceToZero2PI
 )
 
 where
@@ -80,30 +90,38 @@ data DegreeMS = DegreeMS {
 
 -- | Horizon Coordinates, for details see the module's description
 data HorizonCoordinates = HC {
-  hAltitude :: DecimalDegrees
-  , hAzimuth :: DecimalDegrees
+  hAltitude :: DecimalDegrees   -- ^ alpha
+  , hAzimuth :: DecimalDegrees  -- ^ big alpha
   } deriving (Show, Eq)
 
 
 -- | Equatorial Coordinates, defines fixed position in the sky
 data EquatorialCoordinates1 = EC1 {
-  e1Declination :: DecimalDegrees
-  , e1RightAscension :: DecimalHours
+  e1Declination :: DecimalDegrees     -- ^ delta
+  , e1RightAscension :: DecimalHours  -- ^ alpha
   } deriving (Show, Eq)
 
 
--- Equatorial Coordinates
+-- | Equatorial Coordinates
 data EquatorialCoordinates2 = EC2 {
-  e2Declination :: DecimalDegrees
-  , e2HoursAngle :: DecimalHours
+  e2Declination :: DecimalDegrees    -- ^ delta
+  , e2HoursAngle :: DecimalHours     -- ^ H
   } deriving (Show, Eq)
 
 
--- Ecliptic Coordinates
+-- | Ecliptic Coordinates
 data EclipticCoordinates = EcC {
-  ecLatitude :: DecimalDegrees
-  , ecLongitude :: DecimalDegrees
+  ecLatitude :: DecimalDegrees      -- ^ beta
+  , ecLongitude :: DecimalDegrees   -- ^ lambda
   } deriving (Show, Eq)
+
+
+-- | Galactic Coordinates
+data GalacticCoordinates = GC {
+  gLatitude :: DecimalDegrees       -- ^ b
+  , gLongitude :: DecimalDegrees    -- ^ l
+  } deriving (Show, Eq)
+
 
 -- | Convert DegreeMS to DecimalDegree
 fromDegreeMS :: DegreeMS -> DecimalDegrees
@@ -128,7 +146,7 @@ raToHA :: DecimalHours -> DecimalDegrees -> Double -> JulianDate -> DecimalHours
 raToHA = haRAConv
 
 
--- | Convert Right Ascension to Hour Angle for specified longitude, time zone and Julian Date
+-- | Convert Hour Angle to Right Ascension for specified longitude, time zone and Julian Date
 haToRA :: DecimalHours -> DecimalDegrees -> Double -> JulianDate -> DecimalHours
 haToRA = haRAConv
 
@@ -196,7 +214,7 @@ eclipticToEquatorial (EcC beta gamma) jd =
       delta = asin $ (sin beta')*(cos epsilon') + (cos beta')*(sin epsilon')*(sin gamma')
       y = (sin gamma')*(cos epsilon') - (tan beta')*(sin epsilon')
       x = cos gamma'
-      alpha = (atan2 y x)
+      alpha = reduceToZero2PI $ atan2 y x
   in EC1 (fromRadians delta) (toDecimalHours $ fromRadians alpha)
 
 
@@ -209,5 +227,53 @@ equatorialToEcliptic (EC1 delta alpha) jd =
       beta = asin $ (sin delta')*(cos epsilon') - (cos delta')*(sin epsilon')*(sin alpha')
       y = (sin alpha')*(cos epsilon') + (tan delta')*(sin epsilon')
       x = cos alpha'
-      gamma = (atan2 y x)
+      gamma = reduceToZero2PI $ atan2 y x
   in EcC (fromRadians beta) (fromRadians gamma)
+
+
+-- | Galactic Pole Coordinates
+galacticPole :: EquatorialCoordinates1
+galacticPole = EC1 (DD 27.4) (toDecimalHours $ DD 192.25)
+
+galacticPoleInRadians = (delta, alpha)
+  where delta = toRadians $ e1Declination galacticPole
+        alpha = toRadians $ fromDecimalHours $ e1RightAscension galacticPole
+
+
+-- | Ascending node of the galactic place on equator
+ascendingNode :: DecimalDegrees
+ascendingNode = DD 33
+
+
+-- | Convert Galactic Coordinates Equatorial Coordinates
+galacticToEquatorial :: GalacticCoordinates -> EquatorialCoordinates1
+galacticToEquatorial (GC b l) =
+  let b' = toRadians b
+      l' = toRadians l
+      (poleDelta, poleAlpha) = galacticPoleInRadians
+      an = toRadians ascendingNode
+      delta = asin $ (cos b')*(cos poleDelta)*(sin (l'-an)) + (sin b')*(sin poleDelta)
+      y = (cos b')*(cos (l'-an))
+      x = (sin b')*(cos poleDelta) - (cos b')*(sin poleDelta)*(sin (l'-an))
+      alpha = reduceToZero2PI $ (atan2 y x) + poleAlpha
+  in EC1 (fromRadians delta) (toDecimalHours $ fromRadians alpha)
+
+
+-- | Convert Equatorial Coordinates to Galactic Coordinates
+equatorialToGalactic :: EquatorialCoordinates1 -> GalacticCoordinates
+equatorialToGalactic (EC1 delta alpha) =
+  let delta' = toRadians delta
+      alpha' = toRadians $ fromDecimalHours alpha
+      (poleDelta, poleAlpha) = galacticPoleInRadians
+      sinb = (cos delta')*(cos poleDelta)*(cos (alpha'-poleAlpha)) + (sin delta') * (sin poleDelta)
+      y = (sin delta') - sinb*(sin poleDelta)
+      x = (cos delta')*(sin (alpha'-poleAlpha))*(cos poleDelta)
+      b = asin sinb
+      l = reduceToZero2PI $ (atan2 y x) + (toRadians ascendingNode)
+  in GC (fromRadians b) (fromRadians l)
+
+
+-- | Reduce angle from [-pi, pi] to [0, 2*pi]
+-- Usefull to correct results of atan2 for 'how far round' coordinates
+reduceToZero2PI :: (Floating a, Ord a) => a -> a
+reduceToZero2PI rad = if rad < 0 then rad + 2*pi else rad

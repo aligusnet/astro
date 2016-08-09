@@ -15,6 +15,7 @@ module Data.Astro.Utils
   , reduceToZeroRange
   , toRadians
   , fromRadians
+  , roundToN
 )
 
 where
@@ -53,3 +54,9 @@ toRadians deg = deg*pi/180
 -- | Convert from radians to degrees
 fromRadians :: Floating a => a -> a
 fromRadians rad = rad*180/pi
+
+
+-- | Round to a specified number of digits
+roundToN :: RealFrac a => Int -> a -> a
+roundToN n f = (fromInteger $ round $ f * factor) / factor
+  where factor = 10.0^^n

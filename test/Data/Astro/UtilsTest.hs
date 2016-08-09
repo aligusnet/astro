@@ -49,6 +49,12 @@ tests = [testGroup "fromFixed" [
             , testCase "pi -> 180" $ assertApproxEqual "" 0.000000001 180 $ fromRadians pi
             , testCase "2*pi -> 360" $ assertApproxEqual "" 0.000000001 360 $ fromRadians (pi*2)
             ]
+        , testGroup "roundToN" [
+            testCase "10.12341234 -> 10.12341" $ assertApproxEqual "" 0.000000001 10.12341 $ roundToN 5 10.12341234
+            , testCase "-10.123456789 -> -10.123" $ assertApproxEqual "" 0.000000001 (-10.123) $ roundToN 3 (-10.123456789)
+            , testCase "10.9876543 -> 10.987" $ assertApproxEqual "" 0.000000001 10.988 $ roundToN 3 10.9876543
+            , testCase "-10.9876543 -> -10.987" $ assertApproxEqual "" 0.000000001 (-10.9877) $ roundToN 4 (-10.9876543)
+            ]
         ]
 
 toPico :: Real a => a -> Pico

@@ -65,6 +65,17 @@ tests = [testGroup "DecimalDegrees <-> DegreeMS" [
                    (equatorialToEcliptic (EC1 (DD 19.53500313448776) (DH 9.581478176556471)) (JD 2455018.5))
                , testProperty "property" prop_EC1EcCConv
                ]
+           , testGroup "Galactic <-> Equatorial" [
+               testGC "EC 10.053 10.35 -> GC"
+                   0.000001
+                   (GC (DD 51.12226779935766) (DD 232.24788348766026))
+                   (equatorialToGalactic (EC1 (DD 10.053055555555556) (DH 10.35)))
+               , testEC1 "GC 51.122 232.247 -> EC"
+                   0.000001
+                   (EC1 (DD 10.053055555555556) (DH 10.35))
+                   (galacticToEquatorial (GC (DD 51.12226779935766) (DD 232.24788348766026)))
+               , testProperty "property" prop_EC1GCConv
+               ]
          ]
 
 prop_DegreeMSConversion d =
@@ -102,7 +113,7 @@ prop_EC2HCConv (latitude, up, round) =
       up' = reduceToZeroRange 90 up
       round' = reduceToZeroRange 360 round
       HC (DD up'') (DD round'') = equatorialToHorizon latitude' $ horizonToEquatorial latitude' (HC (DD up') (DD round'))
-      eps = 0.0000001
+      eps = 0.00001
   in abs(up'-up'') < eps && abs(round'-round'') < eps
   where types = ((latitude, up, round)::(Double, Double, Double))
 
@@ -126,9 +137,26 @@ assertEcC eps expected@(EcC (DD eLat) (DD eLon)) actual@(EcC (DD aLat) (DD aLon)
 
 prop_EC1EcCConv (jd, up, round) =
   let jd' = JD $ (reduceToZeroRange 10000  jd) + 2455018.5
-      up' = (reduceToZeroRange 178 up) - 89
-      round' = (reduceToZeroRange 360 round) - 180
+      up' = (reduceToZeroRange 90 up)
+      round' = (reduceToZeroRange 359 round)
       EcC (DD up'') (DD round'') = equatorialToEcliptic (eclipticToEquatorial (EcC (DD up') (DD round')) jd') jd'
-      eps = 0.00000001
+      eps = 0.000001
   in abs(up'-up'') < eps && abs(round'-round'') < eps
   where types = ((jd, up, round)::(Double, Double, Double))
+
+
+testGC msg eps expected actual =
+  testCase msg $ assertGC eps expected actual
+
+assertGC eps expected@(GC (DD eLat) (DD eLon)) actual@(GC (DD aLat) (DD aLon)) =
+  unless (abs(eLat-aLat) <= eps && abs(eLon-aLon) <= eps) (assertFailure msg)
+  where msg = "expected: " ++ show expected ++ "\n but got: " ++ show actual ++
+              "\n (maximum margin of error: " ++ show eps ++ ")"
+
+prop_EC1GCConv (up, round) =
+  let up' = (reduceToZeroRange 90 up)
+      round' = (reduceToZeroRange 359 round)
+      GC (DD up'') (DD round'') = equatorialToGalactic $ galacticToEquatorial (GC (DD up') (DD round'))
+      eps = 0.000001
+  in abs(up'-up'') < eps && abs(round'-round'') < eps
+  where types = ((up, round)::(Double, Double))
