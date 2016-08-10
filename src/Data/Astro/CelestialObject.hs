@@ -16,9 +16,8 @@ module Data.Astro.CelestialObject
 
 where
 
-import Data.Astro.Types (DecimalDegrees, DecimalHours, GeographicCoordinates(..), toRadians, fromRadians, toDecimalHours, fromDecimalHours)
+import Data.Astro.Types (DecimalDegrees, DecimalHours, toRadians, fromRadians, toDecimalHours, fromDecimalHours)
 import Data.Astro.Utils (reduceToZeroRange)
-import Data.Astro.Time.JulianDate (JulianDate(..))
 import Data.Astro.Coordinate (EquatorialCoordinates1(..), EclipticCoordinates(..))
 
 
