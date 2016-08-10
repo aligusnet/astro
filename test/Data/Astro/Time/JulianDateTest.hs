@@ -67,6 +67,12 @@ tests = [testGroup "to julian day" [
               0.095099247
               (numberOfCenturies j2000 $ JD 2455018.5)
             ]
+        ,   testGroup "numberOfYears" [
+            testCase "B1950..1979-07-02" $ assertApproxEqual ""
+              0.000000001
+              29.5
+              (numberOfYears b1950 $ JD 2444057.2985)
+            ]
         ]
 
 prop_JulianConversionsAfterGeorge =

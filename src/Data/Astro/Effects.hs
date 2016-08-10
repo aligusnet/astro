@@ -16,7 +16,7 @@ module Data.Astro.Effects
 where
 
 import Data.Astro.Types (DecimalDegrees(..), DecimalHours(..), toDecimalHours, fromDecimalHours, toRadians, fromRadians)
-import Data.Astro.Time.JulianDate (JulianDate(..), b1900, b1950, j2000, j2050)
+import Data.Astro.Time.JulianDate (JulianDate(..), b1900, b1950, j2000, j2050, numberOfYears)
 import Data.Astro.Coordinate (EquatorialCoordinates1(..))
 
 
@@ -88,7 +88,7 @@ precession1 :: AstronomyEpoch -> EquatorialCoordinates1 -> JulianDate -> Equator
 precession1 epoch (EC1 delta alpha) jd =
   let delta' = toRadians delta
       alpha' = toRadians $ fromDecimalHours alpha
-      JD years = jd - (epochToJD epoch)
+      years = numberOfYears (epochToJD epoch) jd
       PrecessionalConstants m n n' = precessionalConstants epoch
       s1 = DH $ (m + n*(sin alpha')*(tan delta'))*years / 3600
       s2 = DD $ (n'*(cos alpha')) * years / 3600

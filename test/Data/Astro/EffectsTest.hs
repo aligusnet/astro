@@ -42,6 +42,6 @@ tests = [testGroup "refraction" [
              testEC1 "low-precision method"
                0.0000001
                (EC1 (fromDMS 14 16 7.8329) (fromHMS 9 12 20.4707))
-               (precession1 B1950 (EC1 (fromDMS 14 23 25) (fromHMS 9 10 43)) (JD 2433311.9235))
+               (precession1 B1950 (EC1 (fromDMS 14 23 25) (fromHMS 9 10 43)) (JD 2444057.2985))
              ]
         ]

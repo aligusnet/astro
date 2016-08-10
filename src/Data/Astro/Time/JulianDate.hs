@@ -20,6 +20,7 @@ module Data.Astro.Time.JulianDate
   , j2000
   , j2050
     -- *
+  , numberOfYears
   , numberOfCenturies
   , fromDateTime
   , toDateTime
@@ -72,6 +73,11 @@ instance Num JulianDate where
   abs (JD d) = JD (abs d)
   signum (JD d) = JD (signum d)
   fromInteger int = JD (fromInteger int)
+
+
+-- | Return number of years since the first argument till the second one
+numberOfYears :: JulianDate -> JulianDate -> TimeBaseType
+numberOfYears (JD jd1) (JD jd2) = (jd2-jd1) / 365.25
 
 
 -- | Return number of centuries since the first argument till the second one
