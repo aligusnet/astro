@@ -17,7 +17,6 @@ import Data.Astro.Time.JulianDateTest (testJD)
 
 import Data.Astro.Types (DecimalHours(..), fromHMS)
 import Data.Astro.Coordinate (DecimalDegrees(..))
-import Data.Astro.Time.Types (TimeOfDay(..))
 import Data.Astro.Time.JulianDate (JulianDate(..), splitToDayAndTime)
 import Data.Astro.Time.Sidereal
 
