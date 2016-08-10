@@ -15,7 +15,7 @@ where
 
 import Data.Astro.Types (DecimalDegrees(..), toRadians)
 
--- | Calculate the refraction angle.
+-- | Calculate the atmospheric refraction's angle.
 -- It takes the observed altitude (of Horizon Coordinates), temperature in degrees centigrade and barometric pressure in millibars.
 refract :: DecimalDegrees -> Double -> Double -> DecimalDegrees
 refract altitude temperature pressure =
