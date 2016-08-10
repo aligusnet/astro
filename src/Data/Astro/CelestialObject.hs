@@ -59,6 +59,8 @@ calcAngle (up1, round1) (up2, round2) =
 -- | Calculate rise and set local sidereal time of a celestial object.
 -- It takes the equatorial coordinates of the celestial object,
 -- vertical shift and the latitude of the observation.
+-- To calculate /vertical shift/ for stars use function 'refract' from "Data.Astro.Effects".
+-- In most cases you can assume that /vertical shift/ equals 0.566569 (34 arcmins ~ 'refract (DD 0) 12 1012').
 riseAndSet :: EquatorialCoordinates1 -> DecimalDegrees -> DecimalDegrees -> RiseAndSetTimeAzimuth
 riseAndSet (EC1 delta alpha) shift lat =
   let delta' = toRadians delta
