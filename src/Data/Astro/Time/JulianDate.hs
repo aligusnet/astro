@@ -12,7 +12,14 @@ module Data.Astro.Time.JulianDate
 (
   JulianDate(..)
   , TimeBaseType
+    -- * Epochs
+    -- ** Besselian Epochs
+  , b1900
+  , b1950
+    -- ** New Epochs
   , j2000
+  , j2050
+    -- *
   , numberOfCenturies
   , fromDateTime
   , toDateTime
@@ -40,9 +47,21 @@ newtype JulianDate = JD TimeBaseType
 julianStartDateTime = LocalTime (fromGregorian (-4712) 1 1) (TimeOfDay 12 0 0)
 
 
--- | Epoch 2000, 12h on 1 January 2000
+-- | Epoch B1900.0, 1900 January 0.8135
+b1900 :: JulianDate
+b1900 = JD 2415020.3135
+
+-- | Epoch B1950.0, January 0.9235
+b1950 :: JulianDate
+b1950 = JD 2433282.4235
+
+-- | Epoch J2000.0, 12h on 1 January 2000
 j2000 :: JulianDate
 j2000 = JD 2451545.0
+
+-- | Epoch J2050.0, 12h on 1 January 2000
+j2050 :: JulianDate
+j2050 = JD 2469807.50
 
 
 instance Num JulianDate where

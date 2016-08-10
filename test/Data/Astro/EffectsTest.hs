@@ -13,8 +13,11 @@ import Test.HUnit
 import Test.QuickCheck
 
 import Data.Astro.TypesTest (testDecimalDegrees)
+import Data.Astro.CoordinateTest (testEC1)
 
-import Data.Astro.Types (DecimalDegrees(..))
+import Data.Astro.Types (DecimalDegrees(..), DecimalHours(..), fromDMS, fromHMS)
+import Data.Astro.Time.JulianDate (JulianDate(..))
+import Data.Astro.Coordinate (EquatorialCoordinates1(..))
 import Data.Astro.Effects
 
 tests = [testGroup "refraction" [
@@ -35,4 +38,10 @@ tests = [testGroup "refraction" [
                 (DD 0.007905)
                 (refract (DD 63.5) 15.5 1012)
             ]
+         , testGroup "precession" [
+             testEC1 "low-precision method"
+               0.0000001
+               (EC1 (fromDMS 14 16 7.8329) (fromHMS 9 12 20.4707))
+               (precession1 B1950 (EC1 (fromDMS 14 23 25) (fromHMS 9 10 43)) (JD 2433311.9235))
+             ]
         ]
