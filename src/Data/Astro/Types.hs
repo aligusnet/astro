@@ -10,6 +10,7 @@ module Data.Astro.Types
 (
   DecimalDegrees(..)
   , DecimalHours (..)
+  , GeographicCoordinates(..)
   , toDecimalHours
   , fromDecimalHours
   , toRadians
@@ -43,6 +44,29 @@ newtype DecimalHours = DH Double
                        deriving (Show, Eq, Ord)
 
 
+instance Num DecimalHours where
+  (+) (DH d1) (DH d2) = DH (d1+d2)
+  (-) (DH d1) (DH d2) = DH (d1-d2)
+  (*) (DH d1) (DH d2) = DH (d1*d2)
+  negate (DH d) = DH (negate d)
+  abs (DH d) = DH (abs d)
+  signum (DH d) = DH (signum d)
+  fromInteger int = DH (fromInteger int)
+
+instance Real DecimalHours where
+  toRational (DH d) = toRational d
+
+instance Fractional DecimalHours where
+  (/) (DH d1) (DH d2) = DH (d1/d2)
+  recip (DH d) = DH (recip d)
+  fromRational r = DH (fromRational r)
+
+instance RealFrac DecimalHours where
+  properFraction (DH d) =
+    let (i, f) = properFraction d
+    in (i, DH f)
+
+
 -- | Convert decimal degrees to decimal hours
 toDecimalHours :: DecimalDegrees -> DecimalHours
 toDecimalHours (DD d) = DH $ d/15  -- 360 / 24 = 15
@@ -50,6 +74,13 @@ toDecimalHours (DD d) = DH $ d/15  -- 360 / 24 = 15
 -- | Convert decimal hours to decimal degrees
 fromDecimalHours :: DecimalHours -> DecimalDegrees
 fromDecimalHours (DH h) = DD $ h*15
+
+
+-- | Geographic Coordinates
+data GeographicCoordinates = GeoC {
+  geoLatitude :: DecimalDegrees
+  , geoLongitude :: DecimalDegrees
+  } deriving (Show, Eq)
 
 
 -- | Convert from DecimalDegrees to Radians

@@ -1,10 +1,11 @@
 {-|
 Module: Data.Astro.Coordinate
-Description: Coordinate Systems
+Description: Celestial Coordinate Systems
 Copyright: Alexander Ignatyev, 2016
 
-= Coordinate Systems
+See "Data.Astro.Types" module for Georgraphic Coordinates.
 
+= Celestial Coordinate Systems
 
 == /Horizon coordinates/
 

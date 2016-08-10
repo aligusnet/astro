@@ -8,14 +8,29 @@ Computations characteristics of selestial objects.
 
 module Data.Astro.CelestialObject
 (
-  angleEquatorial
+  RiseAndSetTimeAzimuth(..)
+  , angleEquatorial
   , angleEcliptic
+  , riseAndSet
 )
 
 where
 
-import Data.Astro.Types (DecimalDegrees, toRadians, fromRadians, fromDecimalHours)
+import Data.Astro.Types (DecimalDegrees, DecimalHours, GeographicCoordinates(..), toRadians, fromRadians, toDecimalHours, fromDecimalHours)
+import Data.Astro.Utils (reduceToZeroRange)
+import Data.Astro.Time.JulianDate (JulianDate(..))
 import Data.Astro.Coordinate (EquatorialCoordinates1(..), EclipticCoordinates(..))
+
+
+-- | LST and Azimuth for Rise and Set of a celestial object
+data RiseAndSetTimeAzimuth
+  -- | (Local Sidereal Time, Azimuth) for Rise and Set of the celestial object
+  = RiseSet (DecimalHours, DecimalDegrees) (DecimalHours, DecimalDegrees)
+  -- | The celestial object is always above the horizon
+  | Circumpolar
+  -- | The celestial object is always below the horizon
+  | NeverRises
+  deriving (Show, Eq)
 
 
 -- | Calculate angle between two celestial objects
@@ -40,3 +55,35 @@ calcAngle (up1, round1) (up2, round2) =
       round2' = toRadians round2
       d = acos $ (sin up1')*(sin up2') + (cos up1')*(cos up2')*cos(round1'-round2')
   in fromRadians d
+
+
+-- | Calculate rise and set local sidereal time of a celestial object.
+-- It takes the equatorial coordinates of the celestial object,
+-- vertical shift and the latitude of the observation.
+riseAndSet :: EquatorialCoordinates1 -> DecimalDegrees -> DecimalDegrees -> RiseAndSetTimeAzimuth
+riseAndSet (EC1 delta alpha) shift lat =
+  let delta' = toRadians delta
+      shift' = toRadians shift
+      lat' = toRadians lat
+      cosH = cosOfHourAngle delta' shift' lat'
+  in sortRiseSet cosH delta' shift' lat'
+
+  where sortRiseSet :: Double -> Double -> Double -> Double -> RiseAndSetTimeAzimuth
+        sortRiseSet cosH delta shift latitude
+          | cosH < -1 = Circumpolar
+          | cosH > 1 = NeverRises
+          | otherwise = calcTimesAndAzimuths alpha (toHours $ acos cosH) delta shift latitude
+
+        toHours :: Double -> DecimalHours
+        toHours = toDecimalHours . fromRadians
+
+        cosOfHourAngle :: Double -> Double -> Double -> Double
+        cosOfHourAngle delta shift latitude = -((sin shift) + (sin latitude)*(sin delta)) / ((cos latitude)*(cos delta))
+
+        calcTimesAndAzimuths :: DecimalHours -> DecimalHours -> Double -> Double -> Double -> RiseAndSetTimeAzimuth
+        calcTimesAndAzimuths alpha hourAngle delta shift latitude =
+          let lstRise = reduceToZeroRange 24 $ alpha - hourAngle
+              lstSet = reduceToZeroRange 24 $ alpha + hourAngle
+              azimuthRise = reduceToZeroRange (2*pi) $ acos $ ((sin delta) + (sin shift)*(sin latitude)) / ((cos shift)*(cos latitude))
+              azimuthSet = 2*pi - azimuthRise
+          in RiseSet (lstRise, fromRadians azimuthRise) (lstSet, fromRadians azimuthSet)
