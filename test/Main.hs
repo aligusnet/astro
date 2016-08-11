@@ -10,6 +10,7 @@ import qualified Data.Astro.TypesTest as Types
 import qualified Data.Astro.UtilsTest as Utils
 import qualified Data.Astro.CelestialObjectTest as CelestialObject
 import qualified Data.Astro.EffectsTest as Effects
+import qualified Data.Astro.SunTest as Sun
 
 main = defaultMain tests
 
@@ -23,4 +24,5 @@ tests = [
   , testGroup "Data.Astro.Utils" Utils.tests
   , testGroup "Data.Astro.CelestialObject" CelestialObject.tests
   , testGroup "Data.Astro.Effects" Effects.tests
+  , testGroup "Data.Astro.Sun" Sun.tests
   ]
