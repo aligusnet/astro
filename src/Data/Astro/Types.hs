@@ -39,6 +39,19 @@ instance Num DecimalDegrees where
   signum (DD d) = DD (signum d)
   fromInteger int = DD (fromInteger int)
 
+instance Real DecimalDegrees where
+  toRational (DD d) = toRational d
+
+instance Fractional DecimalDegrees where
+  (/) (DD d1) (DD d2) = DD (d1/d2)
+  recip (DD d) = DD (recip d)
+  fromRational r = DD (fromRational r)
+
+instance RealFrac DecimalDegrees where
+  properFraction (DD d) =
+    let (i, f) = properFraction d
+    in (i, DD f)
+
 
 newtype DecimalHours = DH Double
                        deriving (Show, Eq, Ord)

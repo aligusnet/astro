@@ -20,13 +20,16 @@ module Data.Astro.Sun
   SunDetails(..)
   , j2010
   , sunDetails
+  , j2010SunDetails
+  , coordinatesOfSun
 )
 
 where
 
-import Data.Astro.Utils (reduceToZeroRange)
+import qualified Data.Astro.Utils as U
 import Data.Astro.Types (DecimalDegrees(..))
 import Data.Astro.Time.JulianDate (JulianDate(..), numberOfCenturies)
+import Data.Astro.Coordinate (EquatorialCoordinates1(..), EclipticCoordinates(..), eclipticToEquatorial)
 
 
 -- | Details of the Sun's apparent orbit at the given epoch
@@ -53,11 +56,40 @@ j2010SunDetails :: SunDetails
 j2010SunDetails = SunDetails j2010 (DD 279.557208) (DD 283.112438) 0.016705
 
 
+-- | Reduce the value to the range [0, 360)
+reduceTo360 :: Double -> Double
+reduceTo360 = U.reduceToZeroRange 360
+
+
 -- | Calculate SunDetails for the given JulianDate.
 sunDetails :: JulianDate -> SunDetails
 sunDetails jd =
   let t = numberOfCenturies j1900 jd
-      epsilon = reduceToZeroRange 360 $ 279.6966778 + 36000.76892*t + 0.0003025*t*t
-      omega = reduceToZeroRange 360 $ 281.2208444 + 1.719175*t + 0.000452778*t*t
+      epsilon = reduceTo360 $ 279.6966778 + 36000.76892*t + 0.0003025*t*t
+      omega = reduceTo360 $ 281.2208444 + 1.719175*t + 0.000452778*t*t
       e = 0.01675104 - 0.0000418*t - 0.000000126*t*t
   in SunDetails jd (DD epsilon) (DD omega) e
+
+
+-- | Length of a tropical year in days
+tropicalYearLen :: Double
+tropicalYearLen = 365.242191
+
+
+-- | Calculate the longitude of the Sun with the given SunDetails at the given JulianDate
+longitude :: SunDetails -> JulianDate -> DecimalDegrees
+longitude sd@(SunDetails epoch (DD eps) (DD omega) e) jd =
+  let JD d = jd - epoch  -- number of days
+      n = reduceTo360 $ (360/tropicalYearLen) * d
+      meanAnomaly = reduceTo360 $ n + eps - omega
+      ec = (360/pi)*e*(sin $ U.toRadians meanAnomaly)
+  in DD $ reduceTo360 $ n + ec + eps
+
+
+-- | Calculate Equatorial Coordinates of the Sun with the given SunDetails at the given JulianDate.
+-- It is recommended to used 'j2010SunDetails' as a first parameter.
+coordinatesOfSun :: SunDetails -> JulianDate -> EquatorialCoordinates1
+coordinatesOfSun sd jd =
+  let lambda = longitude sd jd
+      beta = DD 0
+  in eclipticToEquatorial (EcC beta lambda) jd

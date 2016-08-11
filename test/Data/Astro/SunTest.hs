@@ -14,8 +14,11 @@ import Test.QuickCheck
 
 import Control.Monad (unless)
 
-import Data.Astro.Types (DecimalDegrees(..))
+import Data.Astro.CoordinateTest (testEC1)
+
+import Data.Astro.Types (DecimalDegrees(..), fromDMS, fromHMS)
 import Data.Astro.Time.JulianDate (JulianDate(..))
+import Data.Astro.Coordinate (EquatorialCoordinates1(..))
 import Data.Astro.Sun
 
 tests = [testGroup "sunDetails" [
@@ -24,6 +27,12 @@ tests = [testGroup "sunDetails" [
               (SunDetails j2010 (DD 279.557208) (DD 283.112438) 0.016705)
               (sunDetails j2010)
             ]
+         , testGroup "the Sun's coordinates" [
+             testEC1 "at 2003-07-27 00:00:00"
+               0.000001
+               (EC1 (fromDMS 19 21 10.3814) (fromHMS 8 23 33.6581))
+               (coordinatesOfSun j2010SunDetails (JD 2452847.5))
+             ]
         ]
 
 testSunDetails msg eps expected actual =
