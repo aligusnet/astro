@@ -21,13 +21,14 @@ module Data.Astro.Sun
   , j2010
   , sunDetails
   , j2010SunDetails
-  , coordinatesOfSun
+  , sunPosition1
+  , sunPosition2
 )
 
 where
 
 import qualified Data.Astro.Utils as U
-import Data.Astro.Types (DecimalDegrees(..))
+import Data.Astro.Types (DecimalDegrees(..), toRadians, fromRadians)
 import Data.Astro.Time.JulianDate (JulianDate(..), numberOfCenturies)
 import Data.Astro.Coordinate (EquatorialCoordinates1(..), EclipticCoordinates(..), eclipticToEquatorial)
 
@@ -91,8 +92,21 @@ longitude sd@(SunDetails epoch (DD eps) (DD omega) e) jd =
 
 -- | Calculate Equatorial Coordinates of the Sun with the given SunDetails at the given JulianDate.
 -- It is recommended to used 'j2010SunDetails' as a first parameter.
-coordinatesOfSun :: SunDetails -> JulianDate -> EquatorialCoordinates1
-coordinatesOfSun sd jd =
+sunPosition1 :: SunDetails -> JulianDate -> EquatorialCoordinates1
+sunPosition1 sd jd =
   let lambda = longitude sd jd
+      beta = DD 0
+  in eclipticToEquatorial (EcC beta lambda) jd
+
+
+-- | More accurate method to calculate position of the Sun
+sunPosition2 :: JulianDate -> EquatorialCoordinates1
+sunPosition2 jd =
+  let SunDetails _ (DD eps) (DD omega) e = sunDetails jd
+      m = U.toRadians $ eps - omega
+      bigE = solveKeplerEquation e m 0.000000001
+      tanHalfNu = sqrt((1+e)/(1-e)) * tan (0.5 * bigE)
+      nu = reduceTo360 $ U.fromRadians $ 2 * (atan tanHalfNu)
+      lambda = DD $ reduceTo360 $ nu + omega
       beta = DD 0
   in eclipticToEquatorial (EcC beta lambda) jd
