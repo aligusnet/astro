@@ -10,10 +10,12 @@ import Test.Framework (testGroup)
 import Test.Framework.Providers.HUnit
 import Test.Framework.Providers.QuickCheck2 (testProperty)
 import Test.HUnit
+import Test.HUnit.Approx
 import Test.QuickCheck
 
 import Control.Monad (unless)
 
+import Data.Astro.TypesTest (testDecimalDegrees)
 import Data.Astro.CoordinateTest (testEC1)
 
 import Data.Astro.Types (DecimalDegrees(..), fromDMS, fromHMS)
@@ -45,6 +47,18 @@ tests = [testGroup "sunDetails" [
                  (EC1 (fromDMS 19 21 2.2051) (fromHMS 8 23 36.0670))
                  (sunPosition2 (JD 2452847.5))
              ]
+           , testGroup "distance" [
+               testCase "at 1988-07-27 00:00:00" $ assertApproxEqual ""
+                 1
+                 151920130
+                 (sunDistance (JD 2447369.5))
+               ]
+           , testGroup "angular size" [
+               testDecimalDegrees "at 1988-07-27 00:00:00"
+                 0.000001
+                 (fromDMS 0 31 29.9308)
+                 (sunAngularSize (JD 2447369.5))
+               ]
         ]
 
 testSunDetails msg eps expected actual =

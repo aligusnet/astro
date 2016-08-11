@@ -23,6 +23,8 @@ module Data.Astro.Sun
   , j2010SunDetails
   , sunPosition1
   , sunPosition2
+  , sunDistance
+  , sunAngularSize
 )
 
 where
@@ -57,6 +59,16 @@ j2010 = JD 2455196.5
 -- | SunDetails at the Sun's reference Epoch J2010.0
 j2010SunDetails :: SunDetails
 j2010SunDetails = SunDetails j2010 (DD 279.557208) (DD 283.112438) 0.016705
+
+
+-- | Semi-major axis
+r0 :: Double
+r0 = 1.495985e8
+
+
+-- | Angular diameter at r = r0
+theta0 :: DecimalDegrees
+theta0 = DD 0.533128
 
 
 -- | Reduce the value to the range [0, 360)
@@ -99,14 +111,39 @@ sunPosition1 sd jd =
   in eclipticToEquatorial (EcC beta lambda) jd
 
 
--- | More accurate method to calculate position of the Sun
-sunPosition2 :: JulianDate -> EquatorialCoordinates1
-sunPosition2 jd =
-  let SunDetails _ (DD eps) (DD omega) e = sunDetails jd
-      m = U.toRadians $ eps - omega
+-- | Calculate true anomaly using the second 'more accurate' method
+trueAnomaly2 :: SunDetails -> DecimalDegrees
+trueAnomaly2 (SunDetails _ (DD eps) (DD omega) e) =
+  let m = U.toRadians $ eps - omega
       bigE = solveKeplerEquation e m 0.000000001
       tanHalfNu = sqrt((1+e)/(1-e)) * tan (0.5 * bigE)
       nu = reduceTo360 $ U.fromRadians $ 2 * (atan tanHalfNu)
+  in DD nu
+
+
+-- | More accurate method to calculate position of the Sun
+sunPosition2 :: JulianDate -> EquatorialCoordinates1
+sunPosition2 jd =
+  let sd = sunDetails jd
+      DD omega = sdOmega sd
+      DD nu = trueAnomaly2 sd
       lambda = DD $ reduceTo360 $ nu + omega
       beta = DD 0
   in eclipticToEquatorial (EcC beta lambda) jd
+
+
+-- Distance and Angular Size helper function
+dasf sd =
+  let e = sdE sd
+      nu = toRadians $ trueAnomaly2 sd
+  in (1 + e*(cos nu)) / (1 - e*e)
+
+
+-- | Calculate Sun-Earth distance.
+sunDistance :: JulianDate -> Double
+sunDistance jd = r0 / (dasf $ sunDetails jd)
+
+
+-- | Calculate the Sun's angular size (i.e. its angular diameter).
+sunAngularSize :: JulianDate -> DecimalDegrees
+sunAngularSize jd = theta0 * (DD $ dasf $ sunDetails jd)
