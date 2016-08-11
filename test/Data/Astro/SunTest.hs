@@ -29,9 +29,13 @@ tests = [testGroup "sunDetails" [
             ]
          , testGroup "the Sun's coordinates" [
              testEC1 "at 2003-07-27 00:00:00"
-               0.000001
-               (EC1 (fromDMS 19 21 10.3814) (fromHMS 8 23 33.6581))
-               (coordinatesOfSun j2010SunDetails (JD 2452847.5))
+                 0.000001
+                 (EC1 (fromDMS 19 21 10.3814) (fromHMS 8 23 33.6581))
+                 (coordinatesOfSun j2010SunDetails (JD 2452847.5))
+             , testEC1 "at 2016-08-11 13:30:00"
+                 0.000001
+                 (EC1 (fromDMS 15 2 9.4605) (fromHMS 9 26 50.3172))
+                 (coordinatesOfSun j2010SunDetails (JD 2457612.0625))
              ]
         ]
 
