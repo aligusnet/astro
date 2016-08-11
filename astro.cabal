@@ -26,6 +26,7 @@ library
                      , Data.Astro.CelestialObject
                      , Data.Astro.Effects
                      , Data.Astro.Sun
+                     , Data.Astro.Sun.SunInternals
   other-modules:
                        Data.Astro.Effects.Precession
   build-depends:       base >= 4.7 && < 5

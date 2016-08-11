@@ -31,6 +31,8 @@ import Data.Astro.Types (DecimalDegrees(..))
 import Data.Astro.Time.JulianDate (JulianDate(..), numberOfCenturies)
 import Data.Astro.Coordinate (EquatorialCoordinates1(..), EclipticCoordinates(..), eclipticToEquatorial)
 
+import Data.Astro.Sun.SunInternals (solveKeplerEquation)
+
 
 -- | Details of the Sun's apparent orbit at the given epoch
 data SunDetails = SunDetails {
@@ -69,6 +71,7 @@ sunDetails jd =
       omega = reduceTo360 $ 281.2208444 + 1.719175*t + 0.000452778*t*t
       e = 0.01675104 - 0.0000418*t - 0.000000126*t*t
   in SunDetails jd (DD epsilon) (DD omega) e
+
 
 
 -- | Length of a tropical year in days
