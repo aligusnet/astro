@@ -29,6 +29,7 @@ library
                      , Data.Astro.Sun.SunInternals
   other-modules:       Data.Astro.Effects.Precession
                      , Data.Astro.Effects.Nutation
+                     , Data.Astro.Effects.Aberration
   build-depends:       base >= 4.7 && < 5
                      , time
                      , matrix

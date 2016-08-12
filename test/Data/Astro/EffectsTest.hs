@@ -15,11 +15,11 @@ import Test.QuickCheck
 import Control.Monad (unless)
 
 import Data.Astro.TypesTest (testDecimalDegrees)
-import Data.Astro.CoordinateTest (testEC1)
+import Data.Astro.CoordinateTest (testEC1, testEcC)
 
 import Data.Astro.Types (DecimalDegrees(..), DecimalHours(..), fromDMS, fromHMS)
 import Data.Astro.Time.JulianDate (JulianDate(..), b1950)
-import Data.Astro.Coordinate (EquatorialCoordinates1(..))
+import Data.Astro.Coordinate (EquatorialCoordinates1(..), EclipticCoordinates(..))
 import Data.Astro.Effects
 
 tests = [testGroup "refraction" [
@@ -68,6 +68,12 @@ tests = [testGroup "refraction" [
                   (DD (-0.0024250649))
                   (nutationObliquity (JD 2457612.5))
               ]
+            , testGroup "aberration" [
+                testEcC "Mars at 1988-09-08"
+                  0.00000001
+                  (EcC (-(fromDMS 1 32 56.3319)) (fromDMS 352 37 30.4521))
+                  (includeAberration (EcC (-(fromDMS 1 32 56.4)) (fromDMS 352 37 10.1)) (JD 2447412.5) (fromDMS 165 33 44.1))
+                ]
         ]
 
 testPairOfDD msg eps expected actual =

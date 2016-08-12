@@ -15,7 +15,7 @@ module Data.Astro.Effects.Nutation
 where
 
 import qualified Data.Astro.Utils as U
-import Data.Astro.Types (DecimalDegrees(..), toRadians)
+import Data.Astro.Types (DecimalDegrees(..), toRadians, fromDMS)
 import Data.Astro.Time.JulianDate (JulianDate, j1900, numberOfCenturies)
 
 
@@ -26,7 +26,7 @@ nutationLongitude jd =
       l = sunMeanLongutude t
       omega = moonNode t
       dPsi = -17.2*(sin omega) - 1.3*(sin $ 2*l)
-  in secToDD dPsi
+  in fromDMS 0 0 dPsi
 
 
 -- | Calculates the nutation on the obliquity of the ecliptic at the given JulianDate
@@ -36,7 +36,7 @@ nutationObliquity jd =
       l = sunMeanLongutude t
       omega = moonNode t
       dEps = 9.2*(cos omega) + 0.5*(cos $ 2*l)
-  in secToDD dEps
+  in fromDMS 0 0 dEps
 
 
 -- | It takes a number of centuries and returns the Sun's mean longitude in radians
@@ -56,8 +56,3 @@ moonNode t =
 -- | 'round' function that returns Double
 int :: Double -> Double
 int = fromIntegral . round
-
-
--- | Converts arcsec to DecimalDegrees
-secToDD :: Double -> DecimalDegrees
-secToDD n = DD $ n / 3600

@@ -21,6 +21,8 @@ module Data.Astro.Sun
   , j2010
   , sunDetails
   , j2010SunDetails
+  , sunEclipticLongitude1
+  , sunEclipticLongitude2
   , sunPosition1
   , sunPosition2
   , sunDistance
@@ -88,9 +90,9 @@ tropicalYearLen :: Double
 tropicalYearLen = 365.242191
 
 
--- | Calculate the longitude of the Sun with the given SunDetails at the given JulianDate
-longitude :: SunDetails -> JulianDate -> DecimalDegrees
-longitude sd@(SunDetails epoch (DD eps) (DD omega) e) jd =
+-- | Calculate the ecliptic longitude of the Sun with the given SunDetails at the given JulianDate
+sunEclipticLongitude1 :: SunDetails -> JulianDate -> DecimalDegrees
+sunEclipticLongitude1 sd@(SunDetails epoch (DD eps) (DD omega) e) jd =
   let JD d = jd - epoch  -- number of days
       n = reduceTo360 $ (360/tropicalYearLen) * d
       meanAnomaly = reduceTo360 $ n + eps - omega
@@ -103,7 +105,7 @@ longitude sd@(SunDetails epoch (DD eps) (DD omega) e) jd =
 -- It is recommended to used 'j2010SunDetails' as a first parameter.
 sunPosition1 :: SunDetails -> JulianDate -> EquatorialCoordinates1
 sunPosition1 sd jd =
-  let lambda = longitude sd jd
+  let lambda = sunEclipticLongitude1 sd jd
       beta = DD 0
   in eclipticToEquatorial (EcC beta lambda) jd
 
@@ -118,14 +120,20 @@ trueAnomaly2 (SunDetails _ (DD eps) (DD omega) e) =
   in DD nu
 
 
--- | More accurate method to calculate position of the Sun
-sunPosition2 :: JulianDate -> EquatorialCoordinates1
-sunPosition2 jd =
+-- | Calculate the ecliptic longitude of the Sun at the given JulianDate
+sunEclipticLongitude2 :: JulianDate -> DecimalDegrees
+sunEclipticLongitude2 jd =
   let sd = sunDetails jd
       DD omega = sdOmega sd
       DD nu = trueAnomaly2 sd
       DD nutation = nutationLongitude jd
-      lambda = DD $ reduceTo360 $ nu + omega + nutation
+  in DD $ reduceTo360 $ nu + omega + nutation
+
+
+-- | More accurate method to calculate position of the Sun
+sunPosition2 :: JulianDate -> EquatorialCoordinates1
+sunPosition2 jd =
+  let lambda = sunEclipticLongitude2 jd
       beta = DD 0
   in eclipticToEquatorial (EcC beta lambda) jd
 

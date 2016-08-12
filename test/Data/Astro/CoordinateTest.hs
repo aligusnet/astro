@@ -2,6 +2,7 @@ module Data.Astro.CoordinateTest
 (
   tests
   , testEC1
+  , testEcC
 )
 
 where
