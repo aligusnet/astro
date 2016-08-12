@@ -27,8 +27,8 @@ library
                      , Data.Astro.Effects
                      , Data.Astro.Sun
                      , Data.Astro.Sun.SunInternals
-  other-modules:
-                       Data.Astro.Effects.Precession
+  other-modules:       Data.Astro.Effects.Precession
+                     , Data.Astro.Effects.Nutation
   build-depends:       base >= 4.7 && < 5
                      , time
                      , matrix

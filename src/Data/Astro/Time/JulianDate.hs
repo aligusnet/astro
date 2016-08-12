@@ -17,6 +17,7 @@ module Data.Astro.Time.JulianDate
   , b1900
   , b1950
     -- ** New Epochs
+  , j1900
   , j2000
   , j2050
     -- *
@@ -55,6 +56,11 @@ b1900 = JD 2415020.3135
 -- | Epoch B1950.0, January 0.9235
 b1950 :: JulianDate
 b1950 = JD 2433282.4235
+
+
+-- | Epoch J1900.0 1900 January 0.5
+j1900 :: JulianDate
+j1900 = JD 2415020.0
 
 -- | Epoch J2000.0, 12h on 1 January 2000
 j2000 :: JulianDate

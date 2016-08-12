@@ -31,7 +31,7 @@ where
 
 import qualified Data.Astro.Utils as U
 import Data.Astro.Types (DecimalDegrees(..), toRadians, fromRadians)
-import Data.Astro.Time.JulianDate (JulianDate(..), numberOfCenturies)
+import Data.Astro.Time.JulianDate (JulianDate(..), j1900, numberOfCenturies)
 import Data.Astro.Coordinate (EquatorialCoordinates1(..), EclipticCoordinates(..), eclipticToEquatorial)
 
 import Data.Astro.Sun.SunInternals (solveKeplerEquation)
@@ -44,11 +44,6 @@ data SunDetails = SunDetails {
   , sdOmega :: DecimalDegrees       -- ^ Ecliptic longitude of perigee at the Epoch
   , sdE :: Double                   -- ^ Eccentricity oforbit at the Epoch
   } deriving (Show)
-
-
--- | Epoch J1900.0
-j1900 :: JulianDate
-j1900 = JD 2415020.0
 
 
 -- | The Sun's reference Epoch J2010.0 (2010 January 0.0)
