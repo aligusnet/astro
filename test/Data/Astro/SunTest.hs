@@ -89,7 +89,11 @@ tests = [testGroup "sunDetails" [
                    0.000001
                    (Just (RiseSet (JD 2457612.7555688, DD 67.6607170) (JD 2457613.3488124, DD 292.0719534)))
                    (sunRiseAndSet (GeoC (DD 45.43713) (12.33265)) 2 0.833333 (JD 2457612.5))
-                                            ]
+               , testMaybeRiseSet "Ulaanbaatar at 2016-08-13"
+                   0.000001
+                   (Just (RiseSet (JD 2457613.7810601, DD 66.8651612) (JD 2457614.3811313 ,DD 292.8476555)))
+                   (sunRiseAndSet (GeoC (DD 47.90771) (106.88324)) 9 0.833333 (JD 2457613.5))
+               ]
         ]
 
 testSunDetails msg eps expected actual =
