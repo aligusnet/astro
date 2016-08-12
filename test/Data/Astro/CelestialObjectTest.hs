@@ -1,6 +1,7 @@
 module Data.Astro.CelestialObjectTest
 (
   tests
+  , assertRiseAndSet
 )
 
 where
@@ -80,7 +81,7 @@ assertRiseAndSet eps expected@(RiseSet (DH etr, DD ear) (DH ets, DD eas)) actual
               "\n (maximum margin of error: " ++ show eps ++ ")"
 assertRiseAndSet _ Circumpolar Circumpolar = assertString ""
 assertRiseAndSet _ Circumpolar actual = assertString msg
-  where msg = "expected: " ++ show Circumpolar ++ "\n but got: " ++ show actual
+  where msg = "expected: Circumpolar\n but got: " ++ show actual
 assertRiseAndSet _ NeverRises NeverRises = assertString ""
 assertRiseAndSet _ NeverRises actual = assertString msg
-  where msg = "expected: " ++ show NeverRises ++ "\n but got: " ++ show actual
+  where msg = "expected: NeverRises\n but got: " ++ show actual
