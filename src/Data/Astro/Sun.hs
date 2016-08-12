@@ -33,6 +33,7 @@ import qualified Data.Astro.Utils as U
 import Data.Astro.Types (DecimalDegrees(..), toRadians, fromRadians)
 import Data.Astro.Time.JulianDate (JulianDate(..), j1900, numberOfCenturies)
 import Data.Astro.Coordinate (EquatorialCoordinates1(..), EclipticCoordinates(..), eclipticToEquatorial)
+import Data.Astro.Effects.Nutation (nutationLongitude)
 
 import Data.Astro.Sun.SunInternals (solveKeplerEquation)
 
@@ -94,7 +95,8 @@ longitude sd@(SunDetails epoch (DD eps) (DD omega) e) jd =
       n = reduceTo360 $ (360/tropicalYearLen) * d
       meanAnomaly = reduceTo360 $ n + eps - omega
       ec = (360/pi)*e*(sin $ U.toRadians meanAnomaly)
-  in DD $ reduceTo360 $ n + ec + eps
+      DD nutation = nutationLongitude jd
+  in DD $ reduceTo360 $ n + ec + eps + nutation
 
 
 -- | Calculate Equatorial Coordinates of the Sun with the given SunDetails at the given JulianDate.
@@ -122,7 +124,8 @@ sunPosition2 jd =
   let sd = sunDetails jd
       DD omega = sdOmega sd
       DD nu = trueAnomaly2 sd
-      lambda = DD $ reduceTo360 $ nu + omega
+      DD nutation = nutationLongitude jd
+      lambda = DD $ reduceTo360 $ nu + omega + nutation
       beta = DD 0
   in eclipticToEquatorial (EcC beta lambda) jd
 

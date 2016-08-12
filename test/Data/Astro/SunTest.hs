@@ -30,21 +30,29 @@ tests = [testGroup "sunDetails" [
               (sunDetails j2010)
             ]
          , testGroup "the Sun's coordinates" [
+             -- The Astronomycal Almanach gives (EC1 (fromDMS 19 21 16) (fromHMS 8 23 33))
              testEC1 "(1) at 2003-07-27 00:00:00"
                  0.000001
-                 (EC1 (fromDMS 19 21 14.3937) (fromHMS 8 23 33.7261))
+                 (EC1 (fromDMS 19 21 17.4394) (fromHMS 8 23 32.8286))
                  (sunPosition1 j2010SunDetails (JD 2452847.5))
              , testEC1 "(1) at 2016-08-11 13:30:00"
                  0.000001
-                 (EC1 (fromDMS 15 2 4.0456) (fromHMS 9 26 50.1945))
+                 (EC1 (fromDMS 15 2 5.1480) (fromHMS 9 26 49.9629))
                  (sunPosition1 j2010SunDetails (JD 2457612.0625))
+             -- The Astronomycal Almanach gives (EC1 (fromDMS 19 12 52) (fromHMS 8 26 3))
+             , testEC1 "(1) at 1988-07-27 00:00:00"
+                 0.000001
+                 (EC1 (fromDMS 19 12 50.6369) (fromHMS 8 26 3.6147))
+                 (sunPosition1 j2010SunDetails (JD 2447369.5))
+             -- The Astronomycal Almanach gives (EC1 (fromDMS 19 12 52) (fromHMS 8 26 3))
              , testEC1 "(2) at 1988-07-27 00:00:00"
                  0.000001
-                 (EC1 (fromDMS 19 12 50.2239) (fromHMS 8 26 3.7343))
+                 (EC1 (fromDMS 19 12 48.9604) (fromHMS 8 26 4.1004))
                  (sunPosition2 (JD 2447369.5))
+             -- The Astronomycal Almanach gives (EC1 (fromDMS 19 21 16) (fromHMS 8 23 33))
              , testEC1 "(2) at 2003-07-27 00:00:00"
                  0.000001
-                 (EC1 (fromDMS 19 21 6.2169) (fromHMS 8 23 36.1350))
+                 (EC1 (fromDMS 19 21 9.2633) (fromHMS 8 23 35.2376))
                  (sunPosition2 (JD 2452847.5))
              ]
            , testGroup "distance" [
