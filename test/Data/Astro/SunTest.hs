@@ -87,7 +87,7 @@ tests = [testGroup "sunDetails" [
                -- Rise: 06:08, DD 68;  Set: 20:22, DD 292
                testMaybeRiseSet "Venice at 2016-08-12"
                    0.000001
-                   (Just (RiseSet (JD 2457612.7555747, DD 67.6614638) (JD 2457613.3488136,DD 292.0716046)))
+                   (Just (RiseSet (JD 2457612.7555688, DD 67.6607170) (JD 2457613.3488124, DD 292.0719534)))
                    (sunRiseAndSet (GeoC (DD 45.43713) (12.33265)) 2 0.833333 (JD 2457612.5))
                                             ]
         ]

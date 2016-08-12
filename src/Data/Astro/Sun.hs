@@ -36,7 +36,7 @@ where
 import Data.Maybe (isJust, fromJust)
 
 import qualified Data.Astro.Utils as U
-import Data.Astro.Types (DecimalDegrees(..), toRadians, fromRadians, GeographicCoordinates(..))
+import Data.Astro.Types (DecimalDegrees(..), DecimalHours(..), toDecimalHours, toRadians, fromRadians, GeographicCoordinates(..))
 import Data.Astro.Time.JulianDate (JulianDate(..), j1900, numberOfCenturies, splitToDayAndTime)
 import Data.Astro.Coordinate (EquatorialCoordinates1(..), EclipticCoordinates(..), eclipticToEquatorial)
 import Data.Astro.Effects.Nutation (nutationLongitude)
@@ -171,7 +171,8 @@ sunRiseAndSet :: GeographicCoordinates
                  -> Maybe (RiseAndSetTimeAzimuth JulianDate)
 sunRiseAndSet geoc timeZone shift jd =
   let (day, _) = splitToDayAndTime jd
-      sunPosMid = sunPosition1 j2010SunDetails $ day + (JD 0.5)
+      DH offset = (toDecimalHours $ geoLongitude geoc) / 24
+      sunPosMid = sunPosition1 j2010SunDetails $ day + (JD offset)
       rs = riseAndSetJD sunPosMid geoc 0 shift jd
       rise = sunrise geoc timeZone shift jd rs
       set = sunset geoc timeZone shift jd rs
