@@ -49,15 +49,31 @@ tests = [testGroup "sunDetails" [
              ]
            , testGroup "distance" [
                testCase "at 1988-07-27 00:00:00" $ assertApproxEqual ""
-                 1
-                 151920130
-                 (sunDistance (JD 2447369.5))
+                   1
+                   151920130
+                   (sunDistance (JD 2447369.5))
+               , testCase "at 2016-08-12 13:30:00" $ assertApproxEqual ""
+                   1
+                   151577454
+                   (sunDistance (JD 2457613.0625))
+               , testCase "at 2010-10-10 18:00:00" $ assertApproxEqual ""
+                   1
+                   149373939
+                   (sunDistance (JD 2455480.25))
                ]
            , testGroup "angular size" [
                testDecimalDegrees "at 1988-07-27 00:00:00"
-                 0.000001
-                 (fromDMS 0 31 29.9308)
-                 (sunAngularSize (JD 2447369.5))
+                   0.000001
+                   (fromDMS 0 31 29.9308)
+                   (sunAngularSize (JD 2447369.5))
+               , testDecimalDegrees "at 2016-08-12 13:30:00"
+                   0.000001
+                   (fromDMS 0 31 34.2034)
+                   (sunAngularSize (JD 2457613.0625))
+               , testDecimalDegrees "at 2010-10-10 18:00:00"
+                   0.000001
+                   (fromDMS 0 32 2.1461)
+                   (sunAngularSize (JD 2455480.25))
                ]
         ]
 
