@@ -73,6 +73,7 @@ import Data.Astro.Time (lctToLST)
 import Data.Astro.Time.JulianDate (JulianDate(..), j2000, numberOfCenturies, splitToDayAndTime)
 import Data.Astro.Types (DecimalDegrees(..), DecimalHours(..), fromDecimalHours, toDecimalHours, toRadians, fromRadians, fromDMS)
 import Data.Astro.Utils (fromFixed)
+import Data.Astro.Effects.Nutation (nutationObliquity)
 
 
 -- | Horizon Coordinates, for details see the module's description
@@ -171,7 +172,7 @@ obliquity jd =
   let DD baseObliquity = fromDMS 23 26 21.45
       t = numberOfCenturies j2000 jd
       de = (46.815*t + 0.0006*t*t - 0.00181*t*t*t) / 3600  -- 3600 number of seconds in 1 degree
-  in DD $ baseObliquity - de
+  in (DD $ baseObliquity - de) + (nutationObliquity jd)
 
 
 -- | Converts Ecliptic Coordinates on specified Julian Date to Equatorial Coordinates

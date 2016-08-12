@@ -45,20 +45,24 @@ tests = [testGroup "RA <-> HA" [
              , testProperty "property" prop_EC2HCConv
              ]
            , testGroup "obliquity" [
-               testDecimalDegrees "2009-06-06"
-                 0.000001
-                 (DD 23.43805498)
-                 (obliquity $ JD 2455018.5)
+               testDecimalDegrees "2009-07-06"
+                   0.000001
+                   (DD 23.43925285)
+                   (obliquity $ JD 2455018.5)
+               , testDecimalDegrees "2016-08-12"
+                   0.000001
+                   (DD 23.434706359)
+                   (obliquity $ JD 2457612.5)
                ]
            , testGroup "Ecliptic <-> Equatorial" [
                testEC1 "EcC 4.875 139.6861 on 2009-07-06 to EC1"
                    0.000001
-                   (EC1 (DD 19.535003) (DH 9.581478))
+                   (EC1 (DD 19.535712) (DH 9.581501))
                    (eclipticToEquatorial (EcC (DD 4.875277777777778) (DD 139.6861111111111)) (JD 2455018.5))
                , testEcC "EC1 19.535 9.581 to EcC on 2009-07-06"
                    0.000001
                    (EcC (DD 4.875278) (DD 139.686111))
-                   (equatorialToEcliptic (EC1 (DD 19.53500313448776) (DH 9.581478176556471)) (JD 2455018.5))
+                   (equatorialToEcliptic (EC1 (DD 19.535712) (DH 9.581501)) (JD 2455018.5))
                , testProperty "property" prop_EC1EcCConv
                ]
            , testGroup "Galactic <-> Equatorial" [
