@@ -85,20 +85,30 @@ tests = [testGroup "sunDetails" [
                ]
            , testGroup "Sun's rise and set" [
                -- timeanddate.com: Rise: 06:08, DD 68; Set: 20:22, DD 292
-               testMaybeRiseSet "Venice at 2016-08-12"
+               testRiseSet "Venice at 2016-08-12"
                    0.000001
-                   (Just (RiseSet (JD 2457612.7555686, DD 67.6606896) (JD 2457613.3488124, DD 292.0719405)))
+                   (RiseSet (Just (JD 2457612.7555686, DD 67.6606896)) (Just (JD 2457613.3488124, DD 292.0719405)))
                    (sunRiseAndSet (GeoC (DD 45.43713) (12.33265)) 2 0.833333 (JD 2457612.5))
                -- timeanddate.com: Rise: 06:45, DD 67; Set: 21:09, DD 293
-               , testMaybeRiseSet "Ulaanbaatar at 2016-08-13"
+               , testRiseSet "Ulaanbaatar at 2016-08-13"
                    0.000001
-                   (Just (RiseSet (JD 2457613.7810581, DD 66.8649010) (JD 2457614.3811317, DD 292.8475452)))
+                   (RiseSet (Just (JD 2457613.7810581, DD 66.8649010)) (Just (JD 2457614.3811317, DD 292.8475452)))
                    (sunRiseAndSet (GeoC (DD 47.90771) (106.88324)) 9 0.833333 (JD 2457613.5))
                -- timeanddate.com: Rise: 06:22, DD 75; Set: 18:04, DD 285
-               , testMaybeRiseSet "Lima at 2016-08-12"
+               , testRiseSet "Lima at 2016-08-12"
                    0.000001
-                   (Just (RiseSet (JD 2457612.7655317, DD 75.0818488) (JD 2457613.2525567, DD 284.7672950)))
+                   (RiseSet (Just (JD 2457612.7655317, DD 75.0818488)) (Just (JD 2457613.2525567, DD 284.7672950)))
                    (sunRiseAndSet (GeoC (DD $ -12.04318) (DD $ -77.02824)) (-5) 0.833333 (JD 2457612.5))
+               -- timeanddate.com: Circumpolar
+               , testRiseSet "Longyearbyen at 2016-08-12"
+                   0.000001
+                   Circumpolar
+                   (sunRiseAndSet (GeoC (DD 78.22) (DD 15.65)) 2 0.833333 (JD 2457612.5))
+               -- timeanddate.com: Down all day
+               , testRiseSet "Longyearbyen at 2017-01-12"
+                   0.000001
+                   NeverRises
+                   (sunRiseAndSet (GeoC (DD 78.22) (DD 15.65)) 2 0.833333 (JD 2457765.5))
                ]
         ]
 
@@ -111,23 +121,23 @@ assertSunDetails eps expected@(SunDetails (JD eJd) (DD eEps) (DD eOm) eE) actual
   where msg = "expected: " ++ show expected ++ "\n but got: " ++ show actual ++
               "\n (maximum margin of error: " ++ show eps ++ ")"
 
-testMaybeRiseSet msg eps expected actual =
-  testCase msg $ assertMaybeRiseSet eps expected actual
+testRiseSet msg eps expected actual =
+  testCase msg $ assertRiseSet eps expected actual
 
-assertMaybeRiseSet eps (Just rs1) (Just rs2) = assertRiseAndSet eps rs1 rs2
-assertMaybeRiseSet _ Nothing Nothing = assertString ""
-assertMaybeRiseSet eps expected actual = assertFailure msg
+assertRiseSet eps expected@(RiseSet er es) actual@(RiseSet ar as) =
+  unless (eqMaybeRS eps er ar && eqMaybeRS eps es as) (assertFailure msg)
   where msg = "expected: " ++ show expected ++ "\n but got: " ++ show actual ++
               "\n (maximum margin of error: " ++ show eps ++ ")"
-
-assertRiseAndSet eps expected@(RiseSet (JD etr, DD ear) (JD ets, DD eas)) actual@(RiseSet (JD atr, DD aar) (JD ats, DD aas)) =
-  unless (abs(etr-atr) <= eps && abs(ear-aar) <= eps
-          && abs(ets-ats) <= eps && abs(eas-aas) <= eps) (assertFailure msg)
-  where msg = "expected: " ++ show expected ++ "\n but got: " ++ show actual ++
-              "\n (maximum margin of error: " ++ show eps ++ ")"
-assertRiseAndSet _ Circumpolar Circumpolar = assertString ""
-assertRiseAndSet _ Circumpolar actual = assertString msg
+assertRiseSet _ Circumpolar Circumpolar = assertString ""
+assertRiseSet _ Circumpolar actual = assertString msg
   where msg = "expected: Circumpolar\n but got: " ++ show actual
-assertRiseAndSet _ NeverRises NeverRises = assertString ""
-assertRiseAndSet _ NeverRises actual = assertString msg
+assertRiseSet _ NeverRises NeverRises = assertString ""
+assertRiseSet _ NeverRises actual = assertString msg
   where msg = "expected: NeverRises\n but got: " ++ show actual
+
+
+eqMaybeRS eps (Just rs1) (Just rs2) = eqRS eps rs1 rs2
+eqMaybeRS _ Nothing Nothing = True
+eqMaybeRS _ _ _ = False
+
+eqRS eps (JD j1, DD d1) (JD j2, DD d2) = abs (j1-j2) < eps && abs (d1-d2) < eps
