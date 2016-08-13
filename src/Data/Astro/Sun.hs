@@ -42,7 +42,7 @@ import Data.Astro.Types (DecimalDegrees(..), DecimalHours(..)
                         , toRadians, fromRadians
                         , GeographicCoordinates(..))
 import Data.Astro.Time.JulianDate (JulianDate(..), j1900, numberOfCenturies, splitToDayAndTime, addHours)
-import Data.Astro.Time.Sidereal (gstToUT)
+import Data.Astro.Time.Sidereal (gstToUT, dhToGST)
 import Data.Astro.Coordinate (EquatorialCoordinates1(..), EclipticCoordinates(..), eclipticToEquatorial)
 import Data.Astro.Effects.Nutation (nutationLongitude)
 import Data.Astro.CelestialObject (RiseSet(..), RiseSetJD(..), RSInfo(..), riseAndSet, toRiseSetLCT)
@@ -252,7 +252,7 @@ equationOfTime jd =
   let (day, _) = splitToDayAndTime jd
       midday = addHours (DH 12) day  -- mean solar time
       EC1 _ ra = sunPosition1 j2010SunDetails midday
-      ut = gstToUT $ addHours ra day
+      ut = gstToUT day $ dhToGST ra
       JD time = midday - ut
   in DH $ time*24
 

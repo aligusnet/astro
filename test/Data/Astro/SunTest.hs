@@ -109,6 +109,11 @@ tests = [testGroup "sunDetails" [
                    0.000001
                    NeverRises
                    (sunRiseAndSet (GeoC (DD 78.22) (DD 15.65)) 2 0.833333 (JD 2457765.5))
+               -- timeanddate.com: Rise: 06:05, DD 57; Set: 22:02, DD 302
+               , testRiseSet "Anchorage at 2016-08-13"
+                   0.000001
+                   (RiseSet (Just (JD 2457613.7531018, DD 57.0568583)) (Just (JD 2457614.4181508, DD 302.4505098)))
+                   (sunRiseAndSet (GeoC (DD 61.21806) (-149.90028)) (-8) 0.833333 (JD 2457613.5))
                ],
              testGroup "equationOfTime" [
                testDecimalHours "zero at June"

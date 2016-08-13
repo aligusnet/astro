@@ -17,12 +17,12 @@ where
 
 import Data.Astro.Types (DecimalDegrees)
 import Data.Astro.Time.JulianDate (JulianDate, utToLCT, lctToUT)
-import Data.Astro.Time.Sidereal (utToGST, gstToUT, gstToLST, lstToGST)
+import Data.Astro.Time.Sidereal (LocalSiderealTime, utToGST, gstToUT, gstToLST, lstToGST)
 
 
 -- | Local Civil Time to Local Sidereal Time.
 -- It takes longitude in decimal degrees, time zone and local civil time
-lctToLST :: DecimalDegrees -> Double -> JulianDate -> JulianDate
+lctToLST :: DecimalDegrees -> Double -> JulianDate -> LocalSiderealTime
 lctToLST longitude timeZone lct =
   let ut = lctToUT timeZone lct
       gst = utToGST ut
@@ -31,11 +31,11 @@ lctToLST longitude timeZone lct =
 
 
 -- | Local Sidereal Time to Local Civil Time.
--- It takes longitude in decimal degrees, time zone and local sidereal time
-lstToLCT :: DecimalDegrees -> Double -> JulianDate -> JulianDate
-lstToLCT longitude timeZone lst =
+-- It takes longitude in decimal degrees, time zone, greenwich date and local sidereal time
+lstToLCT :: DecimalDegrees -> Double -> JulianDate -> LocalSiderealTime -> JulianDate
+lstToLCT longitude timeZone jd lst =
   let gst = lstToGST longitude lst
-      ut = gstToUT gst
+      ut = gstToUT jd gst
       lct = utToLCT timeZone ut
   in lct
 

@@ -71,6 +71,7 @@ where
 
 import Data.Astro.Time (lctToLST)
 import Data.Astro.Time.JulianDate (JulianDate(..), j2000, numberOfCenturies, splitToDayAndTime)
+import Data.Astro.Time.Sidereal (LocalSiderealTime(..), lstToDH)
 import Data.Astro.Types (DecimalDegrees(..), DecimalHours(..), fromDecimalHours, toDecimalHours, toRadians, fromRadians, fromDMS)
 import Data.Astro.Utils (fromFixed)
 import Data.Astro.Effects.Nutation (nutationObliquity)
@@ -123,10 +124,9 @@ haToRA = haRAConv
 
 -- | HA <-> RA Conversions
 haRAConv :: DecimalHours -> DecimalDegrees -> Double -> JulianDate -> DecimalHours
-haRAConv (DH dh) longitude tz lct =
-  let lstJD = lctToLST longitude tz lct  -- Local Sidereal Time
-      (_, JD lst) = splitToDayAndTime lstJD
-      hourAngle = lst*24 - dh
+haRAConv dh longitude tz jd =
+  let lst = lctToLST longitude tz jd  -- Local Sidereal Time
+      DH hourAngle = (lstToDH lst) - dh
   in if hourAngle < 0 then (DH $ hourAngle+24) else (DH hourAngle)
 
 

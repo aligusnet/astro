@@ -24,6 +24,7 @@ import Data.Astro.Types (DecimalDegrees, DecimalHours(..), toRadians, fromRadian
 import Data.Astro.Utils (reduceToZeroRange)
 import Data.Astro.Time (lstToLCT)
 import Data.Astro.Time.JulianDate (JulianDate(..), splitToDayAndTime)
+import Data.Astro.Time.Sidereal (LocalSiderealTime, dhToLST)
 import Data.Astro.Coordinate (EquatorialCoordinates1(..), EclipticCoordinates(..))
 
 
@@ -43,7 +44,7 @@ type RSInfo a = (a, DecimalDegrees)
 
 
 -- | LST (Local Sidereal Time) and Azimuth of Rise and Set
-type RiseSetLST = RiseSet (RSInfo DecimalHours)
+type RiseSetLST = RiseSet (RSInfo LocalSiderealTime)
 
 
 -- | JulianDate and Azimuth of Rise and Set
@@ -101,8 +102,8 @@ riseAndSet (EC1 delta alpha) shift lat =
 
         calcTimesAndAzimuths :: DecimalHours -> DecimalHours -> Double -> Double -> Double -> RiseSetLST
         calcTimesAndAzimuths alpha hourAngle delta shift latitude =
-          let lstRise = reduceToZeroRange 24 $ alpha - hourAngle
-              lstSet = reduceToZeroRange 24 $ alpha + hourAngle
+          let lstRise = dhToLST $ reduceToZeroRange 24 $ alpha - hourAngle
+              lstSet = dhToLST $ reduceToZeroRange 24 $ alpha + hourAngle
               azimuthRise = reduceToZeroRange (2*pi) $ acos $ ((sin delta) + (sin shift)*(sin latitude)) / ((cos shift)*(cos latitude))
               azimuthSet = 2*pi - azimuthRise
           in RiseSet (lstRise, fromRadians azimuthRise) (lstSet, fromRadians azimuthSet)
@@ -115,7 +116,7 @@ toRiseSetLCT :: DecimalDegrees
                -> RiseSetJD
 toRiseSetLCT longitude timeZone jd (RiseSet (rise, azRise) (set, azSet)) =
   let (day, _) = splitToDayAndTime jd
-      toLCT dh = lstToLCT longitude timeZone $ dhToJD dh day
+      toLCT lst = lstToLCT longitude timeZone day lst
       rise' = toLCT rise
       set' = toLCT set
   in RiseSet (rise', azRise) (set', azSet)
