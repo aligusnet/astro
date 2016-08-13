@@ -160,11 +160,12 @@ sunAngularSize :: JulianDate -> DecimalDegrees
 sunAngularSize jd = theta0 * (DD $ dasf $ sunDetails jd)
 
 
--- | Approximate method to calculate the Sun's rise and set
+-- | Calculates the Sun's rise and set
 -- It takes coordinates of the observer,
 -- time zone ( 0 for UT),
 -- vertical shift (good value is 0.833333), date.
 -- It returns Nothing if fails to calculate rise and/or set.
+-- It should be accurate to within a minute of time.
 sunRiseAndSet :: GeographicCoordinates
                  -> Double
                  -> DecimalDegrees
@@ -172,15 +173,17 @@ sunRiseAndSet :: GeographicCoordinates
                  -> Maybe (RiseSetJD)
 sunRiseAndSet geoc timeZone shift jd =
   let (day, _) = splitToDayAndTime jd
-      riseSet = riseAndSetJD geoc shift jd
-      DH offset = (toDecimalHours $ geoLongitude geoc) / 24
-      sunPosMid = sunPosition1 j2010SunDetails $ day + (JD offset)
-      rs = riseSet 0 sunPosMid
-      rise = sunrise (riseSet timeZone) rs
-      set = sunset (riseSet timeZone)  rs
+      DH offset = (toDecimalHours $ geoLongitude geoc) / (2*24)
+      sunPosMorining = sunPos day offset
+      sunPosEvening = sunPos day (3*offset)
+      rise = sunrise (riseSet timeZone) $ riseSet 0 sunPosMorining
+      set = sunset (riseSet timeZone)  $ riseSet 0 sunPosEvening
   in if (isJust rise) && (isJust set)
      then Just $ RiseSet (fromJust rise) (fromJust set)
      else Nothing
+  -- helper functions
+  where riseSet = riseAndSetJD geoc shift jd
+        sunPos day offset = sunPosition1 j2010SunDetails $ day + (JD offset)
 
 
 -- | Approximate method to calculate the Sun's rise.

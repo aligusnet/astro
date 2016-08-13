@@ -87,17 +87,17 @@ tests = [testGroup "sunDetails" [
                -- timeanddate.com: Rise: 06:08, DD 68; Set: 20:22, DD 292
                testMaybeRiseSet "Venice at 2016-08-12"
                    0.000001
-                   (Just (RiseSet (JD 2457612.7555688, DD 67.6607170) (JD 2457613.3488124, DD 292.0719534)))
+                   (Just (RiseSet (JD 2457612.7555686, DD 67.6606896) (JD 2457613.3488124, DD 292.0719405)))
                    (sunRiseAndSet (GeoC (DD 45.43713) (12.33265)) 2 0.833333 (JD 2457612.5))
                -- timeanddate.com: Rise: 06:45, DD 67; Set: 21:09, DD 293
                , testMaybeRiseSet "Ulaanbaatar at 2016-08-13"
                    0.000001
-                   (Just (RiseSet (JD 2457613.7810601, DD 66.8651612) (JD 2457614.3811313 ,DD 292.8476555)))
+                   (Just (RiseSet (JD 2457613.7810581, DD 66.8649010) (JD 2457614.3811317, DD 292.8475452)))
                    (sunRiseAndSet (GeoC (DD 47.90771) (106.88324)) 9 0.833333 (JD 2457613.5))
                -- timeanddate.com: Rise: 06:22, DD 75; Set: 18:04, DD 285
                , testMaybeRiseSet "Lima at 2016-08-12"
                    0.000001
-                   (Just (RiseSet (JD 2457612.7655310, DD 75.0817683) (JD 2457613.2525575, DD 284.7672015)))
+                   (Just (RiseSet (JD 2457612.7655317, DD 75.0818488) (JD 2457613.2525567, DD 284.7672950)))
                    (sunRiseAndSet (GeoC (DD $ -12.04318) (DD $ -77.02824)) (-5) 0.833333 (JD 2457612.5))
                ]
         ]
