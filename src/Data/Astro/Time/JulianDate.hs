@@ -23,6 +23,7 @@ module Data.Astro.Time.JulianDate
     -- *
   , numberOfYears
   , numberOfCenturies
+  , addHours
   , fromDateTime
   , toDateTime
   , dayOfWeek
@@ -33,6 +34,7 @@ module Data.Astro.Time.JulianDate
 
 where
 
+import Data.Astro.Types(DecimalHours(..))
 import Data.Astro.Time.Types(LocalTime(..), TimeOfDay(..), fromGregorian, toGregorian)
 import Data.Astro.Time.GregorianCalendar (gregorianDateAdjustment)
 import Data.Astro.Utils (trunc, fraction, fromFixed)
@@ -90,6 +92,10 @@ numberOfYears (JD jd1) (JD jd2) = (jd2-jd1) / 365.25
 numberOfCenturies :: JulianDate -> JulianDate -> TimeBaseType
 numberOfCenturies (JD jd1) (JD jd2) = (jd2-jd1) / 36525
 
+
+-- | add Decimal Hours
+addHours :: DecimalHours -> JulianDate -> JulianDate
+addHours (DH hours) jd = jd + (JD $ hours/24)
 
 -- | Create Julian Date from DateTime
 fromDateTime :: LocalTime -> JulianDate

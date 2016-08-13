@@ -67,11 +67,25 @@ tests = [testGroup "to julian day" [
               0.095099247
               (numberOfCenturies j2000 $ JD 2455018.5)
             ]
-        ,   testGroup "numberOfYears" [
+        , testGroup "numberOfYears" [
             testCase "B1950..1979-07-02" $ assertApproxEqual ""
               0.000000001
               29.5
               (numberOfYears b1950 $ JD 2444057.2985)
+            ]
+        , testGroup "add hours" [
+            testJD "+ 12H"
+                0.000000001
+                (JD 110.5)
+                (addHours 12 110)
+            , testJD "+ 0H"
+                0.000000001
+                (JD 110)
+                (addHours 0 110)
+            , testJD "- 6H"
+                0.000000001
+                (JD 109.75)
+                (addHours (-6) 110)
             ]
         ]
 

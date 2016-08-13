@@ -15,7 +15,7 @@ import Test.QuickCheck
 
 import Control.Monad (unless)
 
-import Data.Astro.TypesTest (testDecimalDegrees)
+import Data.Astro.TypesTest (testDecimalDegrees, testDecimalHours)
 import Data.Astro.CoordinateTest (testEC1)
 
 import Data.Astro.Types (DecimalDegrees(..), GeographicCoordinates(..), fromDMS, fromHMS)
@@ -109,6 +109,20 @@ tests = [testGroup "sunDetails" [
                    0.000001
                    NeverRises
                    (sunRiseAndSet (GeoC (DD 78.22) (DD 15.65)) 2 0.833333 (JD 2457765.5))
+               ],
+             testGroup "equationOfTime" [
+               testDecimalHours "zero at June"
+                   (1/3600)
+                   (-(fromHMS 0 0 1))
+                   (equationOfTime $ JD 2457551.5)
+               , testDecimalHours "minimum at February"
+                   (1/3600)
+                   (-(fromHMS 0 14 7))
+                   (equationOfTime $ JD 2457429.5)
+               , testDecimalHours "maximum at November"
+                   (1/3600)
+                   (fromHMS 0 16 18)
+                   (equationOfTime $ JD 2457694.5)
                ]
         ]
 

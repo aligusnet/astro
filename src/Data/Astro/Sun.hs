@@ -30,13 +30,15 @@ module Data.Astro.Sun
   , sunDistance
   , sunAngularSize
   , sunRiseAndSet
+  , equationOfTime
 )
 
 where
 
 import qualified Data.Astro.Utils as U
 import Data.Astro.Types (DecimalDegrees(..), DecimalHours(..), toDecimalHours, toRadians, fromRadians, GeographicCoordinates(..))
-import Data.Astro.Time.JulianDate (JulianDate(..), j1900, numberOfCenturies, splitToDayAndTime)
+import Data.Astro.Time.JulianDate (JulianDate(..), j1900, numberOfCenturies, splitToDayAndTime, addHours)
+import Data.Astro.Time.Sidereal (gstToUT)
 import Data.Astro.Coordinate (EquatorialCoordinates1(..), EclipticCoordinates(..), eclipticToEquatorial)
 import Data.Astro.Effects.Nutation (nutationLongitude)
 import Data.Astro.CelestialObject (RiseSet(..), RiseSetJD(..), RSInfo(..), riseAndSet, toRiseSetLCT)
@@ -182,7 +184,7 @@ sunRiseAndSet :: GeographicCoordinates
                  -> SunRiseSet
 sunRiseAndSet geoc timeZone shift jd =
   let (day, _) = splitToDayAndTime jd
-      DH offset = (toDecimalHours $ geoLongitude geoc) / (2*24)
+      offset = (toDecimalHours $ geoLongitude geoc) * 0.5
       sunPosMorining = sunPos day offset
       sunPosEvening = sunPos day (3*offset)
       rise = sunrise (riseSet timeZone) $ riseSet 0 sunPosMorining
@@ -191,7 +193,7 @@ sunRiseAndSet geoc timeZone shift jd =
 
   -- helper functions
   where riseSet = riseAndSetJD geoc shift jd
-        sunPos day offset = sunPosition1 j2010SunDetails $ day + (JD offset)
+        sunPos day offset = sunPosition1 j2010SunDetails $ addHours offset day
         fromSORpair (SOR rise) (SOR set) = RiseSet (Just rise) (Just set)
         fromSORpair (SOR rise) _ = RiseSet (Just rise) Nothing
         fromSORpair _ (SOR set) = RiseSet Nothing (Just set)
@@ -237,3 +239,15 @@ riseAndSetJD :: GeographicCoordinates
                 -> RiseSetJD
 riseAndSetJD (GeoC latitude longitude) shift jd timeZone ec
   = toRiseSetLCT longitude timeZone jd $ riseAndSet ec shift latitude
+
+
+-- | Calculates discrepancy between the mean solar time and real solar time
+-- at the given date.
+equationOfTime :: JulianDate -> DecimalHours
+equationOfTime jd =
+  let (day, _) = splitToDayAndTime jd
+      midday = addHours (DH 12) day  -- mean solar time
+      EC1 _ ra = sunPosition1 j2010SunDetails midday
+      ut = gstToUT $ addHours ra day
+      JD time = midday - ut
+  in DH $ time*24
