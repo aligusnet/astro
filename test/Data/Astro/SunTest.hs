@@ -124,6 +124,12 @@ tests = [testGroup "sunDetails" [
                    (fromHMS 0 16 18)
                    (equationOfTime $ JD 2457694.5)
                ]
+             , testGroup "solarElongation" [
+                 testDecimalDegrees "Mars at 2010-07-27 20:00:00 UT"
+                     0.0000001
+                     (DD 24.7905087)
+                     (solarElongation (EC1 (fromDMS 11 57 27) (fromHMS 10 6 45)) (JD 2455405.3333333335))
+                 ]
         ]
 
 testSunDetails msg eps expected actual =

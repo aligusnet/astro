@@ -31,12 +31,16 @@ module Data.Astro.Sun
   , sunAngularSize
   , sunRiseAndSet
   , equationOfTime
+  , solarElongation
 )
 
 where
 
 import qualified Data.Astro.Utils as U
-import Data.Astro.Types (DecimalDegrees(..), DecimalHours(..), toDecimalHours, toRadians, fromRadians, GeographicCoordinates(..))
+import Data.Astro.Types (DecimalDegrees(..), DecimalHours(..)
+                        , toDecimalHours, fromDecimalHours
+                        , toRadians, fromRadians
+                        , GeographicCoordinates(..))
 import Data.Astro.Time.JulianDate (JulianDate(..), j1900, numberOfCenturies, splitToDayAndTime, addHours)
 import Data.Astro.Time.Sidereal (gstToUT)
 import Data.Astro.Coordinate (EquatorialCoordinates1(..), EclipticCoordinates(..), eclipticToEquatorial)
@@ -251,3 +255,17 @@ equationOfTime jd =
       ut = gstToUT $ addHours ra day
       JD time = midday - ut
   in DH $ time*24
+
+
+-- | Calculates the angle between the lines of sight to the Sun and to a celestial object
+-- specified by the given coordinates at the given Universal Time.
+solarElongation :: EquatorialCoordinates1 -> JulianDate -> DecimalDegrees
+solarElongation (EC1 deltaP alphaP) jd =
+  let (EC1 deltaS alphaS) = sunPosition1 j2010SunDetails jd
+      deltaP' = toRadians deltaP
+      alphaP' = toRadians $ fromDecimalHours alphaP
+      deltaS' = toRadians deltaS
+      alphaS' = toRadians $ fromDecimalHours alphaS
+      eps = acos $ (sin deltaP')*(sin deltaS') + (cos $ alphaP' - alphaS')*(cos deltaP')*(cos deltaS')
+  in fromRadians eps
+
