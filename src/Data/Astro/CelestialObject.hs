@@ -8,7 +8,10 @@ Computations characteristics of selestial objects.
 
 module Data.Astro.CelestialObject
 (
-  RiseAndSetTimeAzimuth(..)
+  RiseSet(..)
+  , RSInfo(..)
+  , RiseSetLST(..)
+  , RiseSetJD(..)
   , angleEquatorial
   , angleEcliptic
   , riseAndSet
@@ -24,15 +27,27 @@ import Data.Astro.Time.JulianDate (JulianDate(..), splitToDayAndTime)
 import Data.Astro.Coordinate (EquatorialCoordinates1(..), EclipticCoordinates(..))
 
 
--- | LST and Azimuth of Rise and Set of a celestial object
-data RiseAndSetTimeAzimuth a
-  -- | (Local Sidereal Time, Azimuth) of Rise and Set of the celestial object
-  = RiseSet (a, DecimalDegrees) (a, DecimalDegrees)
+-- | Some Info of Rise and Set of a celestial object
+data RiseSet a
+  -- | Some Info of Rise and Set of the celestial object
+  = RiseSet a a
   -- | The celestial object is always above the horizon
   | Circumpolar
   -- | The celestial object is always below the horizon
   | NeverRises
   deriving (Show, Eq)
+
+
+-- | Rise or Set time and azimuth
+type RSInfo a = (a, DecimalDegrees)
+
+
+-- | LST (Local Sidereal Time) and Azimuth of Rise and Set
+type RiseSetLST = RiseSet (RSInfo DecimalHours)
+
+
+-- | JulianDate and Azimuth of Rise and Set
+type RiseSetJD = RiseSet (RSInfo JulianDate)
 
 
 -- | Calculate angle between two celestial objects
@@ -64,7 +79,7 @@ calcAngle (up1, round1) (up2, round2) =
 -- vertical shift and the latitude of the observation.
 -- To calculate /vertical shift/ for stars use function 'refract' from "Data.Astro.Effects".
 -- In most cases you can assume that /vertical shift/ equals 0.566569 (34 arcmins ~ 'refract (DD 0) 12 1012').
-riseAndSet :: EquatorialCoordinates1 -> DecimalDegrees -> DecimalDegrees -> RiseAndSetTimeAzimuth DecimalHours
+riseAndSet :: EquatorialCoordinates1 -> DecimalDegrees -> DecimalDegrees -> RiseSetLST
 riseAndSet (EC1 delta alpha) shift lat =
   let delta' = toRadians delta
       shift' = toRadians shift
@@ -72,7 +87,7 @@ riseAndSet (EC1 delta alpha) shift lat =
       cosH = cosOfHourAngle delta' shift' lat'
   in sortRiseSet cosH delta' shift' lat'
 
-  where sortRiseSet :: Double -> Double -> Double -> Double -> RiseAndSetTimeAzimuth DecimalHours
+  where sortRiseSet :: Double -> Double -> Double -> Double -> RiseSetLST
         sortRiseSet cosH delta shift latitude
           | cosH < -1 = Circumpolar
           | cosH > 1 = NeverRises
@@ -84,7 +99,7 @@ riseAndSet (EC1 delta alpha) shift lat =
         cosOfHourAngle :: Double -> Double -> Double -> Double
         cosOfHourAngle delta shift latitude = -((sin shift) + (sin latitude)*(sin delta)) / ((cos latitude)*(cos delta))
 
-        calcTimesAndAzimuths :: DecimalHours -> DecimalHours -> Double -> Double -> Double -> RiseAndSetTimeAzimuth DecimalHours
+        calcTimesAndAzimuths :: DecimalHours -> DecimalHours -> Double -> Double -> Double -> RiseSetLST
         calcTimesAndAzimuths alpha hourAngle delta shift latitude =
           let lstRise = reduceToZeroRange 24 $ alpha - hourAngle
               lstSet = reduceToZeroRange 24 $ alpha + hourAngle
@@ -96,8 +111,8 @@ riseAndSet (EC1 delta alpha) shift lat =
 toRiseSetLCT :: DecimalDegrees
                -> Double
                -> JulianDate
-               -> RiseAndSetTimeAzimuth DecimalHours
-               -> RiseAndSetTimeAzimuth JulianDate
+               -> RiseSetLST
+               -> RiseSetJD
 toRiseSetLCT longitude timeZone jd (RiseSet (rise, azRise) (set, azSet)) =
   let (day, _) = splitToDayAndTime jd
       toLCT dh = lstToLCT longitude timeZone $ dhToJD dh day

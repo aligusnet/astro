@@ -18,7 +18,7 @@ Copyright: Alexander Ignatyev, 2016
 module Data.Astro.Sun
 (
   SunDetails(..)
-  , RiseAndSetTimeAzimuth(..)
+  , RiseSet(..)
   , j2010
   , sunDetails
   , j2010SunDetails
@@ -40,7 +40,7 @@ import Data.Astro.Types (DecimalDegrees(..), DecimalHours(..), toDecimalHours, t
 import Data.Astro.Time.JulianDate (JulianDate(..), j1900, numberOfCenturies, splitToDayAndTime)
 import Data.Astro.Coordinate (EquatorialCoordinates1(..), EclipticCoordinates(..), eclipticToEquatorial)
 import Data.Astro.Effects.Nutation (nutationLongitude)
-import Data.Astro.CelestialObject (RiseAndSetTimeAzimuth(..), riseAndSet, toRiseSetLCT)
+import Data.Astro.CelestialObject (RiseSet(..), RiseSetJD(..), riseAndSet, toRiseSetLCT)
 
 import Data.Astro.Sun.SunInternals (solveKeplerEquation)
 
@@ -159,6 +159,7 @@ sunDistance jd = r0 / (dasf $ sunDetails jd)
 sunAngularSize :: JulianDate -> DecimalDegrees
 sunAngularSize jd = theta0 * (DD $ dasf $ sunDetails jd)
 
+
 -- | Approximate method to calculate the Sun's rise and set
 -- It takes coordinates of the observer,
 -- time zone ( 0 for UT),
@@ -168,53 +169,48 @@ sunRiseAndSet :: GeographicCoordinates
                  -> Double
                  -> DecimalDegrees
                  -> JulianDate
-                 -> Maybe (RiseAndSetTimeAzimuth JulianDate)
+                 -> Maybe (RiseSetJD)
 sunRiseAndSet geoc timeZone shift jd =
   let (day, _) = splitToDayAndTime jd
+      riseSet = riseAndSetJD geoc shift jd
       DH offset = (toDecimalHours $ geoLongitude geoc) / 24
       sunPosMid = sunPosition1 j2010SunDetails $ day + (JD offset)
-      rs = riseAndSetJD sunPosMid geoc 0 shift jd
-      rise = sunrise geoc timeZone shift jd rs
-      set = sunset geoc timeZone shift jd rs
+      rs = riseSet 0 sunPosMid
+      rise = sunrise (riseSet timeZone) rs
+      set = sunset (riseSet timeZone)  rs
   in if (isJust rise) && (isJust set)
      then Just $ RiseSet (fromJust rise) (fromJust set)
      else Nothing
 
 
 -- | Approximate method to calculate the Sun's rise.
-sunrise :: GeographicCoordinates
-           -> Double
-           -> DecimalDegrees
-           -> JulianDate
-           -> RiseAndSetTimeAzimuth JulianDate
+sunrise :: (EquatorialCoordinates1 -> RiseSetJD)
+           -> RiseSetJD
            -> Maybe (JulianDate, DecimalDegrees)
-sunrise geoc timeZone shift jd (RiseSet (rise, _) _) =
+sunrise riseSet (RiseSet (rise, _) _) =
   let sunPos = sunPosition1 j2010SunDetails rise
-  in case riseAndSetJD sunPos geoc timeZone shift jd of
+  in case riseSet sunPos of
     RiseSet rise' _ -> Just rise'
     _ -> Nothing
 
 
 -- | Approximate method to calculate the Sun's set.
-sunset :: GeographicCoordinates
-           -> Double
-           -> DecimalDegrees
-           -> JulianDate
-           -> RiseAndSetTimeAzimuth JulianDate
+sunset :: (EquatorialCoordinates1 -> RiseSetJD)
+           -> RiseSetJD
            -> Maybe (JulianDate, DecimalDegrees)
-sunset geoc timeZone shift jd (RiseSet _ (set, _)) =
+sunset riseSet (RiseSet _ (set, _)) =
   let sunPos = sunPosition1 j2010SunDetails set
-  in case riseAndSetJD sunPos geoc timeZone shift jd of
+  in case riseSet sunPos of
     RiseSet _ set' -> Just set'
     _ -> Nothing
 
 
 -- | Calculates set and rise of the celestial object
-riseAndSetJD :: EquatorialCoordinates1
-                -> GeographicCoordinates
-                -> Double
+riseAndSetJD :: GeographicCoordinates
                 -> DecimalDegrees
                 -> JulianDate
-                -> RiseAndSetTimeAzimuth JulianDate
-riseAndSetJD ec (GeoC latitude longitude) timeZone shift jd
+                -> Double
+                -> EquatorialCoordinates1
+                -> RiseSetJD
+riseAndSetJD (GeoC latitude longitude) shift jd timeZone ec
   = toRiseSetLCT longitude timeZone jd $ riseAndSet ec shift latitude
