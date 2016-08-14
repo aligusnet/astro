@@ -12,6 +12,7 @@ module Data.Astro.Time.JulianDate
 (
   JulianDate(..)
   , TimeBaseType
+  , numberOfDays
   , numberOfYears
   , numberOfCenturies
   , addHours
@@ -51,6 +52,10 @@ instance Num JulianDate where
   signum (JD d) = JD (signum d)
   fromInteger int = JD (fromInteger int)
 
+
+-- | Return number of days since the first argument till the second one
+numberOfDays :: JulianDate -> JulianDate -> TimeBaseType
+numberOfDays (JD jd1) (JD jd2) = jd2 - jd1
 
 -- | Return number of years since the first argument till the second one
 numberOfYears :: JulianDate -> JulianDate -> TimeBaseType

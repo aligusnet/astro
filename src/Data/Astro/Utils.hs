@@ -16,6 +16,7 @@ module Data.Astro.Utils
   , toRadians
   , fromRadians
   , roundToN
+  , tropicalYearLen
 )
 
 where
@@ -60,3 +61,8 @@ fromRadians rad = rad*180/pi
 roundToN :: RealFrac a => Int -> a -> a
 roundToN n f = (fromInteger $ round $ f * factor) / factor
   where factor = 10.0^^n
+
+
+-- | Length of a tropical year in days
+tropicalYearLen :: Double
+tropicalYearLen = 365.242191

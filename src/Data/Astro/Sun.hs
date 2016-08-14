@@ -40,7 +40,7 @@ import Data.Astro.Types (DecimalDegrees(..), DecimalHours(..)
                         , toDecimalHours, fromDecimalHours
                         , toRadians, fromRadians
                         , GeographicCoordinates(..))
-import Data.Astro.Time.JulianDate (JulianDate(..), numberOfCenturies, splitToDayAndTime, addHours)
+import Data.Astro.Time.JulianDate (JulianDate(..), numberOfDays, numberOfCenturies, splitToDayAndTime, addHours)
 import Data.Astro.Time.Sidereal (gstToUT, dhToGST)
 import Data.Astro.Time.Epoch (j1900, j2010)
 import Data.Astro.Coordinate (EquatorialCoordinates1(..), EclipticCoordinates(..), eclipticToEquatorial)
@@ -88,17 +88,11 @@ sunDetails jd =
   in SunDetails jd (DD epsilon) (DD omega) e
 
 
-
--- | Length of a tropical year in days
-tropicalYearLen :: Double
-tropicalYearLen = 365.242191
-
-
 -- | Calculate the ecliptic longitude of the Sun with the given SunDetails at the given JulianDate
 sunEclipticLongitude1 :: SunDetails -> JulianDate -> DecimalDegrees
 sunEclipticLongitude1 sd@(SunDetails epoch (DD eps) (DD omega) e) jd =
-  let JD d = jd - epoch  -- number of days
-      n = reduceTo360 $ (360/tropicalYearLen) * d
+  let d = numberOfDays epoch jd
+      n = reduceTo360 $ (360/U.tropicalYearLen) * d
       meanAnomaly = reduceTo360 $ n + eps - omega
       ec = (360/pi)*e*(sin $ U.toRadians meanAnomaly)
       DD nutation = nutationLongitude jd
