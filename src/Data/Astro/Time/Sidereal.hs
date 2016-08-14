@@ -28,7 +28,8 @@ module Data.Astro.Time.Sidereal
 where
 
 import Data.Astro.Types (DecimalHours(..), fromHMS)
-import Data.Astro.Time.JulianDate (JulianDate(..), TimeBaseType, j2000, numberOfCenturies, splitToDayAndTime)
+import Data.Astro.Time.JulianDate (JulianDate(..), TimeBaseType, numberOfCenturies, splitToDayAndTime)
+import Data.Astro.Time.Epoch (j2000)
 import Data.Astro.Utils (reduceToZeroRange)
 import qualified Data.Astro.Types as C
 

@@ -17,6 +17,7 @@ import Test.QuickCheck
 import Control.Monad (unless)
 
 import Data.Astro.Time.Types (TimeOfDay(..), LocalTime(..), fromGregorian, toGregorian)
+import Data.Astro.Time.Epoch (b1950, j2000)
 import Data.Astro.Time.JulianDate
 
 tests = [testGroup "to julian day" [

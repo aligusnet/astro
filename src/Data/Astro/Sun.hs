@@ -20,7 +20,6 @@ module Data.Astro.Sun
   SunDetails(..)
   , RiseSet(..)
   , SunRiseSet(..)
-  , j2010
   , sunDetails
   , j2010SunDetails
   , sunEclipticLongitude1
@@ -41,8 +40,9 @@ import Data.Astro.Types (DecimalDegrees(..), DecimalHours(..)
                         , toDecimalHours, fromDecimalHours
                         , toRadians, fromRadians
                         , GeographicCoordinates(..))
-import Data.Astro.Time.JulianDate (JulianDate(..), j1900, numberOfCenturies, splitToDayAndTime, addHours)
+import Data.Astro.Time.JulianDate (JulianDate(..), numberOfCenturies, splitToDayAndTime, addHours)
 import Data.Astro.Time.Sidereal (gstToUT, dhToGST)
+import Data.Astro.Time.Epoch (j1900, j2010)
 import Data.Astro.Coordinate (EquatorialCoordinates1(..), EclipticCoordinates(..), eclipticToEquatorial)
 import Data.Astro.Effects.Nutation (nutationLongitude)
 import Data.Astro.CelestialObject (RiseSet(..), RiseSetJD(..), RSInfo(..), riseAndSet, toRiseSetLCT)
@@ -55,14 +55,8 @@ data SunDetails = SunDetails {
   sdEpoch :: JulianDate             -- ^ Epoch
   , sdEpsilon :: DecimalDegrees     -- ^ Ecliptic longitude at the Epoch
   , sdOmega :: DecimalDegrees       -- ^ Ecliptic longitude of perigee at the Epoch
-  , sdE :: Double                   -- ^ Eccentricity oforbit at the Epoch
+  , sdE :: Double                   -- ^ Eccentricity of the orbit at the Epoch
   } deriving (Show)
-
-
--- | The Sun's reference Epoch J2010.0 (2010 January 0.0)
-j2010 :: JulianDate
-j2010 = JD 2455196.5
-
 
 -- | SunDetails at the Sun's reference Epoch J2010.0
 j2010SunDetails :: SunDetails

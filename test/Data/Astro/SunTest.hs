@@ -20,6 +20,7 @@ import Data.Astro.CoordinateTest (testEC1)
 
 import Data.Astro.Types (DecimalDegrees(..), GeographicCoordinates(..), fromDMS, fromHMS)
 import Data.Astro.Time.JulianDate (JulianDate(..))
+import Data.Astro.Time.Epoch (j2010)
 import Data.Astro.Coordinate (EquatorialCoordinates1(..))
 import Data.Astro.Sun
 

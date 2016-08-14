@@ -18,7 +18,8 @@ import Data.Astro.TypesTest (testDecimalDegrees)
 import Data.Astro.CoordinateTest (testEC1, testEcC)
 
 import Data.Astro.Types (DecimalDegrees(..), DecimalHours(..), fromDMS, fromHMS)
-import Data.Astro.Time.JulianDate (JulianDate(..), b1950)
+import Data.Astro.Time.JulianDate (JulianDate(..))
+import Data.Astro.Time.Epoch (b1950)
 import Data.Astro.Coordinate (EquatorialCoordinates1(..), EclipticCoordinates(..))
 import Data.Astro.Effects
 

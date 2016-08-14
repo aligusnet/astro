@@ -19,7 +19,8 @@ import Data.Matrix
 
 import qualified Data.Astro.Utils as U
 import Data.Astro.Types (DecimalDegrees(..), DecimalHours(..), toDecimalHours, fromDecimalHours, toRadians, fromRadians)
-import Data.Astro.Time.JulianDate (JulianDate(..), b1900, b1950, j2000, j2050, numberOfYears, numberOfCenturies)
+import Data.Astro.Time.JulianDate (JulianDate(..), numberOfYears, numberOfCenturies)
+import Data.Astro.Time.Epoch (b1900, b1950, j2000, j2050)
 import Data.Astro.Coordinate (EquatorialCoordinates1(..))
 
 

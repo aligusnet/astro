@@ -16,7 +16,8 @@ where
 
 import qualified Data.Astro.Utils as U
 import Data.Astro.Types (DecimalDegrees(..), toRadians, fromDMS)
-import Data.Astro.Time.JulianDate (JulianDate, j1900, numberOfCenturies)
+import Data.Astro.Time.JulianDate (JulianDate, numberOfCenturies)
+import Data.Astro.Time.Epoch (j1900)
 
 
 -- | Calculates the nutation on the ecliptic longitude at the given JulianDate

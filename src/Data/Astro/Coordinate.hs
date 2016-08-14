@@ -70,7 +70,8 @@ module Data.Astro.Coordinate
 where
 
 import Data.Astro.Time (lctToLST)
-import Data.Astro.Time.JulianDate (JulianDate(..), j2000, numberOfCenturies, splitToDayAndTime)
+import Data.Astro.Time.JulianDate (JulianDate(..), numberOfCenturies, splitToDayAndTime)
+import Data.Astro.Time.Epoch (j2000)
 import Data.Astro.Time.Sidereal (LocalSiderealTime(..), lstToDH)
 import Data.Astro.Types (DecimalDegrees(..), DecimalHours(..), fromDecimalHours, toDecimalHours, toRadians, fromRadians, fromDMS)
 import Data.Astro.Utils (fromFixed)
