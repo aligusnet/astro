@@ -20,9 +20,10 @@ import Data.Astro.Time.JulianDate (JulianDate)
 import Data.Astro.Time.Epoch (j2010)
 
 
--- | Planets of the Solar System excluding the Earth
+-- | Planets of the Solar System
 data Planet = Mercury
              | Venus
+             | Earth 
              | Mars
              | Jupiter
              | Saturn
@@ -48,6 +49,7 @@ data PlanetDetails = PlanetDetails {
 j2010PlanetDetails :: Planet -> PlanetDetails
 j2010PlanetDetails Mercury = PlanetDetails j2010 0.24085    75.5671    77.612     0.205627 0.387098 7.0051   48.449
 j2010PlanetDetails Venus   = PlanetDetails j2010 0.615207   272.30044  131.54     0.006812 0.723329 3.3947   76.769
+j2010PlanetDetails Earth   = PlanetDetails j2010 0.999996   99.556772  103.2055   0.016671 0.999985 0        0
 j2010PlanetDetails Mars    = PlanetDetails j2010 1.880765   109.09646  336.217    0.093348 1.523689 1.8497   49.632
 j2010PlanetDetails Jupiter = PlanetDetails j2010 11.857911  337.917132 14.6633    0.048907 5.20278  1.3035   100.595
 j2010PlanetDetails Saturn  = PlanetDetails j2010 29.310579  172.398316 89.567     0.053853 9.51134  2.4873   113.752

@@ -28,7 +28,9 @@ library
                      , Data.Astro.Effects
                      , Data.Astro.Sun
                      , Data.Astro.Sun.SunInternals
+                     , Data.Astro.Planet
                      , Data.Astro.Planet.PlanetDetails
+                     , Data.Astro.Planet.PlanetMechanics
   other-modules:       Data.Astro.Effects.Precession
                      , Data.Astro.Effects.Nutation
                      , Data.Astro.Effects.Aberration
