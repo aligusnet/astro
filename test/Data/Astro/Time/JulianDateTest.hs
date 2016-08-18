@@ -16,21 +16,22 @@ import Test.QuickCheck
 
 import Control.Monad (unless)
 
-import Data.Astro.Time.Types (TimeOfDay(..), LocalTime(..), fromGregorian, toGregorian)
 import Data.Astro.Time.Epoch (b1950, j2000)
 import Data.Astro.Time.JulianDate
 
 tests = [testGroup "to julian day" [
-            testCase "19 Jun 2009 18:00" (fromDateTime (LocalTime (fromGregorian 2009 6 19) (TimeOfDay 18 0 0)) @?= JD 2455002.25)
-            , testCase "1 Aug 2009 12:00" (fromDateTime (LocalTime (fromGregorian 2016 8 1) (TimeOfDay 12 0 0)) @?= JD 2457602)
-            , testCase "Gregorian start day" (fromDateTime (LocalTime (fromGregorian 1582 10 15) (TimeOfDay 0 0 0)) @?= JD 2299160.5)
-            , testCase "Gregorian before start" (fromDateTime (LocalTime (fromGregorian 1582 10 14) (TimeOfDay 12 0 0)) @?= JD 2299170)
+            testCase "19 Jun 2009 18:00" $ fromYMDHMS 2009 6 19 18 0 0 @?= JD 2455002.25
+            , testCase "1 Aug 2009 12:00" $ fromYMDHMS 2016 8 1 12 0 0 @?= JD 2457602
+            , testCase "Gregorian start day" $ fromYMDHMS 1582 10 15 0 0 0 @?= JD 2299160.5
+            , testCase "Gregorian before start" $ fromYMDHMS 1582 10 14 12 0 0 @?= JD 2299170
+            , testCase "19 Jun 2009" $ fromYMD 2009 6 19 @?= JD 2455001.5
+            , testCase "1 Aug 2009" $ fromYMD 2016 8 1 @?= JD 2457601.5
             ]
         , testGroup "from julian day" [
-            testCase "19 Jun 2009 18:00" (toDateTime (JD 2455002.25) @?= LocalTime (fromGregorian 2009 6 19) (TimeOfDay 18 0 0))
-            , testCase "1 Aug 2009 12:00" (toDateTime (JD 2457602) @?= LocalTime (fromGregorian 2016 8 1) (TimeOfDay 12 0 0))
-            , testCase "Gregorian start day" (toDateTime (JD 2299160.5) @?= LocalTime (fromGregorian 1582 10 15) (TimeOfDay 0 0 0))
-            , testCase "Gregorian before start" (toDateTime (JD 2299160) @?= LocalTime (fromGregorian 1582 10 4) (TimeOfDay 12 0 0))
+            testCase "19 Jun 2009 18:00" (toYMDHMS (JD 2455002.25) @?= (2009, 6, 19, 18, 0, 0))
+            , testCase "1 Aug 2009 12:00" (toYMDHMS (JD 2457602) @?= (2016, 8, 1, 12, 0, 0))
+            , testCase "Gregorian start day" (toYMDHMS (JD 2299160.5) @?= (1582, 10, 15, 0, 0, 0))
+            , testCase "Gregorian before start" (toYMDHMS (JD 2299160) @?= (1582, 10, 4, 12, 0, 0))
             ]
         , testGroup "julian conversion properties" [
             testProperty "before George" prop_JulianConversionsBeforeGeorge
@@ -107,8 +108,8 @@ prop_JulianConversionsBeforeGeorge =
 checkJulianConverionProperties :: Double -> Bool
 checkJulianConverionProperties n =
   let jd = JD n
-      dt = toDateTime jd
-      jd2 = fromDateTime dt
+      (y, m, d, hs, ms, ss) = toYMDHMS jd
+      jd2 = fromYMDHMS y  m  d  hs  ms ss
       JD n2 = jd2
   in abs(n - n2) < 0.00000001
 

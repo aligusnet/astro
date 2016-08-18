@@ -19,7 +19,6 @@ library
                      , Data.Astro.Time.GregorianCalendar
                      , Data.Astro.Time.JulianDate
                      , Data.Astro.Time.Sidereal
-                     , Data.Astro.Time.Types
                      , Data.Astro.Time.Epoch
                      , Data.Astro.Coordinate
                      , Data.Astro.Types

@@ -22,16 +22,19 @@ import Data.Time.Calendar (Day(..), fromGregorian, toGregorian)
 
 -- Date after 15 October 1582 belongs to Gregorian Calendar
 -- Before this date - to Julian Calendar
-isGregorianDate :: Day -> Bool
-isGregorianDate date = date >= moveToGregorianCalendarDate
-  where moveToGregorianCalendarDate = fromGregorian 1582 10 15
+isGregorianDate :: Integer -> Int -> Int -> Bool
+isGregorianDate y m d = y > gyear
+  || (y == gyear && m > gmonth)
+  || (y == gyear && m == gmonth && d >= gday)
+  where gyear = 1582
+        gmonth = 10
+        gday = 15
 
 
-gregorianDateAdjustment :: Day -> Int
-gregorianDateAdjustment date =
-  if isGregorianDate date
-  then let (year, month, _) = toGregorian date
-           y = if month < 3 then year - 1 else year
+gregorianDateAdjustment :: Integer -> Int ->Int -> Int
+gregorianDateAdjustment year month day =
+  if isGregorianDate year month day
+  then let y = if month < 3 then year - 1 else year
            y' = fromIntegral y
            a = truncate (y' / 100)
        in 2 - a + truncate(fromIntegral a/4)

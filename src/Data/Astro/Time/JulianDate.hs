@@ -16,8 +16,9 @@ module Data.Astro.Time.JulianDate
   , numberOfYears
   , numberOfCenturies
   , addHours
-  , fromDateTime
-  , toDateTime
+  , fromYMD
+  , fromYMDHMS
+  , toYMDHMS
   , dayOfWeek
   , splitToDayAndTime
   , utToLCT
@@ -26,10 +27,9 @@ module Data.Astro.Time.JulianDate
 
 where
 
-import Data.Astro.Types(DecimalHours(..))
-import Data.Astro.Time.Types(LocalTime(..), TimeOfDay(..), fromGregorian, toGregorian)
+import Data.Astro.Types(DecimalHours(..), fromHMS, toHMS)
 import Data.Astro.Time.GregorianCalendar (gregorianDateAdjustment)
-import Data.Astro.Utils (trunc, fraction, fromFixed)
+import Data.Astro.Utils (trunc, fraction)
 
 
 type TimeBaseType = Double
@@ -40,7 +40,7 @@ newtype JulianDate = JD TimeBaseType
 
 
 -- | Beginning of the Julian Period
-julianStartDateTime = LocalTime (fromGregorian (-4712) 1 1) (TimeOfDay 12 0 0)
+julianStartDateTime = fromYMDHMS (-4712) 1 1 12 0 0
 
 
 instance Num JulianDate where
@@ -71,27 +71,33 @@ numberOfCenturies (JD jd1) (JD jd2) = (jd2-jd1) / 36525
 addHours :: DecimalHours -> JulianDate -> JulianDate
 addHours (DH hours) jd = jd + (JD $ hours/24)
 
--- | Create Julian Date from DateTime
-fromDateTime :: LocalTime -> JulianDate
-fromDateTime (LocalTime date time) =
-  let (year, month, day) = toGregorian date
-      (y, m) = if month < 3 then (year-1, month+12) else (year, month)
+
+-- | Create Julian Date.
+-- It takes year, month [1..12], Day [1..31].
+fromYMD :: Integer -> Int -> Int -> JulianDate
+fromYMD year month day =
+  let (y, m) = if month < 3 then (year-1, month+12) else (year, month)
       y' = fromIntegral y
       m' = fromIntegral m
-      b = gregorianDateAdjustment date
+      b = gregorianDateAdjustment year month day
       c = if y < 0
           then truncate (365.25*y' - 0.75)  -- 365.25 - number of solar days in a year
           else truncate (365.25*y')
       d = truncate (30.6001 * (m'+1))
-      e = toDecimalDays time
-      jd = fromIntegral (b + c + d + day) + e + 1720994.5  -- add 1720994.5 to process BC/AC border
-  in JD jd
+      jd = fromIntegral (b + c + d + day) + 1720994.5  -- add 1720994.5 to process BC/AC border
+  in JD jd  
 
 
--- | Comvert Julian Date to DateTime
-toDateTime :: JulianDate -> LocalTime
-toDateTime (JD jd) =
-  let (i, f) = fraction (jd + 0.5)
+-- | Create Julian Date.
+-- It takes year, month [1..12], Day [1..31], hours, minutes, seconds.
+fromYMDHMS :: Integer -> Int -> Int -> Int -> Int -> TimeBaseType -> JulianDate
+fromYMDHMS year month day hs ms ss = addHours (fromHMS hs ms ss) (fromYMD year month day)
+
+
+-- | It returns year, month [1..12], Day [1..31], hours, minutes, seconds.
+toYMDHMS :: JulianDate -> (Integer, Int, Int, Int, Int, TimeBaseType)
+toYMDHMS (JD jd) =
+  let (i, time) = fraction (jd + 0.5)
       b = if i > 2299160  -- 2299161 - first day of Georgian Calendar
           then let a = trunc $ (i-1867216.25)/36524.25
                in i + a - trunc (a*0.25) + 1
@@ -103,8 +109,8 @@ toDateTime (JD jd) =
       day = truncate $ c - e - trunc (30.6001*g)
       month = truncate $ if g < 13.5 then g - 1 else g - 13
       year = truncate $ if month > 2 then d-4716 else d-4715
-   in (LocalTime (fromGregorian year month day) (fromDecimalDays f))
-
+      (h, m, s) = toHMS $ DH $ 24*time
+   in (year, month, day, h, m, s)
 
 
 -- | Get Day of the Week
@@ -141,22 +147,3 @@ lctToUT offset (JD jd) = JD $ jd - (offset/24.0)
 -- The function takes time zone offset in hours and julian date
 utToLCT :: Double -> JulianDate -> JulianDate
 utToLCT offset (JD jd) = JD $ jd + (offset/24)
-
-
-
-toDecimalDays :: RealFrac a => TimeOfDay -> a
-toDecimalDays (TimeOfDay hours minutes seconds) = (hours' + (minutes' + seconds' / 60) / 60)/24
-  where hours' = fromIntegral hours
-        minutes' = fromIntegral minutes
-        seconds' = fromFixed seconds
-
-
-fromDecimalDays :: RealFrac a => a -> TimeOfDay
-fromDecimalDays days =
-  let hours = 24*days
-      hours' = truncate hours
-      minutes = (hours - fromIntegral hours')*60
-      minutes' = truncate minutes
-      seconds = (minutes - fromIntegral minutes') * 60
-      seconds' = realToFrac seconds
-  in TimeOfDay hours' minutes' seconds'
