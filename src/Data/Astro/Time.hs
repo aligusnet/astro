@@ -16,8 +16,8 @@ module Data.Astro.Time
 where
 
 import Data.Astro.Types (DecimalDegrees)
-import Data.Astro.Time.JulianDate (JulianDate, LocalCivilTime(..), LocalCivilDate(..))
-import Data.Astro.Time.Sidereal (LocalSiderealTime, utToGST, gstToUT, gstToLST, lstToGST)
+import Data.Astro.Time.JulianDate (JulianDate(..), LocalCivilTime(..), LocalCivilDate(..), splitToDayAndTime, addHours)
+import Data.Astro.Time.Sidereal (LocalSiderealTime, utToGST, gstToUT, gstToLST, lstToGST, lstToGSTwDC)
 
 
 -- | Local Civil Time to Local Sidereal Time.
@@ -37,4 +37,21 @@ lstToLCT longitude lcd lst =
   let gst = lstToGST longitude lst
       ut = gstToUT (lcdDate lcd) gst
       lct = LCT (lcdTimeZone lcd) ut
+  in if sameDay lcd lct
+     then lct -- lstToLCTwDC longitude timeZone jd lst
+     else lstToLCTwDC longitude lcd lst
+
+
+lstToLCTwDC :: DecimalDegrees -> LocalCivilDate -> LocalSiderealTime -> LocalCivilTime
+lstToLCTwDC longitude lcd lst =
+  let gst = lstToGSTwDC longitude lst
+      ut = gstToUT (lcdDate lcd) gst
+      lct = LCT (lcdTimeZone lcd) ut
   in lct
+
+
+-- | Returns True if both JulianDates hve the same day
+sameDay :: LocalCivilDate -> LocalCivilTime -> Bool
+sameDay (LCD _ (JD d1)) (LCT tz jd2) =
+  let (JD d2, _) = splitToDayAndTime $ addHours tz jd2
+  in abs (d1 - d2) < 0.000001

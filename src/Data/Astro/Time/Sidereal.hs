@@ -24,6 +24,7 @@ module Data.Astro.Time.Sidereal
   , gstToUT
   , gstToLST
   , lstToGST
+  , lstToGSTwDC
 )
 where
 
@@ -110,10 +111,19 @@ gstToLST longitude (GST gst) =
   in LST lst
 
 
--- | Convert Local Sidereal Time to Greenwich Sidereal Time.
+-- | Convert Local Sidereal Time to Greenwich Sidereal Time
 -- It takes LST and longitude in decimal degrees
 lstToGST :: C.DecimalDegrees -> LocalSiderealTime -> GreenwichSiderealTime
 lstToGST longitude (LST lst) =
+  let C.DH dhours = C.toDecimalHours longitude
+      gst = reduceToZeroRange 24 $ lst - dhours
+  in GST gst
+
+
+-- | Convert Local Sidereal Time to Greenwich Sidereal Time with Day Correction.
+-- It takes LST and longitude in decimal degrees
+lstToGSTwDC :: C.DecimalDegrees -> LocalSiderealTime -> GreenwichSiderealTime
+lstToGSTwDC longitude (LST lst) =
   let C.DH dhours = C.toDecimalHours longitude
       gst = lst - dhours
   in GST gst

@@ -185,6 +185,7 @@ sunRiseAndSet geoc shift lcd =
   -- helper functions
   where riseSet = riseAndSetLCT geoc lcd shift
         sunPos day offset = sunPosition1 j2010SunDetails $ addHours offset day
+
         fromSORpair (SOR rise) (SOR set) = RiseSet (Just rise) (Just set)
         fromSORpair (SOR rise) _ = RiseSet (Just rise) Nothing
         fromSORpair _ (SOR set) = RiseSet Nothing (Just set)

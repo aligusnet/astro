@@ -67,9 +67,13 @@ tests = [testGroup "GST <-> UT conversions" [
                (hmsToGST 15 25 35.12)
                (lstToGST (DD 73.72) (hmsToLST 20 20 27.92))
              ]
-           , testGST "04:36:13.78 LST -> 21:41:25.78 GST"
+           , testGST "04:36:13.78 LST -> 21:41:25.78 GST (w/ DC)"
                eps
                (hmsToGST (-2) (-18) (-34.22))
+               (lstToGSTwDC (DD 103.7) (hmsToLST 4 36 13.78))
+           , testGST "04:36:13.78 LST -> 21:41:25.78 GST"
+               eps
+               (hmsToGST 21 41 25.78)
                (lstToGST (DD 103.7) (hmsToLST 4 36 13.78))
            , testProperty "property longitude=-101.13" $ prop_localGlobalConverions (DD $ -101.13)
            , testProperty "property longitude=31.7" $ prop_localGlobalConverions (DD 31.7)
