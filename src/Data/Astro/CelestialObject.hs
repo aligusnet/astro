@@ -11,7 +11,7 @@ module Data.Astro.CelestialObject
   RiseSet(..)
   , RSInfo(..)
   , RiseSetLST(..)
-  , RiseSetJD(..)
+  , RiseSetLCT(..)
   , angleEquatorial
   , angleEcliptic
   , riseAndSet
@@ -23,7 +23,7 @@ where
 import Data.Astro.Types (DecimalDegrees, DecimalHours(..), toRadians, fromRadians, toDecimalHours, fromDecimalHours)
 import Data.Astro.Utils (reduceToZeroRange)
 import Data.Astro.Time (lstToLCT)
-import Data.Astro.Time.JulianDate (JulianDate(..), splitToDayAndTime)
+import Data.Astro.Time.JulianDate (JulianDate(..), LocalCivilTime(..), LocalCivilDate)
 import Data.Astro.Time.Sidereal (LocalSiderealTime, dhToLST)
 import Data.Astro.Coordinate (EquatorialCoordinates1(..), EclipticCoordinates(..))
 
@@ -47,8 +47,8 @@ type RSInfo a = (a, DecimalDegrees)
 type RiseSetLST = RiseSet (RSInfo LocalSiderealTime)
 
 
--- | JulianDate and Azimuth of Rise and Set
-type RiseSetJD = RiseSet (RSInfo JulianDate)
+-- | Local Civil Time and Azimuth of Rise and Set
+type RiseSetLCT = RiseSet (RSInfo LocalCivilTime)
 
 
 -- | Calculate angle between two celestial objects
@@ -109,19 +109,18 @@ riseAndSet (EC1 delta alpha) shift lat =
           in RiseSet (lstRise, fromRadians azimuthRise) (lstSet, fromRadians azimuthSet)
 
 
+-- | Converts Rise and Set in Local Sidereal Time to Rise and Set in Local Civil Time.
 toRiseSetLCT :: DecimalDegrees
-               -> Double
-               -> JulianDate
+               -> LocalCivilDate
                -> RiseSetLST
-               -> RiseSetJD
-toRiseSetLCT longitude timeZone jd (RiseSet (rise, azRise) (set, azSet)) =
-  let (day, _) = splitToDayAndTime jd
-      toLCT lst = lstToLCT longitude timeZone day lst
+               -> RiseSetLCT
+toRiseSetLCT longitude lcd (RiseSet (rise, azRise) (set, azSet)) =
+  let toLCT lst = lstToLCT longitude lcd lst
       rise' = toLCT rise
       set' = toLCT set
   in RiseSet (rise', azRise) (set', azSet)
-toRiseSetLCT _ _ _ Circumpolar  = Circumpolar
-toRiseSetLCT _ _ _ NeverRises = NeverRises
+toRiseSetLCT _ _ Circumpolar  = Circumpolar
+toRiseSetLCT _ _ NeverRises = NeverRises
 
 
 -- | Convert LST in decimal hours to the JuliadDate

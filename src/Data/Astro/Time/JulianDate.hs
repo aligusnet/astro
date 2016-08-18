@@ -11,6 +11,8 @@ the beginning of the Julian Period.
 module Data.Astro.Time.JulianDate
 (
   JulianDate(..)
+  , LocalCivilTime(..)
+  , LocalCivilDate(..)
   , TimeBaseType
   , numberOfDays
   , numberOfYears
@@ -21,11 +23,14 @@ module Data.Astro.Time.JulianDate
   , toYMDHMS
   , dayOfWeek
   , splitToDayAndTime
-  , utToLCT
-  , lctToUT
+  , lctFromYMDHMS
+  , lctToYMDHMS
+  , lcdFromYMD
 )
 
 where
+
+import Text.Printf (printf)
 
 import Data.Astro.Types(DecimalHours(..), fromHMS, toHMS)
 import Data.Astro.Time.GregorianCalendar (gregorianDateAdjustment)
@@ -37,6 +42,24 @@ type TimeBaseType = Double
 -- | A number of days since noon of 1 January 4713 BC
 newtype JulianDate = JD TimeBaseType
                      deriving (Show, Eq)
+
+
+-- | Represents Local Civil Time
+data LocalCivilTime = LCT {
+  lctTimeZone :: DecimalHours   -- Time Zone correction
+  , lctUniversalTime :: JulianDate
+  } deriving (Eq)
+
+
+instance Show LocalCivilTime where
+  show = printLCT
+
+
+-- | Local Civil Date, used for time conversions when base date is needed
+data LocalCivilDate = LCD {
+  lcdTimeZone :: DecimalHours
+  , lcdDate :: JulianDate
+  } deriving (Eq)
 
 
 -- | Beginning of the Julian Period
@@ -56,6 +79,7 @@ instance Num JulianDate where
 -- | Return number of days since the first argument till the second one
 numberOfDays :: JulianDate -> JulianDate -> TimeBaseType
 numberOfDays (JD jd1) (JD jd2) = jd2 - jd1
+
 
 -- | Return number of years since the first argument till the second one
 numberOfYears :: JulianDate -> JulianDate -> TimeBaseType
@@ -85,7 +109,7 @@ fromYMD year month day =
           else truncate (365.25*y')
       d = truncate (30.6001 * (m'+1))
       jd = fromIntegral (b + c + d + day) + 1720994.5  -- add 1720994.5 to process BC/AC border
-  in JD jd  
+  in JD jd
 
 
 -- | Create Julian Date.
@@ -137,13 +161,35 @@ removeHours jd =
   in d
 
 
--- | Convert Local Civil Time (LCT) to Universal Time (UT)
--- The function takes time zone offset in hours and julian date
-lctToUT :: Double -> JulianDate -> JulianDate
-lctToUT offset (JD jd) = JD $ jd - (offset/24.0)
+-- | Create LocalCivilTime from tize zone, local year, local month, local day, local hours, local minutes and local secunds.
+lctFromYMDHMS :: DecimalHours ->Integer -> Int -> Int -> Int -> Int -> TimeBaseType -> LocalCivilTime
+lctFromYMDHMS tz y m d hs ms ss =
+  let jd = fromYMDHMS y m d hs ms ss
+      jd' = addHours (-tz) jd
+  in LCT tz jd'
 
 
--- | Convert Universal Time (UT) to Local Civil Time (LCT)
--- The function takes time zone offset in hours and julian date
-utToLCT :: Double -> JulianDate -> JulianDate
-utToLCT offset (JD jd) = JD $ jd + (offset/24)
+-- | Get from LocalCivilTime local year, local month, local day, local hours, local minutes and local secunds.
+lctToYMDHMS :: LocalCivilTime -> (Integer, Int, Int, Int, Int, TimeBaseType)
+lctToYMDHMS (LCT tz jd)= toYMDHMS (addHours tz jd) 
+
+
+-- Create LocalCivilDate from time zone, local year, local month, local day
+lcdFromYMD :: DecimalHours -> Integer -> Int -> Int -> LocalCivilDate
+lcdFromYMD tz y m d = LCD tz (fromYMD y m d)
+
+
+-- | Print Local Civil Time in human-readable format
+printLCT :: LocalCivilTime -> String
+printLCT lct =
+  printf "%d-%02d-%02d %02d:%02d:%07.4f %+03.1f" y m d hs ms ss tz
+  where (y, m, d, hs, ms, ss) = lctToYMDHMS lct
+        DH tz = lctTimeZone lct
+
+
+-- | Print local civil time in machine readable format
+printLCT2 :: LocalCivilTime -> String
+printLCT2 lct =
+  printf "lctFromYMDHMS %1.0f %d %d %d %d %d %.4f" tz y m d hs ms ss
+  where (y, m, d, hs, ms, ss) = lctToYMDHMS lct
+        DH tz = lctTimeZone lct

@@ -2,6 +2,7 @@ module Data.Astro.Time.JulianDateTest
 (
   tests
   , testJD
+  , testLCT
 )
 
 where
@@ -16,6 +17,7 @@ import Test.QuickCheck
 
 import Control.Monad (unless)
 
+import Data.Astro.Types (DecimalHours(..))
 import Data.Astro.Time.Epoch (b1950, j2000)
 import Data.Astro.Time.JulianDate
 
@@ -54,14 +56,10 @@ tests = [testGroup "to julian day" [
             , testProperty "property" prop_splitToDayAndTime
             ]
         , testGroup "UT <-> LCT" [
-            testJD "2016-08-07 02:10:10 +4 LCT -> UT"
+            testLCT "2016-08-07 02:10:10 +4 LCT -> UT"
                 0.000000001
-                (JD 2457607.423726852)
-                (lctToUT 4 $ JD 2457607.5903935186)
-            , testJD "2016-08-06 22:10:10 UT -> +4 LCT"
-                0.000000001
-                (JD 2457607.5903935186)
-                (utToLCT 4 $ JD 2457607.423726852)
+                (LCT 4 (JD 2457607.423726852))
+                (lctFromYMDHMS 4 2016 8 7 2 10 10)
             ]
         , testGroup "numberOfCenturies" [
             testCase "J2000..2009-06-06" $ assertApproxEqual ""
@@ -133,3 +131,14 @@ assertJD eps (JD expected) (JD actual) =
   unless (abs(expected-actual) <= eps) (assertFailure msg)
   where msg = "expected: " ++ show expected ++ "\n but got: " ++ show actual ++
               "\n (maximum margin of error: " ++ show eps ++ ")"
+
+testLCT msg eps expected actual =
+  testCase msg $ assertLCT eps expected actual
+
+
+assertLCT eps expected actual =
+  unless (eqLCT eps expected actual) (assertFailure msg)
+  where msg = "expected: " ++ show expected ++ "\nbut got: " ++ show actual ++
+              "\n (maximum margin of error: " ++ show eps ++ ")"
+
+eqLCT eps (LCT (DH tze) (JD jde)) (LCT (DH tza) (JD jda)) = abs (jde-jda) < eps && abs(tze-tza) < eps

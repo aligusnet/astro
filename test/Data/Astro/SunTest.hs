@@ -18,8 +18,8 @@ import Control.Monad (unless)
 import Data.Astro.TypesTest (testDecimalDegrees, testDecimalHours)
 import Data.Astro.CoordinateTest (testEC1)
 
-import Data.Astro.Types (DecimalDegrees(..), GeographicCoordinates(..), fromDMS, fromHMS)
-import Data.Astro.Time.JulianDate (JulianDate(..))
+import Data.Astro.Types (DecimalDegrees(..), DecimalHours(..), GeographicCoordinates(..), fromDMS, fromHMS)
+import Data.Astro.Time.JulianDate (JulianDate(..), LocalCivilTime(..), lctFromYMDHMS, LocalCivilDate(..), lcdFromYMD)
 import Data.Astro.Time.Epoch (j2010)
 import Data.Astro.Coordinate (EquatorialCoordinates1(..))
 import Data.Astro.Sun
@@ -88,33 +88,41 @@ tests = [testGroup "sunDetails" [
                -- timeanddate.com: Rise: 06:08, DD 68; Set: 20:22, DD 292
                testRiseSet "Venice at 2016-08-12"
                    0.000001
-                   (RiseSet (Just (JD 2457612.7555686, DD 67.6606896)) (Just (JD 2457613.3488124, DD 292.0719405)))
-                   (sunRiseAndSet (GeoC (DD 45.43713) (12.33265)) 2 0.833333 (JD 2457612.5))
+                   (RiseSet
+                      (Just (lctFromYMDHMS 2 2016 8 12 6 8 1.1251, DD 67.6606896))
+                      (Just (lctFromYMDHMS 2 2016 8 12 20 22 17.3914, DD 292.0719405)))
+                   (sunRiseAndSet (GeoC (DD 45.43713) (12.33265)) 0.833333 (lcdFromYMD 2 2016 8 12))
                -- timeanddate.com: Rise: 06:45, DD 67; Set: 21:09, DD 293
                , testRiseSet "Ulaanbaatar at 2016-08-13"
                    0.000001
-                   (RiseSet (Just (JD 2457613.7810581, DD 66.8649010)) (Just (JD 2457614.3811317, DD 292.8475452)))
-                   (sunRiseAndSet (GeoC (DD 47.90771) (106.88324)) 9 0.833333 (JD 2457613.5))
+                   (RiseSet
+                      (Just (lctFromYMDHMS 9 2016 8 13 6 44 43.4166, DD 66.8649010))
+                      (Just (lctFromYMDHMS 9 2016 8 13 21 8 49.7771, DD 292.8475452)))
+                   (sunRiseAndSet (GeoC (DD 47.90771) (106.88324)) 0.833333 (lcdFromYMD 9 2016 8 13))
                -- timeanddate.com: Rise: 06:22, DD 75; Set: 18:04, DD 285
                , testRiseSet "Lima at 2016-08-12"
                    0.000001
-                   (RiseSet (Just (JD 2457612.7655317, DD 75.0818488)) (Just (JD 2457613.2525567, DD 284.7672950)))
-                   (sunRiseAndSet (GeoC (DD $ -12.04318) (DD $ -77.02824)) (-5) 0.833333 (JD 2457612.5))
+                   (RiseSet
+                      (Just (lctFromYMDHMS (-5) 2016 8 12 6 22 21.9365, DD 75.0818488))
+                      (Just (lctFromYMDHMS (-5) 2016 8 12 18 3 40.8970, DD 284.7672950)))
+                   (sunRiseAndSet (GeoC (DD $ -12.04318) (DD $ -77.02824)) 0.833333 (lcdFromYMD (-5) 2016 8 12))
                -- timeanddate.com: Circumpolar
                , testRiseSet "Longyearbyen at 2016-08-12"
                    0.000001
                    Circumpolar
-                   (sunRiseAndSet (GeoC (DD 78.22) (DD 15.65)) 2 0.833333 (JD 2457612.5))
+                   (sunRiseAndSet (GeoC (DD 78.22) (DD 15.65)) 0.833333 (lcdFromYMD 2 2016 8 12))
                -- timeanddate.com: Down all day
                , testRiseSet "Longyearbyen at 2017-01-12"
                    0.000001
                    NeverRises
-                   (sunRiseAndSet (GeoC (DD 78.22) (DD 15.65)) 2 0.833333 (JD 2457765.5))
+                   (sunRiseAndSet (GeoC (DD 78.22) (DD 15.65)) 0.833333 (lcdFromYMD 2 2017 1 12))
                -- timeanddate.com: Rise: 06:05, DD 57; Set: 22:02, DD 302
                , testRiseSet "Anchorage at 2016-08-13"
                    0.000001
-                   (RiseSet (Just (JD 2457613.7531018, DD 57.0568583)) (Just (JD 2457614.4181508, DD 302.4505098)))
-                   (sunRiseAndSet (GeoC (DD 61.21806) (-149.90028)) (-8) 0.833333 (JD 2457613.5))
+                   (RiseSet
+                     (Just (lctFromYMDHMS (-8) 2016 8 13 6 4 27.9935, DD 57.0568583))
+                     (Just (lctFromYMDHMS (-8) 2016 8 13 22 2 8.2308, DD 302.4505098)))
+                   (sunRiseAndSet (GeoC (DD 61.21806) (-149.90028)) 0.833333 (lcdFromYMD (-8) 2016 8 13))
                ],
              testGroup "equationOfTime" [
                testDecimalHours "zero at June"
@@ -166,4 +174,4 @@ eqMaybeRS eps (Just rs1) (Just rs2) = eqRS eps rs1 rs2
 eqMaybeRS _ Nothing Nothing = True
 eqMaybeRS _ _ _ = False
 
-eqRS eps (JD j1, DD d1) (JD j2, DD d2) = abs (j1-j2) < eps && abs (d1-d2) < eps
+eqRS eps (LCT (DH tz1) (JD j1), DD d1) (LCT (DH tz2) (JD j2), DD d2) = abs (j1-j2) < eps && abs (tz1-tz2) < eps && abs (d1-d2) < eps

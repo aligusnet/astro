@@ -40,12 +40,12 @@ import Data.Astro.Types (DecimalDegrees(..), DecimalHours(..)
                         , toDecimalHours, fromDecimalHours
                         , toRadians, fromRadians
                         , GeographicCoordinates(..))
-import Data.Astro.Time.JulianDate (JulianDate(..), numberOfDays, numberOfCenturies, splitToDayAndTime, addHours)
+import Data.Astro.Time.JulianDate (JulianDate(..), LocalCivilTime(..), LocalCivilDate(..), numberOfDays, numberOfCenturies, splitToDayAndTime, addHours)
 import Data.Astro.Time.Sidereal (gstToUT, dhToGST)
 import Data.Astro.Time.Epoch (j1900, j2010)
 import Data.Astro.Coordinate (EquatorialCoordinates1(..), EclipticCoordinates(..), eclipticToEquatorial)
 import Data.Astro.Effects.Nutation (nutationLongitude)
-import Data.Astro.CelestialObject (RiseSet(..), RiseSetJD(..), RSInfo(..), riseAndSet, toRiseSetLCT)
+import Data.Astro.CelestialObject (RiseSet(..), RiseSetLCT(..), RSInfo(..), riseAndSet, toRiseSetLCT)
 
 import Data.Astro.Sun.SunInternals (solveKeplerEquation)
 
@@ -153,11 +153,11 @@ sunAngularSize :: JulianDate -> DecimalDegrees
 sunAngularSize jd = theta0 * (DD $ dasf $ sunDetails jd)
 
 
--- | The Sun's Rise And Set Information (JulianDate and Azimuth)
-type SunRiseSet = RiseSet (Maybe (RSInfo JulianDate))
+-- | The Sun's Rise And Set Information (LocalCivilTime and Azimuth)
+type SunRiseSet = RiseSet (Maybe (RSInfo LocalCivilTime))
 
 
-data SetOrRise = SOR (RSInfo JulianDate)
+data SetOrRise = SOR (RSInfo LocalCivilTime)
                | SCircumpolar
                | SNeverRises
                deriving (Eq)
@@ -165,26 +165,25 @@ data SetOrRise = SOR (RSInfo JulianDate)
 
 -- | Calculatesthe Sun's rise and set
 -- It takes coordinates of the observer,
--- time zone ( 0 for UT),
--- vertical shift (good value is 0.833333), date.
+-- local civil date,
+-- vertical shift (good value is 0.833333).
 -- It returns Nothing if fails to calculate rise and/or set.
 -- It should be accurate to within a minute of time.
 sunRiseAndSet :: GeographicCoordinates
-                 -> Double
                  -> DecimalDegrees
-                 -> JulianDate
+                 -> LocalCivilDate
                  -> SunRiseSet
-sunRiseAndSet geoc timeZone shift jd =
-  let (day, _) = splitToDayAndTime jd
+sunRiseAndSet geoc shift lcd =
+  let day = lcdDate lcd
       offset = (toDecimalHours $ geoLongitude geoc) * 0.5
       sunPosMorining = sunPos day offset
       sunPosEvening = sunPos day (3*offset)
-      rise = sunrise (riseSet timeZone) $ riseSet 0 sunPosMorining
-      set = sunset (riseSet timeZone)  $ riseSet 0 sunPosEvening
+      rise = sunrise riseSet $ riseSet sunPosMorining
+      set = sunset riseSet $ riseSet sunPosEvening
   in fromSORpair rise set
 
   -- helper functions
-  where riseSet = riseAndSetJD geoc shift jd
+  where riseSet = riseAndSetLCT geoc lcd shift
         sunPos day offset = sunPosition1 j2010SunDetails $ addHours offset day
         fromSORpair (SOR rise) (SOR set) = RiseSet (Just rise) (Just set)
         fromSORpair (SOR rise) _ = RiseSet (Just rise) Nothing
@@ -195,11 +194,11 @@ sunRiseAndSet geoc timeZone shift jd =
 
 
 -- | Approximate method to calculate the Sun's rise.
-sunrise :: (EquatorialCoordinates1 -> RiseSetJD)
-           -> RiseSetJD
+sunrise :: (EquatorialCoordinates1 -> RiseSetLCT)
+           -> RiseSetLCT
            -> SetOrRise
 sunrise riseSet (RiseSet (rise, _) _) =
-  let sunPos = sunPosition1 j2010SunDetails rise
+  let sunPos = sunPosition1 j2010SunDetails $ lctUniversalTime rise
   in case riseSet sunPos of
     RiseSet rise' _ -> SOR rise'
     Circumpolar -> SCircumpolar
@@ -209,11 +208,11 @@ sunrise _ NeverRises = SNeverRises
 
 
 -- | Approximate method to calculate the Sun's set.
-sunset :: (EquatorialCoordinates1 -> RiseSetJD)
-           -> RiseSetJD
+sunset :: (EquatorialCoordinates1 -> RiseSetLCT)
+           -> RiseSetLCT
            -> SetOrRise
 sunset riseSet (RiseSet _ (set, _)) =
-  let sunPos = sunPosition1 j2010SunDetails set
+  let sunPos = sunPosition1 j2010SunDetails $ lctUniversalTime set
   in case riseSet sunPos of
     RiseSet _ set' -> SOR set'
     Circumpolar -> SCircumpolar
@@ -223,14 +222,13 @@ sunset _ NeverRises = SNeverRises
 
 
 -- | Calculates set and rise of the celestial object
-riseAndSetJD :: GeographicCoordinates
+riseAndSetLCT :: GeographicCoordinates
+                -> LocalCivilDate
                 -> DecimalDegrees
-                -> JulianDate
-                -> Double
                 -> EquatorialCoordinates1
-                -> RiseSetJD
-riseAndSetJD (GeoC latitude longitude) shift jd timeZone ec
-  = toRiseSetLCT longitude timeZone jd $ riseAndSet ec shift latitude
+                -> RiseSetLCT
+riseAndSetLCT (GeoC latitude longitude) lcd shift ec
+  = toRiseSetLCT longitude lcd $ riseAndSet ec shift latitude
 
 
 -- | Calculates discrepancy between the mean solar time and real solar time

@@ -16,26 +16,25 @@ module Data.Astro.Time
 where
 
 import Data.Astro.Types (DecimalDegrees)
-import Data.Astro.Time.JulianDate (JulianDate, utToLCT, lctToUT)
+import Data.Astro.Time.JulianDate (JulianDate, LocalCivilTime(..), LocalCivilDate(..))
 import Data.Astro.Time.Sidereal (LocalSiderealTime, utToGST, gstToUT, gstToLST, lstToGST)
 
 
 -- | Local Civil Time to Local Sidereal Time.
--- It takes longitude in decimal degrees, time zone and local civil time
-lctToLST :: DecimalDegrees -> Double -> JulianDate -> LocalSiderealTime
-lctToLST longitude timeZone lct =
-  let ut = lctToUT timeZone lct
+-- It takes longitude in decimal degrees and local civil time
+lctToLST :: DecimalDegrees -> LocalCivilTime -> LocalSiderealTime
+lctToLST longitude lct =
+  let ut = lctUniversalTime lct
       gst = utToGST ut
       lst = gstToLST longitude gst
   in lst
 
 
 -- | Local Sidereal Time to Local Civil Time.
--- It takes longitude in decimal degrees, time zone, greenwich date and local sidereal time
-lstToLCT :: DecimalDegrees -> Double -> JulianDate -> LocalSiderealTime -> JulianDate
-lstToLCT longitude timeZone jd lst =
+-- It takes longitude in decimal degrees, local civil date and local sidereal time
+lstToLCT :: DecimalDegrees -> LocalCivilDate -> LocalSiderealTime -> LocalCivilTime
+lstToLCT longitude lcd lst =
   let gst = lstToGST longitude lst
-      ut = gstToUT jd gst
-      lct = utToLCT timeZone ut
+      ut = gstToUT (lcdDate lcd) gst
+      lct = LCT (lcdTimeZone lcd) ut
   in lct
-
