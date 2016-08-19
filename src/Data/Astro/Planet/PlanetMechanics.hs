@@ -19,13 +19,14 @@ module Data.Astro.Planet.PlanetMechanics
   , planetEclipticLatitude
   , planetPosition
   , planetPosition1
+  , planetDistance1
   , planetPertubations
 )
 
 where
 
 import qualified Data.Astro.Utils as U
-import Data.Astro.Types (DecimalDegrees(..), toRadians, fromRadians)
+import Data.Astro.Types (DecimalDegrees(..), AstronomicalUnits(..), toRadians, fromRadians)
 import Data.Astro.Time.Epoch (j1900)
 import Data.Astro.Time.JulianDate (JulianDate, numberOfDays, numberOfCenturies)
 import Data.Astro.Coordinate (EquatorialCoordinates1, EclipticCoordinates(..), eclipticToEquatorial)
@@ -76,12 +77,12 @@ planetHeliocentricLatitude pd hcl =
 
 -- | Calculate Heliocentric Radius Vector.
 -- It takes Planet Details and true anomaly.
-planetHeliocentricRadiusVector :: PlanetDetails -> DecimalDegrees -> Double
+planetHeliocentricRadiusVector :: PlanetDetails -> DecimalDegrees -> AstronomicalUnits
 planetHeliocentricRadiusVector pd trueAnomaly =
   let nu = toRadians trueAnomaly
-      alpha = pdAlpha pd
+      AU alpha = pdAlpha pd
       e = pdE pd
-  in alpha*(1 - e*e)/(1+e*(cos nu))
+  in AU $ alpha*(1 - e*e)/(1+e*(cos nu))
 
 
 -- | Calculate Heliocentric Longitude projected to the ecliptic.
@@ -100,15 +101,15 @@ planetProjectedLongitude pd hcl =
 
 -- | Calculate Heliocentric Radius Vector projected to the ecliptic.
 -- It takes Planet Details, planetHeliocentric latitude and Radius Vector 
-planetProjectedRadiusVector :: PlanetDetails -> DecimalDegrees -> Double -> Double
-planetProjectedRadiusVector pd psi hcr = hcr*cos(toRadians psi)
+planetProjectedRadiusVector :: PlanetDetails -> DecimalDegrees -> AstronomicalUnits -> AstronomicalUnits
+planetProjectedRadiusVector pd psi (AU hcr) = AU $ hcr*cos(toRadians psi)
 
 
 -- | Calculate ecliptic longitude for outer planets.
 -- It takes planet projected longitude, planet projected radius vector
 -- the Earth's longitude and radius vector.
-outerPlanetEclipticLongitude :: DecimalDegrees -> Double -> DecimalDegrees -> Double -> DecimalDegrees
-outerPlanetEclipticLongitude lp rp le re =
+outerPlanetEclipticLongitude :: DecimalDegrees -> AstronomicalUnits -> DecimalDegrees -> AstronomicalUnits -> DecimalDegrees
+outerPlanetEclipticLongitude lp (AU rp) le (AU re) =
   let lp' = toRadians lp
       le' = toRadians le
       x = atan $ re * (sin $ lp'-le')/(rp - re*(cos $ lp'-le'))
@@ -118,8 +119,8 @@ outerPlanetEclipticLongitude lp rp le re =
 -- | Calculate ecliptic longitude for inner planets.
 -- It takes planet projected longitude, planet projected radius vector
 -- the Earth's longitude and radius vector.
-innerPlanetEclipticLongitude :: DecimalDegrees -> Double -> DecimalDegrees -> Double -> DecimalDegrees
-innerPlanetEclipticLongitude lp rp le re =
+innerPlanetEclipticLongitude :: DecimalDegrees -> AstronomicalUnits -> DecimalDegrees -> AstronomicalUnits -> DecimalDegrees
+innerPlanetEclipticLongitude lp (AU rp) le (AU re) =
   let lp' = toRadians lp
       le' = toRadians le
       x = atan $ rp * (sin $ le'-lp')/(re - rp*(cos $ le'-lp'))
@@ -129,7 +130,7 @@ innerPlanetEclipticLongitude lp rp le re =
 -- | Calculate Ecliptic Longitude.
 -- It takes planet projected longitude, planet projected radius vector
 -- the Earth's longitude and radius vector.
-planetEclipticLongitude :: PlanetDetails -> DecimalDegrees -> Double -> DecimalDegrees -> Double -> DecimalDegrees
+planetEclipticLongitude :: PlanetDetails -> DecimalDegrees -> AstronomicalUnits -> DecimalDegrees -> AstronomicalUnits -> DecimalDegrees
 planetEclipticLongitude pd
   | isInnerPlanet pd = innerPlanetEclipticLongitude
   | otherwise = outerPlanetEclipticLongitude
@@ -140,8 +141,14 @@ planetEclipticLongitude pd
 -- projected heliocentric longitude;
 -- the Earth's: heliocentric longitede and heliocentric radius vector.
 -- Also it takes the planet's ecliptic longitude. 
-planetEclipticLatitude :: DecimalDegrees -> DecimalDegrees -> Double -> DecimalDegrees -> Double -> DecimalDegrees -> DecimalDegrees
-planetEclipticLatitude psi lp rp le re lambda =
+planetEclipticLatitude :: DecimalDegrees
+                          -> DecimalDegrees
+                          -> AstronomicalUnits
+                          -> DecimalDegrees
+                          -> AstronomicalUnits
+                          -> DecimalDegrees
+                          -> DecimalDegrees
+planetEclipticLatitude psi lp (AU rp) le (AU re) lambda =
   let psi' = toRadians psi
       lp' = toRadians lp
       le' = toRadians le
@@ -167,7 +174,7 @@ planetPosition trueAnomaly pd ed jd =
       lp' = planetProjectedLongitude pd lp
       rp' = planetProjectedRadiusVector pd psi rp
       -- earth
-      nue = planetTrueAnomaly1 ed jd
+      nue = trueAnomaly ed jd
       le = planetHeliocentricLongitude ed nue
       re = planetHeliocentricRadiusVector ed nue
       -- position
@@ -175,6 +182,23 @@ planetPosition trueAnomaly pd ed jd =
       beta = planetEclipticLatitude psi lp' rp' le re lambda
       ec = eclipticToEquatorial (EcC beta lambda) jd
     in ec
+
+
+-- | Calculates the distance betweeth the planet and the Earth at the given date.
+-- It takes the planet's detail, the Earth's details and the julian date.
+planetDistance1 :: PlanetDetails -> PlanetDetails -> JulianDate -> AstronomicalUnits
+planetDistance1 pd ed jd =
+  let nup = planetTrueAnomaly1 pd jd
+      lp = planetHeliocentricLongitude pd nup
+      AU rp = planetHeliocentricRadiusVector pd nup
+      psi = planetHeliocentricLatitude pd lp
+      -- earth
+      nue = planetTrueAnomaly1 ed jd
+      le = planetHeliocentricLongitude ed nue
+      AU re = planetHeliocentricRadiusVector ed nue
+      -- distance
+      ro = sqrt $ re*re + rp*rp - 2*re*rp*(cos . toRadians $ lp - le)*(cos $ toRadians psi)
+    in AU ro
 
 
 -- | Calculate the planet's postion at the given date using the approximate algoruthm.

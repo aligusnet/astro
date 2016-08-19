@@ -16,7 +16,7 @@ module Data.Astro.Planet.PlanetDetails
 
 where
 
-import Data.Astro.Types (DecimalDegrees(..))
+import Data.Astro.Types (DecimalDegrees(..), AstronomicalUnits)
 import Data.Astro.Time.JulianDate (JulianDate)
 import Data.Astro.Time.Epoch (j2010)
 
@@ -41,7 +41,7 @@ data PlanetDetails = PlanetDetails {
   , pdEpsilon :: DecimalDegrees  -- ^ Longitude at the Epoch
   , pdOmegaBar :: DecimalDegrees -- ^ Longitude of the perihelion
   , pdE :: Double                -- ^ Eccentricity of the orbit
-  , pdAlpha :: Double            -- ^ Semi-major axis of the orbit in AU
+  , pdAlpha :: AstronomicalUnits -- ^ Semi-major axis of the orbit in AU
   , pdI :: DecimalDegrees        -- ^ Orbital inclination
   , pdBigOmega :: DecimalDegrees -- ^ Longitude of the ascending node
   } deriving (Show, Eq)

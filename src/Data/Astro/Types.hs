@@ -11,6 +11,7 @@ module Data.Astro.Types
   DecimalDegrees(..)
   , DecimalHours (..)
   , GeographicCoordinates(..)
+  , AstronomicalUnits(..)
   , toDecimalHours
   , fromDecimalHours
   , toRadians
@@ -94,6 +95,34 @@ data GeographicCoordinates = GeoC {
   geoLatitude :: DecimalDegrees
   , geoLongitude :: DecimalDegrees
   } deriving (Show, Eq)
+
+
+-- | Astronomical Units, 1AU = 1.4960×1011 m
+-- (originally, the average distance of Earth's aphelion and perihelion).
+newtype AstronomicalUnits = AU Double deriving (Show, Eq, Ord)
+
+
+instance Num AstronomicalUnits where
+  (+) (AU d1) (AU d2) = AU (d1+d2)
+  (-) (AU d1) (AU d2) = AU (d1-d2)
+  (*) (AU d1) (AU d2) = AU (d1*d2)
+  negate (AU d) = AU (negate d)
+  abs (AU d) = AU (abs d)
+  signum (AU d) = AU (signum d)
+  fromInteger int = AU (fromInteger int)
+
+instance Real AstronomicalUnits where
+  toRational (AU d) = toRational d
+
+instance Fractional AstronomicalUnits where
+  (/) (AU d1) (AU d2) = AU (d1/d2)
+  recip (AU d) = AU (recip d)
+  fromRational r = AU (fromRational r)
+
+instance RealFrac AstronomicalUnits where
+  properFraction (AU d) =
+    let (i, f) = properFraction d
+    in (i, AU f)
 
 
 -- | Convert from DecimalDegrees to Radians

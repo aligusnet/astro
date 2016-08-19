@@ -98,6 +98,10 @@ tests = [testGroup "mechanics" [
                 0.0000001
                 0
                 (planetPertubations Mars nov222003)
+             , testCase "planetDistance1" $ assertApproxEqual ""
+                0.0000001
+                5.6033062
+                (planetDistance1 jupiterDetails earthDetails nov222003)
             ]
         ]
 
