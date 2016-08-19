@@ -19,15 +19,18 @@ module Data.Astro.Planet.PlanetMechanics
   , planetEclipticLatitude
   , planetPosition
   , planetPosition1
+  , planetPertubations
 )
 
 where
 
 import qualified Data.Astro.Utils as U
 import Data.Astro.Types (DecimalDegrees(..), toRadians, fromRadians)
-import Data.Astro.Time.JulianDate (JulianDate, numberOfDays)
+import Data.Astro.Time.Epoch (j1900)
+import Data.Astro.Time.JulianDate (JulianDate, numberOfDays, numberOfCenturies)
 import Data.Astro.Coordinate (EquatorialCoordinates1, EclipticCoordinates(..), eclipticToEquatorial)
-import Data.Astro.Planet.PlanetDetails (Planet, PlanetDetails(..), isInnerPlanet)
+import Data.Astro.Planet.PlanetDetails (Planet(..), PlanetDetails(..), isInnerPlanet)
+import Data.Astro.Sun.SunInternals (solveKeplerEquation)
 
 {-
 1. Calculate the planet position on its own orbital plane
@@ -58,7 +61,7 @@ planetTrueAnomaly1 pd jd =
 -- | Calculate Heliocentric Longitude.
 -- It takes Planet Details and true anomaly.
 planetHeliocentricLongitude :: PlanetDetails -> DecimalDegrees -> DecimalDegrees
-planetHeliocentricLongitude pd trueAnomaly = reduceDegrees $ (pdOmegaBar pd) + trueAnomaly  
+planetHeliocentricLongitude pd trueAnomaly = reduceDegrees $ (pdOmegaBar pd) + trueAnomaly
 
 
 -- | Calculate Heliocentric Latitude.
@@ -181,3 +184,33 @@ planetPosition trueAnomaly pd ed jd =
 planetPosition1 :: PlanetDetails -> PlanetDetails -> JulianDate
                   -> EquatorialCoordinates1
 planetPosition1 = planetPosition planetTrueAnomaly1
+
+
+-- | Calculates pertubations for the planet at the given julian date.
+-- Returns a value that should be added to the mean longitude (planet heliocentric longitude).
+planetPertubations :: Planet -> JulianDate -> DecimalDegrees
+planetPertubations Jupiter jd =
+  let (a, _, v, _) = pertubationsQuantities jd
+      v' = toRadians v
+      dl = (0.3314-0.0103*a)*(sin v') - 0.0644*a*(cos v')
+  in DD dl
+planetPertubations Saturn jd =
+  let (a, q, v, b) = pertubationsQuantities jd
+      q' = toRadians q
+      v' = toRadians v
+      b' = toRadians b
+      dl = (0.1609*a-0.0105)*(cos v') + (0.0182*a-0.8142)*(sin v') - 0.1488*(sin b')
+        - 0.0408*(sin $ 2*b') + 0.0856*(sin b')*(cos q') + 0.0813*(cos b')*(sin q')
+  in DD dl
+planetPertubations _ _ = 0
+
+
+-- pertrubationsQuantities :: JulianDate
+pertubationsQuantities jd =
+  let t = numberOfCenturies j1900 jd
+      a = t*0.2 + 0.1
+      p = DD $ 237.47555 + 3034.9061*t
+      q = DD $ 265.91650 + 1222.1139*t
+      v = 5*q - 2*p
+      b = q - p
+  in (a, q, v, b)

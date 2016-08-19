@@ -86,6 +86,18 @@ tests = [testGroup "mechanics" [
                 0.0000001
                 (planetPosition1 jupiterDetails earthDetails nov222003)
                 (planetPosition planetTrueAnomaly1 jupiterDetails earthDetails nov222003)
+             , testDecimalDegrees "pertubations: Jupiter"
+                0.0000001
+                0.0371214
+                (planetPertubations Jupiter nov222003)
+             , testDecimalDegrees "pertubations: Saturn"
+                0.0000001
+                0.1317895  -- not sure if this is the right result
+                (planetPertubations Saturn nov222003)
+             , testDecimalDegrees "pertubations: Mars"
+                0.0000001
+                0
+                (planetPertubations Mars nov222003)
             ]
         ]
 
