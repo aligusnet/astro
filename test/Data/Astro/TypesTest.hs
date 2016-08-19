@@ -51,6 +51,9 @@ tests = [testGroup "DecimalDegrees <-> DecimalHours" [
             , testCase "DH -> HMS 00:00:30" $ toHMS (DH $ (30 / (60*60))) @?= (0, 0, 30)
             , testProperty "property" prop_HMSConversion 
             ]
+          , testGroup "Light travel time" [
+              testDecimalHours "7.7 AU" 0.0000001 1.06722 (lightTravelTime 7.7)
+              ]
         ]
 
 

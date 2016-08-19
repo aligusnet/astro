@@ -12,6 +12,7 @@ module Data.Astro.Types
   , DecimalHours (..)
   , GeographicCoordinates(..)
   , AstronomicalUnits(..)
+  , lightTravelTime
   , toDecimalHours
   , fromDecimalHours
   , toRadians
@@ -124,6 +125,10 @@ instance RealFrac AstronomicalUnits where
     let (i, f) = properFraction d
     in (i, AU f)
 
+
+-- | Light travel time of the distance in Astronomical Units
+lightTravelTime :: AstronomicalUnits -> DecimalHours
+lightTravelTime (AU ro) = DH $ 0.1386*ro
 
 -- | Convert from DecimalDegrees to Radians
 toRadians (DD deg) = U.toRadians deg
