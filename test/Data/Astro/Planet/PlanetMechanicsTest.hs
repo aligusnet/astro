@@ -17,7 +17,7 @@ import Test.QuickCheck
 import Data.Astro.TypesTest (testDecimalDegrees)
 import Data.Astro.CoordinateTest (testEC1)
 
-import Data.Astro.Types (DecimalDegrees(..), DecimalHours(..))
+import Data.Astro.Types (DecimalDegrees(..), DecimalHours(..), fromDMS)
 import Data.Astro.Time.JulianDate (JulianDate(..))
 import Data.Astro.Time.Epoch (j2010)
 import Data.Astro.Coordinate (EquatorialCoordinates1(..))
@@ -102,6 +102,9 @@ tests = [testGroup "mechanics" [
                 0.0000001
                 5.6033062
                 (planetDistance1 jupiterDetails earthDetails nov222003)
+             , testDecimalDegrees "planetAngularDiameter"
+                0.0000001
+                (fromDMS 0 0 35.1114)
+                (planetAngularDiameter jupiterDetails 5.6033062)
             ]
         ]
-

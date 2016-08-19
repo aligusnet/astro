@@ -14,6 +14,8 @@ module Data.Astro.Planet
   , Mechanics.planetTrueAnomaly1
   , Mechanics.planetPosition
   , Mechanics.planetPosition1
+  , Mechanics.planetDistance1
+  , Mechanics.planetAngularDiameter
 )
 
 where

@@ -20,6 +20,7 @@ module Data.Astro.Planet.PlanetMechanics
   , planetPosition
   , planetPosition1
   , planetDistance1
+  , planetAngularDiameter
   , planetPertubations
 )
 
@@ -199,6 +200,11 @@ planetDistance1 pd ed jd =
       -- distance
       ro = sqrt $ re*re + rp*rp - 2*re*rp*(cos . toRadians $ lp - le)*(cos $ toRadians psi)
     in AU ro
+
+
+-- | Calculates the planet's angulat diameter for the given distance.
+planetAngularDiameter :: PlanetDetails -> AstronomicalUnits -> DecimalDegrees
+planetAngularDiameter pd (AU ro) = (pdBigTheta pd)/(DD ro)
 
 
 -- | Calculate the planet's postion at the given date using the approximate algoruthm.
