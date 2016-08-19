@@ -11,6 +11,7 @@ module Data.Astro.Planet.PlanetDetails
   Planet(..)
   , PlanetDetails(..)
   , j2010PlanetDetails
+  , isInnerPlanet
 )
 
 where
@@ -43,6 +44,11 @@ data PlanetDetails = PlanetDetails {
   , pdI :: DecimalDegrees        -- ^ Orbital inclination
   , pdBigOmega :: DecimalDegrees -- ^ Longitude of the ascending node
   } deriving (Show, Eq)
+
+
+-- | Return True if the planet is inner (its orbit lies inside the Earth's orbit)
+isInnerPlanet :: PlanetDetails -> Bool
+isInnerPlanet pd = pdTp pd < 0.9 -- Mercury and Venus
 
 
 -- | PlanetDetails at the reference Epoch J2010.0
