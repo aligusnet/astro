@@ -16,6 +16,7 @@ module Data.Astro.Planet
   , Mechanics.planetPosition1
   , Mechanics.planetDistance1
   , Mechanics.planetAngularDiameter
+  , Mechanics.planetPhase1
 )
 
 where

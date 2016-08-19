@@ -107,4 +107,14 @@ tests = [testGroup "mechanics" [
                 (fromDMS 0 0 35.1114)
                 (planetAngularDiameter jupiterDetails 5.6033062)
             ]
+         , testGroup "planetPhase" [
+             testCase "Jupiter" $ assertApproxEqual ""
+                0.0000001
+                0.9922919
+                (planetPhase1 jupiterDetails earthDetails nov222003)
+             , testCase "Mercury" $ assertApproxEqual ""
+                0.0000001
+                0.9141158
+                (planetPhase1 mercuryDetails earthDetails nov222003)
+             ]
         ]

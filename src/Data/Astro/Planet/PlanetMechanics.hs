@@ -21,6 +21,7 @@ module Data.Astro.Planet.PlanetMechanics
   , planetPosition1
   , planetDistance1
   , planetAngularDiameter
+  , planetPhase1
   , planetPertubations
 )
 
@@ -205,6 +206,29 @@ planetDistance1 pd ed jd =
 -- | Calculates the planet's angulat diameter for the given distance.
 planetAngularDiameter :: PlanetDetails -> AstronomicalUnits -> DecimalDegrees
 planetAngularDiameter pd (AU ro) = (pdBigTheta pd)/(DD ro)
+
+
+-- | Calculate the planet's phase at the given phase.
+-- Phase is a fraction of the visible disc that is illuminated.
+-- It takes the planet's details, the Earth's details and the julian date.
+-- Returns fraction values from 0 to 1.
+planetPhase1 :: PlanetDetails -> PlanetDetails -> JulianDate -> Double
+planetPhase1 pd ed jd =
+      -- planet
+  let nup = planetTrueAnomaly1 pd jd
+      lp = planetHeliocentricLongitude pd nup
+      rp = planetHeliocentricRadiusVector pd nup
+      psi = planetHeliocentricLatitude pd lp
+      lp' = planetProjectedLongitude pd lp
+      rp' = planetProjectedRadiusVector pd psi rp
+      -- earth
+      nue = planetTrueAnomaly1 ed jd
+      le = planetHeliocentricLongitude ed nue
+      re = planetHeliocentricRadiusVector ed nue
+      
+      lambda = planetEclipticLongitude pd lp' rp' le re
+      d = toRadians $ lambda - lp
+    in (1+ (cos d)) * 0.5
 
 
 -- | Calculate the planet's postion at the given date using the approximate algoruthm.
