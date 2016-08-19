@@ -1,14 +1,14 @@
 name:                astro
-version:             0.1.0.0
+version:             0.3.0.0
 synopsis:            Astro
 description:         Please see README.md
-homepage:            https://github.com/githubuser/astro#readme
+homepage:            https://bitbucket.org/alexander-ignatyev/astro
 license:             BSD3
 license-file:        LICENSE
-author:              Author name here
-maintainer:          example@example.com
-copyright:           2016 Author name here
-category:            Web
+author:              Alexander Ignatyev
+maintainer:          Alexander Ignatyev
+copyright:           2016 Alexander Ignatyev
+category:            Science
 build-type:          Simple
 -- extra-source-files:
 cabal-version:       >=1.10
@@ -63,4 +63,4 @@ test-suite astro-test
 
 source-repository head
   type:     git
-  location: https://github.com/githubuser/astro
+  location: https://bitbucket.org/alexander-ignatyev/astro
