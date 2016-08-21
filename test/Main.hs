@@ -10,6 +10,7 @@ import qualified Data.Astro.TypesTest as Types
 import qualified Data.Astro.UtilsTest as Utils
 import qualified Data.Astro.CelestialObjectTest as CelestialObject
 import qualified Data.Astro.EffectsTest as Effects
+import qualified Data.Astro.Effects.ParallaxTest as Effects.Parallax
 import qualified Data.Astro.SunTest as Sun
 import qualified Data.Astro.Sun.SunInternalsTest as SunInternals
 import qualified Data.Astro.Planet.PlanetDetailsTest as PlanetDetails
@@ -28,6 +29,7 @@ tests = [
   , testGroup "Data.Astro.Utils" Utils.tests
   , testGroup "Data.Astro.CelestialObject" CelestialObject.tests
   , testGroup "Data.Astro.Effects" Effects.tests
+  , testGroup "Data.Astro.Effects.Parallax" Effects.Parallax.tests
   , testGroup "Data.Astro.Sun" Sun.tests
   , testGroup "Data.Astro.Sun.SunInternals" SunInternals.tests
   , testGroup "Data.Astro.Planet.PlanetDetails" PlanetDetails.tests
