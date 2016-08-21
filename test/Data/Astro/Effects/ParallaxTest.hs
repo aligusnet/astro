@@ -12,6 +12,11 @@ import Test.HUnit.Approx
 
 import Control.Monad (unless)
 
+import Data.Astro.CoordinateTest (testEC1)
+
+import Data.Astro.Types (GeographicCoordinates(..), fromDMS, fromHMS)
+import Data.Astro.Time.JulianDate (JulianDate(..))
+import Data.Astro.Coordinate (EquatorialCoordinates1(..))
 import Data.Astro.Effects.Parallax
 
 tests = [testGroup "parallaxQuantities" [
@@ -24,6 +29,12 @@ tests = [testGroup "parallaxQuantities" [
                 (-0.936174, 0.3430361)
                 (parallaxQuantities (-70) 10)
             ]
+         , testGroup "parallax" [
+             testEC1 "the Sun"
+             0.0000001
+             (EC1 (-(fromDMS 8 44 31.4303)) (fromHMS 22 36 44.2044))
+             (parallax (GeoC 50 (-100)) 60 0.9901 (JD 2443931.1979166665) (EC1 (-(fromDMS 8 44 24)) (fromHMS 22 36 44)))
+             ]
         ]
 
 

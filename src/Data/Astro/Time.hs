@@ -9,7 +9,8 @@ Root Time module
 
 module Data.Astro.Time
 (
-  lctToLST
+  utToLST
+  , lctToLST
   , lstToLCT
 )
 
@@ -20,14 +21,16 @@ import Data.Astro.Time.JulianDate (JulianDate(..), LocalCivilTime(..), LocalCivi
 import Data.Astro.Time.Sidereal (LocalSiderealTime, utToGST, gstToUT, gstToLST, lstToGST, lstToGSTwDC)
 
 
+-- | Universal Time to Local Sidereal Time.
+-- It takes longitude in decimal degrees and local civil time
+utToLST :: DecimalDegrees -> JulianDate -> LocalSiderealTime
+utToLST longitude ut = gstToLST longitude $ utToGST ut
+
+
 -- | Local Civil Time to Local Sidereal Time.
 -- It takes longitude in decimal degrees and local civil time
 lctToLST :: DecimalDegrees -> LocalCivilTime -> LocalSiderealTime
-lctToLST longitude lct =
-  let ut = lctUniversalTime lct
-      gst = utToGST ut
-      lst = gstToLST longitude gst
-  in lst
+lctToLST longitude lct = utToLST longitude $ lctUniversalTime lct
 
 
 -- | Local Sidereal Time to Local Civil Time.

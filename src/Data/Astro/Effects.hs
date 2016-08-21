@@ -15,6 +15,7 @@ module Data.Astro.Effects
   , Nutation.nutationLongitude
   , Nutation.nutationObliquity
   , Aberration.includeAberration
+  , Parallax.parallax
 )
 
 where
@@ -24,6 +25,7 @@ import Data.Astro.Types (DecimalDegrees(..), toRadians)
 import qualified Data.Astro.Effects.Precession as Precession
 import qualified Data.Astro.Effects.Nutation as Nutation
 import qualified Data.Astro.Effects.Aberration as Aberration
+import qualified Data.Astro.Effects.Parallax as Parallax
 
 -- | Calculate the atmospheric refraction angle.
 -- It takes the observed altitude (of Horizon Coordinates), temperature in degrees centigrade and barometric pressure in millibars.

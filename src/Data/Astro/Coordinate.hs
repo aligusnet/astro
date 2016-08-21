@@ -69,8 +69,8 @@ module Data.Astro.Coordinate
 
 where
 
-import Data.Astro.Time (lctToLST)
-import Data.Astro.Time.JulianDate (JulianDate(..), LocalCivilTime, numberOfCenturies, splitToDayAndTime)
+import Data.Astro.Time (utToLST)
+import Data.Astro.Time.JulianDate (JulianDate(..), numberOfCenturies, splitToDayAndTime)
 import Data.Astro.Time.Epoch (j2000)
 import Data.Astro.Time.Sidereal (LocalSiderealTime(..), lstToDH)
 import Data.Astro.Types (DecimalDegrees(..), DecimalHours(..), fromDecimalHours, toDecimalHours, toRadians, fromRadians, fromDMS)
@@ -113,20 +113,20 @@ data GalacticCoordinates = GC {
   } deriving (Show, Eq)
 
 
--- | Convert Right Ascension to Hour Angle for specified longitude and LocalCivilTime
-raToHA :: DecimalHours -> DecimalDegrees -> LocalCivilTime -> DecimalHours
+-- | Convert Right Ascension to Hour Angle for specified longitude and Universal Time
+raToHA :: DecimalHours -> DecimalDegrees -> JulianDate -> DecimalHours
 raToHA = haRAConv
 
 
--- | Convert Hour Angle to Right Ascension for specified longitude and LocalCivilTime
-haToRA :: DecimalHours -> DecimalDegrees -> LocalCivilTime -> DecimalHours
+-- | Convert Hour Angle to Right Ascension for specified longitude and Universal Time
+haToRA :: DecimalHours -> DecimalDegrees -> JulianDate -> DecimalHours
 haToRA = haRAConv
 
 
 -- | HA <-> RA Conversions
-haRAConv :: DecimalHours -> DecimalDegrees -> LocalCivilTime -> DecimalHours
-haRAConv dh longitude lct =
-  let lst = lctToLST longitude lct  -- Local Sidereal Time
+haRAConv :: DecimalHours -> DecimalDegrees -> JulianDate -> DecimalHours
+haRAConv dh longitude ut =
+  let lst = utToLST longitude ut  -- Local Sidereal Time
       DH hourAngle = (lstToDH lst) - dh
   in if hourAngle < 0 then (DH $ hourAngle+24) else (DH hourAngle)
 

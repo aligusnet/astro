@@ -29,4 +29,14 @@ tests = [testGroup "LCT <-> LST" [
                 (lctFromYMDHMS (-4) 1980 4 22 14 35 51.6704)
                 (lstToLCT (DD (-64.0)) (lcdFromYMD (-4) 1980 4 22) (hmsToLST 04 24 44.655))
             ]
+         , testGroup "UT -> LST" [
+             testLST "1980-04-22 18:36:51.67 UT -> 04:24:44.65 LST"
+                0.0000001
+                (hmsToLST 4 24 44.655)
+                (utToLST (DD (-64.0)) (JD 2444352.2755980324))
+             , testLST "1979-02-26 16:45:00 UT -> 04:24:44.65 LST"
+                0.0000001
+                (hmsToLST 20 28 44.7994)
+                (utToLST (-100.0) (JD 2443931.1979166665))
+             ]
         ]

@@ -17,22 +17,22 @@ import Test.QuickCheck
 import Control.Monad (unless)
 
 import Data.Astro.TypesTest (testDecimalDegrees, testDecimalHours)
-import Data.Astro.Time.JulianDate (JulianDate(..), LocalCivilTime(..), lctFromYMDHMS)
+import Data.Astro.Time.JulianDate (JulianDate(..), LocalCivilTime(..), fromYMDHMS)
 import Data.Astro.Coordinate
 import Data.Astro.Types
 import Data.Astro.Utils (reduceToZeroRange)
 
 tests = [testGroup "RA <-> HA" [
-            testDecimalHours "RA 18.53 in 1980-04-22 14:36:51.67-4 to HA"
+            testDecimalHours "RA 18.53 in 1980-04-22 18:36:51.67 to HA"
                  0.0000001
                  (DH 9.873237)
-                 (raToHA (DH 18.539167) (DD (-64.0)) $ lctFromYMDHMS (-4) 1980 4 22 14 36 51.67)
-             , testDecimalHours "HA 9.87 in 1980-04-22 14:36:51.67-4 to RA"
+                 (raToHA (DH 18.539167) (DD (-64.0)) $ fromYMDHMS 1980 4 22 18 36 51.67)
+             , testDecimalHours "HA 9.87 in 1980-04-22 18:36:51.67 to RA"
                  0.0000001
                  (DH 9.873237)
-                 (raToHA (DH 18.539167) (DD (-64.0)) $ lctFromYMDHMS (-4) 1980 4 22 14 36 51.67)
-             , testProperty "RA <-> HA property for Novosibirsk" $ prop_HARAConv (DD 83) 7 (JD 2457607.97281)
-             , testProperty "RA <-> HA property for Rio de Janeiro" $ prop_HARAConv (DD (-43)) (-3) (JD 2457607.97281)
+                 (raToHA (DH 18.539167) (DD (-64.0)) $ fromYMDHMS 1980 4 22 18 36 51.67)
+             , testProperty "RA <-> HA property for Novosibirsk" $ prop_HARAConv (DD 83) (JD 2457607.97281)
+             , testProperty "RA <-> HA property for Rio de Janeiro" $ prop_HARAConv (DD (-43)) (JD 2457607.97281)
              ]
          , testGroup "EC <-> HC" [
              testHC "EC2 23.219 5.862 -> HC 19.334 283.271"
@@ -81,11 +81,10 @@ tests = [testGroup "RA <-> HA" [
 
 
 
-prop_HARAConv longitude timeZone jd dh =
+prop_HARAConv longitude ut dh =
   let dh' = reduceToZeroRange 24 dh
-      lct = LCT timeZone jd
-      DH ra = haToRA (raToHA (DH dh') longitude lct) longitude lct
-      DH ha = raToHA (haToRA (DH dh') longitude lct) longitude lct
+      DH ra = haToRA (raToHA (DH dh') longitude ut) longitude ut
+      DH ha = raToHA (haToRA (DH dh') longitude ut) longitude ut
       eps = 0.00000001
   in abs (ra - dh') < eps && (ha - dh') < eps
   where types = (dh::Double)
