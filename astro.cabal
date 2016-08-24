@@ -1,5 +1,5 @@
 name:                astro
-version:             0.3.1.1
+version:             0.4.0.0
 synopsis:            Astro
 description:         Please see README.md
 homepage:            https://bitbucket.org/alexander-ignatyev/astro
@@ -31,6 +31,8 @@ library
                      , Data.Astro.Planet
                      , Data.Astro.Planet.PlanetDetails
                      , Data.Astro.Planet.PlanetMechanics
+                     , Data.Astro.Moon
+                     , Data.Astro.Moon.MoonDetails
   other-modules:       Data.Astro.Effects.Precession
                      , Data.Astro.Effects.Nutation
                      , Data.Astro.Effects.Aberration

@@ -15,6 +15,7 @@ import qualified Data.Astro.SunTest as Sun
 import qualified Data.Astro.Sun.SunInternalsTest as SunInternals
 import qualified Data.Astro.Planet.PlanetDetailsTest as PlanetDetails
 import qualified Data.Astro.Planet.PlanetMechanicsTest as PlanetMechanics
+import qualified Data.Astro.MoonTest as Moon
 
 
 main = defaultMain tests
@@ -34,4 +35,5 @@ tests = [
   , testGroup "Data.Astro.Sun.SunInternals" SunInternals.tests
   , testGroup "Data.Astro.Planet.PlanetDetails" PlanetDetails.tests
   , testGroup "Data.Astro.Planet.PlanetMechanics" PlanetMechanics.tests
+  , testGroup "Data.Astro.Moon" Moon.tests
   ]

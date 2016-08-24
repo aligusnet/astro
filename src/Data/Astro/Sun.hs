@@ -22,6 +22,7 @@ module Data.Astro.Sun
   , SunRiseSet(..)
   , sunDetails
   , j2010SunDetails
+  , sunMeanAnomaly2
   , sunEclipticLongitude1
   , sunEclipticLongitude2
   , sunPosition1
@@ -39,7 +40,7 @@ import qualified Data.Astro.Utils as U
 import Data.Astro.Types (DecimalDegrees(..), DecimalHours(..)
                         , toDecimalHours, fromDecimalHours
                         , toRadians, fromRadians
-                        , GeographicCoordinates(..))
+                        , GeographicCoordinates(..) )
 import Data.Astro.Time.JulianDate (JulianDate(..), LocalCivilTime(..), LocalCivilDate(..), numberOfDays, numberOfCenturies, splitToDayAndTime, addHours)
 import Data.Astro.Time.Sidereal (gstToUT, dhToGST)
 import Data.Astro.Time.Epoch (j1900, j2010)
@@ -78,6 +79,11 @@ reduceTo360 :: Double -> Double
 reduceTo360 = U.reduceToZeroRange 360
 
 
+-- | Reduce the value to the range [0, 360)
+reduceDegrees :: DecimalDegrees -> DecimalDegrees
+reduceDegrees = U.reduceToZeroRange 360
+
+
 -- | Calculate SunDetails for the given JulianDate.
 sunDetails :: JulianDate -> SunDetails
 sunDetails jd =
@@ -108,30 +114,36 @@ sunPosition1 sd jd =
   in eclipticToEquatorial (EcC beta lambda) jd
 
 
+-- | Calculate mean anomaly using the second 'more accurate' method
+sunMeanAnomaly2 :: SunDetails -> DecimalDegrees
+sunMeanAnomaly2 sd = reduceDegrees $ (sdEpsilon sd) - (sdOmega sd)
+
+
 -- | Calculate true anomaly using the second 'more accurate' method
 trueAnomaly2 :: SunDetails -> DecimalDegrees
-trueAnomaly2 (SunDetails _ (DD eps) (DD omega) e) =
-  let m = U.toRadians $ eps - omega
+trueAnomaly2 sd =
+  let m = toRadians $ sunMeanAnomaly2 sd
+      e = sdE sd
       bigE = solveKeplerEquation e m 0.000000001
       tanHalfNu = sqrt((1+e)/(1-e)) * tan (0.5 * bigE)
       nu = reduceTo360 $ U.fromRadians $ 2 * (atan tanHalfNu)
   in DD nu
 
 
--- | Calculate the ecliptic longitude of the Sun at the given JulianDate
-sunEclipticLongitude2 :: JulianDate -> DecimalDegrees
-sunEclipticLongitude2 jd =
-  let sd = sunDetails jd
-      DD omega = sdOmega sd
+-- | Calculate the ecliptic longitude of the Sun
+sunEclipticLongitude2 :: SunDetails -> DecimalDegrees
+sunEclipticLongitude2 sd =
+  let DD omega = sdOmega sd
       DD nu = trueAnomaly2 sd
-      DD nutation = nutationLongitude jd
+      DD nutation = nutationLongitude $ sdEpoch sd
   in DD $ reduceTo360 $ nu + omega + nutation
 
 
 -- | More accurate method to calculate position of the Sun
 sunPosition2 :: JulianDate -> EquatorialCoordinates1
 sunPosition2 jd =
-  let lambda = sunEclipticLongitude2 jd
+  let sd = sunDetails jd
+      lambda = sunEclipticLongitude2 sd
       beta = DD 0
   in eclipticToEquatorial (EcC beta lambda) jd
 
