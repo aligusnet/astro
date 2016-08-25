@@ -107,7 +107,7 @@ assertEC2 eps expected@(EC2 (DD eDec) (DH eHa)) actual@(EC2 (DD aDec) (DH aHa)) 
 
 prop_EC2HCConv (latitude, up, round) =
   let latitude' = DD $ reduceToZeroRange 180 latitude
-      up' = reduceToZeroRange 90 up
+      up' = (reduceToZeroRange 89.9 up) + 0.1
       round' = reduceToZeroRange 360 round
       HC (DD up'') (DD round'') = equatorialToHorizon latitude' $ horizonToEquatorial latitude' (HC (DD up') (DD round'))
       eps = 0.00001
