@@ -1,20 +1,25 @@
-language: haskell
+sudo: false
+
+language: c
+
+cache:
+  directories:
+  - $HOME/.stack
+
 
 env:
-  - CABALVER=1.22 GHCVER=7.10.3
-  - CABALVER=1.24 GHCVER=8.0.1
+  - ARGS="--resolver lts-6.10"
+  - ARGS="--resolver nightly-2016-08-25"
 
 before_install:
-  - travis_retry sudo add-apt-repository -y ppa:hvr/ghc
-  - travis_retry sudo apt-get update
-  - travis_retry sudo apt-get install cabal-install-$CABALVER ghc-$GHCVER
-  - export PATH=/opt/ghc/$GHCVER/bin:/opt/cabal/$CABALVER/bin:$PATH
+  - mkdir -p ~/.local/bin
+  - export PATH=$HOME/.local/bin:$PATH
+  - travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
+  - stack --no-terminal setup $ARGS
 
 install:
-  - cabal --version
-  - echo "$(ghc --version) [$(ghc --print-project-git-commit-id 2> /dev/null || echo '?')]"
-  - travis_retry cabal update
-  - cabal install --only-dependencies --enable-tests
+  - stack --no-terminal $ARGS setup
+  - stack $ARGS ghc -- --version
 
 script:
-  - cabal configure --enable-tests && cabal build && cabal test
+  - stack --no-terminal $ARGS test
