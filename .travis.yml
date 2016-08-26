@@ -2,10 +2,10 @@ sudo: false
 
 language: c
 
-cache:
-  directories:
-  - $HOME/.stack
-
+addons:
+  apt:
+    packages:
+    - libgmp-dev
 
 env:
   - ARGS="--resolver lts-6.10"
@@ -23,3 +23,7 @@ install:
 
 script:
   - stack --no-terminal $ARGS test
+
+cache:
+  directories:
+  - $HOME/.stack
