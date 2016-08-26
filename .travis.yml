@@ -1,0 +1,12 @@
+env:
+  - CABALVER=1.22 GHCVER=7.10.3
+  - CABALVER=1.24 GHCVER=8.0.1
+
+install:
+  - cabal --version
+  - echo "$(ghc --version) [$(ghc --print-project-git-commit-id 2> /dev/null || echo '?')]"
+  - travis_retry cabal update
+  - cabal install --only-dependencies --enable-tests
+
+script:
+  - cabal configure --enable-tests && cabal build && cabal test
