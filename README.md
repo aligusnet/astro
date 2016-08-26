@@ -2,7 +2,7 @@
 
 #### Documentation
 
-Please read the documentation here: [astro docs](https://alexander-ignatyev.github.io/astro/doc/frames.html).
+Please read the documentation here: [astro docs](https://alexander-ignatyev.github.io/astro-docs/doc/index.html).
 
 #### Build the project
 
