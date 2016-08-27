@@ -11,6 +11,7 @@ module Data.Astro.Moon
 (
   moonPosition1
   , moonDistance1
+  , moonAngularSize
 )
 
 where
@@ -20,7 +21,7 @@ import Data.Astro.Types (DecimalDegrees(..), toRadians, fromRadians)
 import Data.Astro.Time.JulianDate (JulianDate(..), numberOfDays)
 import Data.Astro.Coordinate (EquatorialCoordinates1(..), EclipticCoordinates(..), eclipticToEquatorial)
 import Data.Astro.Sun (sunDetails, sunMeanAnomaly2, sunEclipticLongitude2)
-import Data.Astro.Moon.MoonDetails (MoonDetails(..), MoonDistanceUnits(..))
+import Data.Astro.Moon.MoonDetails (MoonDetails(..), MoonDistanceUnits(..), j2010MoonDetails)
 
 
 -- | Reduce the value to the range [0, 360)
@@ -61,6 +62,11 @@ moonDistance1 md ut =
       ec = toRadians $ centreEquation mm'
       e = mdE md
   in MDU $ (1 - e*e)/(1+e*(cos(mm'+ec)))
+
+
+-- | Calculate the Moons' angular size at the given distance.
+moonAngularSize :: MoonDistanceUnits -> DecimalDegrees
+moonAngularSize (MDU p) = (mdBigTheta j2010MoonDetails) / (DD p)
 
 
 -- | The Moon's quantities

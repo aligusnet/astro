@@ -13,11 +13,12 @@ import Test.HUnit
 import Test.HUnit.Approx
 import Test.QuickCheck
 
+import Data.Astro.TypesTest (testDecimalDegrees)
 import Data.Astro.CoordinateTest (testEC1)
 
 import Data.Astro.Time.JulianDate (fromYMD)
 import Data.Astro.Coordinate (EquatorialCoordinates1(..))
-import Data.Astro.Moon.MoonDetails (j2010MoonDetails, MoonDistanceUnits(..))
+import Data.Astro.Moon.MoonDetails (MoonDetails(..), j2010MoonDetails, MoonDistanceUnits(..))
 import Data.Astro.Moon
 
 tests = [testGroup "moonPosition1"[
@@ -32,6 +33,16 @@ tests = [testGroup "moonPosition1"[
                 (MDU 0.953425)
                 (moonDistance1 j2010MoonDetails (fromYMD 2016 8 26))
             ]
+         , testGroup "moonAngularSize" [
+             testDecimalDegrees "at 0.953425 MDU"
+                0.000001
+                0.543409
+                (moonAngularSize (MDU 0.953425))
+             , testDecimalDegrees "at 1 MDU"
+                0.000001
+                (mdBigTheta j2010MoonDetails)
+                (moonAngularSize (MDU 1))
+                                       ]
         ]
 
 testMDU msg eps (MDU e) (MDU a) = testCase msg $ assertApproxEqual "" eps e a

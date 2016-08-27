@@ -21,7 +21,7 @@ install:
   - stack $ARGS ghc -- --version
 
 script:
-  - stack --no-terminal $ARGS test
+  - stack --no-terminal $ARGS test --test-arguments="--plain"
 
 cache:
   directories:

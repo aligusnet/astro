@@ -29,6 +29,7 @@ data MoonDetails = MoonDetails {
   , mdN :: DecimalDegrees   -- ^ mean longitude of the node at the epoch
   , mdI :: DecimalDegrees   -- ^ inclination of the orbit
   , mdE :: Double           -- ^ eccentricity of the orbit
+  , mdA :: Double           -- ^ semi-major axis of the orbit
   , mdBigTheta :: DecimalDegrees  -- ^ angular diameter at the distance `mdA` from the Earth
   , mdPi :: DecimalDegrees        -- ^ parallax at distance `mdA` from the Earth
   } deriving (Show)
@@ -38,9 +39,9 @@ data MoonDetails = MoonDetails {
 newtype MoonDistanceUnits = MDU Double deriving (Show)
 
 
-j2010MoonDetails = MoonDetails j2010 91.929336 130.143076 291.682547 5.145396 0.0549 0.5181 0.9507
+j2010MoonDetails = MoonDetails j2010 91.929336 130.143076 291.682547 5.145396 0.0549 384401 0.5181 0.9507
 
 
 -- | Convert MoonDistanceUnits to km
 mduToKm :: MoonDistanceUnits -> Double
-mduToKm (MDU p) = p * 384401
+mduToKm (MDU p) = p * (mdA j2010MoonDetails)
