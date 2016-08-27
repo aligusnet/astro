@@ -12,6 +12,7 @@ module Data.Astro.Moon
   moonPosition1
   , moonDistance1
   , moonAngularSize
+  , moonHorizontalParallax
 )
 
 where
@@ -52,6 +53,7 @@ moonPosition1 md ut =
 -- Returns distance to the Moon
 -- moonDistance1 :: JulianDate -> MoonDistanceUnits
 -- you can use 'mduToKm' (defined in "Data.Astro.Moon.MoonDetails") to convert result to kilometers
+moonDistance1 :: MoonDetails -> JulianDate -> MoonDistanceUnits
 moonDistance1 md ut =
   let sd = sunDetails ut
       lambdaS = sunEclipticLongitude2 sd
@@ -64,9 +66,14 @@ moonDistance1 md ut =
   in MDU $ (1 - e*e)/(1+e*(cos(mm'+ec)))
 
 
--- | Calculate the Moons' angular size at the given distance.
+-- | Calculate the Moon's angular size at the given distance.
 moonAngularSize :: MoonDistanceUnits -> DecimalDegrees
 moonAngularSize (MDU p) = (mdBigTheta j2010MoonDetails) / (DD p)
+
+
+-- | Calculates the Moon's horizontal parallax at the given distance.
+moonHorizontalParallax :: MoonDistanceUnits -> DecimalDegrees
+moonHorizontalParallax (MDU p) = (mdPi j2010MoonDetails) / (DD p)
 
 
 -- | The Moon's quantities

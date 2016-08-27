@@ -42,7 +42,17 @@ tests = [testGroup "moonPosition1"[
                 0.000001
                 (mdBigTheta j2010MoonDetails)
                 (moonAngularSize (MDU 1))
-                                       ]
+             ]
+         , testGroup "moonHorizontalParallax" [
+             testDecimalDegrees "at 0.953425 MDU"
+                0.000001
+                0.997142
+                (moonHorizontalParallax (MDU 0.953425))
+             , testDecimalDegrees "at 1 MDU"
+                0.000001
+                (mdPi j2010MoonDetails)
+                (moonHorizontalParallax (MDU 1))
+             ]
         ]
 
 testMDU msg eps (MDU e) (MDU a) = testCase msg $ assertApproxEqual "" eps e a
