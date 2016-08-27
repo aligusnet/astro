@@ -8,20 +8,27 @@ addons:
     - libgmp-dev
 
 env:
-  - ARGS="--resolver lts-6.10"
-  - ARGS="--resolver nightly-2016-08-25"
+  matrix:
+  - ARGS="--resolver lts-6.10" PUBLISH_DOCS=true
+  - ARGS="--resolver nightly-2016-08-25" PUBLISH_DOCS=false
+  global:
+    secure: xSPUHVRt2PnXb25vOUetaY9035xOCORi+XLL6WZ6EKew2cx0glaCf6/zleUPuURqmN3w4yYow31r/OhupZNlq4OWJRltWH8DfJMK6cO6qL/NyBw5SS0Bw+GtkmD0pLiKKqo8vvNdTQ970+aGBItVll7iFyjZ9rTqcH2bQdBgdOhkaW/7eQFqas7z4pJBebbsfO2dKqgyXZDlMc+77W9S3V1JVQijMuqIQoxlahxrvTJo25Q7NzFd0jyyemLWEA7+BX4VTG3H4yT/WZ+80Lair+GgGE5TQf6Cg+ziZdhrAv6CgNbYCC17Tr/gIN89RYazBQtuTa4kOlwNjRNfBTQH7tAjrQIvTojsb/Cmm/iVhjDZpHSqQzgCCgyfJ8OygN83leAC7vDgHmQezHbRjzvY+7vZK8gFnnVx7QdjSQU6n1pfrWaXpcxh0iEjZ/wWGFZlb7fJBl5dczUzJAOfweOC6Awd8gnkQnicRBf6BwQH6fxabj9is3ftpCpCiQSMgBq+HOBCL1Vgt4fnYpQqlMk8I2WdxF5reak8BNxypsxzNwLp+F/OgDSUkdyLAujJ98OXgMfnrTcuh4ZEVWjpZEwJcZHtxnXtf2x2pkIzajVBtMweaa7yPvDm0ICch3hN0iVpcOXSfdjFysE41V8W6XSrM/V/AuFkZaPChDHx2/tGf/s=
 
 before_install:
-  - mkdir -p ~/.local/bin
-  - export PATH=$HOME/.local/bin:$PATH
-  - travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
+- mkdir -p ~/.local/bin
+- export PATH=$HOME/.local/bin:$PATH
+- travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards
+  --strip-components=1 -C ~/.local/bin '*/stack'
 
 install:
-  - stack --no-terminal $ARGS setup
-  - stack $ARGS ghc -- --version
+- stack --no-terminal $ARGS setup
+- stack $ARGS ghc -- --version
 
 script:
-  - stack --no-terminal $ARGS test --test-arguments="--plain"
+- stack --no-terminal $ARGS test --test-arguments="--plain"
+
+after_success:
+- rake publish_docs
 
 cache:
   directories:
