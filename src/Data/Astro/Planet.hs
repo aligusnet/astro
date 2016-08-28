@@ -17,7 +17,7 @@ module Data.Astro.Planet
   , Mechanics.planetDistance1
   , Mechanics.planetAngularDiameter
   , Mechanics.planetPhase1
-  , Mechanics.planetPositionAngle
+  , Mechanics.planetBrightLimbPositionAngle
 )
 
 where

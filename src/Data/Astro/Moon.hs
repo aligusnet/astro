@@ -14,6 +14,7 @@ module Data.Astro.Moon
   , moonAngularSize
   , moonHorizontalParallax
   , moonPhase
+  , moonBrightLimbPositionAngle
 )
 
 where
@@ -22,6 +23,7 @@ import qualified Data.Astro.Utils as U
 import Data.Astro.Types (DecimalDegrees(..), toRadians, fromRadians)
 import Data.Astro.Time.JulianDate (JulianDate(..), numberOfDays)
 import Data.Astro.Coordinate (EquatorialCoordinates1(..), EclipticCoordinates(..), eclipticToEquatorial)
+import Data.Astro.Planet (planetBrightLimbPositionAngle)
 import Data.Astro.Sun (sunDetails, sunMeanAnomaly2, sunEclipticLongitude2)
 import Data.Astro.Moon.MoonDetails (MoonDetails(..), MoonDistanceUnits(..), j2010MoonDetails)
 
@@ -89,6 +91,15 @@ moonPhase md ut =
       d = toRadians $ ml - lambdaS
       f = 0.5 * (1 - cos d)
   in f
+
+
+
+-- | Calculate the Moon's position-angle of the bright limb.
+-- It takes the Moon's coordinates and the Sun's coordinates.
+-- Position-angle is the angle of the midpoint of the illuminated limb
+-- measured eastwards from the north point of the disk.
+moonBrightLimbPositionAngle :: EquatorialCoordinates1 -> EquatorialCoordinates1 -> DecimalDegrees
+moonBrightLimbPositionAngle = planetBrightLimbPositionAngle
 
 
 -- | The Moon's quantities

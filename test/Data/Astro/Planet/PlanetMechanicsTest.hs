@@ -118,14 +118,14 @@ tests = [testGroup "mechanics" [
                 0.9141158
                 (planetPhase1 mercuryDetails earthDetails nov222003)
              ]
-         , testGroup "planetPositionAngle" [
+         , testGroup "planetBrightLimbPositionAngle" [
              testDecimalDegrees "Jupiter"
                 0.0000001
                 113.2029600
-                (planetPositionAngle (EC1 (DD 6.3569686) (DH 11.1871664)) sunPositionOnNov222003)
+                (planetBrightLimbPositionAngle (EC1 (DD 6.3569686) (DH 11.1871664)) sunPositionOnNov222003)
              , testDecimalDegrees "Mercury"
                 0.0000001
                 284.7106531
-                (planetPositionAngle (EC1 (-24.502375) 16.820060) sunPositionOnNov222003)
+                (planetBrightLimbPositionAngle (EC1 (-24.502375) 16.820060) sunPositionOnNov222003)
              ]
         ]

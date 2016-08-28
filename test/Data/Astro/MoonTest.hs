@@ -63,7 +63,12 @@ tests = [testGroup "moonPosition1"[
                 0.911818
                 (moonPhase j2010MoonDetails (fromYMD 2016 8 21))
             ]
-
+         , testGroup "moonBrightLimbPositionAngle" [
+             testDecimalDegrees "at 2016-08-28 00:00:00"
+                0.000001
+                82.479138
+                (moonBrightLimbPositionAngle (EC1 17.386905 4.897826) (EC1 10.329324 10.342354))
+             ]
         ]
 
 testMDU msg eps (MDU e) (MDU a) = testCase msg $ assertApproxEqual "" eps e a
