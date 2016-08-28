@@ -18,10 +18,8 @@ task :publish_docs do
   last_commit_message = `git log -1 --pretty=%B`
   last_commit_message.strip!
 
-  system "stack #{ENV['ARGS']} install hscolour"  # required to generate hyperlinked sources
-  system "stack #{ENV['ARGS']} haddock"
   system "[ -d '#{repo_dir}' ] && rm -rf '#{repo_dir}'"
-  system "git clone #{repo_url} #{repo_dir}"
+  system "git clone #{repo_url} #{repo_dir} --depth 1"
 
   Dir.chdir(repo_dir)
   

@@ -22,10 +22,11 @@ before_install:
 
 install:
 - stack --no-terminal $ARGS setup
+- stack --no-terminal $ARGS install hscolour
 - stack $ARGS ghc -- --version
 
 script:
-- stack --no-terminal $ARGS test --test-arguments="--plain"
+- stack --no-terminal $ARGS test --test-arguments="--plain" --haddock --no-haddock-deps
 
 after_success:
 - rake publish_docs
