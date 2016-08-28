@@ -29,7 +29,7 @@ task :publish_docs do
 
   system 'rm -rf doc'
   system "cp -r '#{haddock_path}' ."
-  system 'git add .'
+  system 'git add . --all'
   system "git commit -m 'update-docs: #{last_commit_message}'"
 
   begin
