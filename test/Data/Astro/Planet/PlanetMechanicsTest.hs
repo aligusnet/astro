@@ -28,6 +28,7 @@ nov222003 = JD 2452965.5
 jupiterDetails = j2010PlanetDetails Jupiter
 earthDetails = j2010PlanetDetails Earth
 mercuryDetails = j2010PlanetDetails Mercury
+sunPositionOnNov222003 = EC1 {e1Declination = DD (-19.99330355916915), e1RightAscension = DH 15.803416251173122}
 
 tests = [testGroup "mechanics" [
             testDecimalDegrees "jupiter mean anomaly"
@@ -116,5 +117,15 @@ tests = [testGroup "mechanics" [
                 0.0000001
                 0.9141158
                 (planetPhase1 mercuryDetails earthDetails nov222003)
+             ]
+         , testGroup "planetPositionAngle" [
+             testDecimalDegrees "Jupiter"
+                0.0000001
+                113.2029600
+                (planetPositionAngle (EC1 (DD 6.3569686) (DH 11.1871664)) sunPositionOnNov222003)
+             , testDecimalDegrees "Mercury"
+                0.0000001
+                284.7106531
+                (planetPositionAngle (EC1 (-24.502375) 16.820060) sunPositionOnNov222003)
              ]
         ]

@@ -23,15 +23,16 @@ module Data.Astro.Planet.PlanetMechanics
   , planetAngularDiameter
   , planetPhase1
   , planetPertubations
+  , planetPositionAngle
 )
 
 where
 
 import qualified Data.Astro.Utils as U
-import Data.Astro.Types (DecimalDegrees(..), AstronomicalUnits(..), toRadians, fromRadians)
+import Data.Astro.Types (DecimalDegrees(..), AstronomicalUnits(..), toRadians, fromRadians, fromDecimalHours)
 import Data.Astro.Time.Epoch (j1900)
 import Data.Astro.Time.JulianDate (JulianDate, numberOfDays, numberOfCenturies)
-import Data.Astro.Coordinate (EquatorialCoordinates1, EclipticCoordinates(..), eclipticToEquatorial)
+import Data.Astro.Coordinate (EquatorialCoordinates1(..), EclipticCoordinates(..), eclipticToEquatorial)
 import Data.Astro.Planet.PlanetDetails (Planet(..), PlanetDetails(..), isInnerPlanet)
 import Data.Astro.Sun.SunInternals (solveKeplerEquation)
 
@@ -268,3 +269,16 @@ pertubationsQuantities jd =
       v = 5*q - 2*p
       b = q - p
   in (a, q, v, b)
+
+
+-- | Calculate the planet's position-angle of the bright limb.
+-- It takes the planet's coordinates and the Sun's coordinates.
+planetPositionAngle :: EquatorialCoordinates1 -> EquatorialCoordinates1 -> DecimalDegrees
+planetPositionAngle (EC1 deltaP alphaP) (EC1 deltaS alphaS) =
+  let dAlpha = toRadians $ fromDecimalHours $ alphaS - alphaP
+      deltaP' = toRadians deltaP
+      deltaS' = toRadians deltaS
+      y = (cos deltaS')*(sin dAlpha)
+      x = (cos deltaP')*(sin deltaS') - (sin deltaP')*(cos deltaS')*(cos dAlpha)
+      chi = reduceDegrees $ fromRadians $ atan2 y x
+  in chi
