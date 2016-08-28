@@ -13,6 +13,7 @@ module Data.Astro.Moon
   , moonDistance1
   , moonAngularSize
   , moonHorizontalParallax
+  , moonPhase
 )
 
 where
@@ -74,6 +75,20 @@ moonAngularSize (MDU p) = (mdBigTheta j2010MoonDetails) / (DD p)
 -- | Calculates the Moon's horizontal parallax at the given distance.
 moonHorizontalParallax :: MoonDistanceUnits -> DecimalDegrees
 moonHorizontalParallax (MDU p) = (mdPi j2010MoonDetails) / (DD p)
+
+
+-- | Calculates the Moon's phase (the area of the visible segment expressed as a fraction of the whole disk)
+-- at the given universal time.
+moonPhase :: MoonDetails -> JulianDate -> Double
+moonPhase md ut =
+  let sd = sunDetails ut
+      lambdaS = sunEclipticLongitude2 sd
+      ms = sunMeanAnomaly2 sd
+      mmq = meanMoonQuantities md ut
+      MQ ml _ _ = correctedMoonQuantities lambdaS ms mmq
+      d = toRadians $ ml - lambdaS
+      f = 0.5 * (1 - cos d)
+  in f
 
 
 -- | The Moon's quantities

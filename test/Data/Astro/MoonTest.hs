@@ -53,6 +53,17 @@ tests = [testGroup "moonPosition1"[
                 (mdPi j2010MoonDetails)
                 (moonHorizontalParallax (MDU 1))
              ]
+         , testGroup "moonPhase" [
+            testCase "at 2016-08-01 00:00:00" $ assertApproxEqual ""
+                0.000001
+                0.042498
+                (moonPhase j2010MoonDetails (fromYMD 2016 8 1))
+            , testCase "at 2016-08-21 00:00:00" $ assertApproxEqual ""
+                0.000001
+                0.911818
+                (moonPhase j2010MoonDetails (fromYMD 2016 8 21))
+            ]
+
         ]
 
 testMDU msg eps (MDU e) (MDU a) = testCase msg $ assertApproxEqual "" eps e a
