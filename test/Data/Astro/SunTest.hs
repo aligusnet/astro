@@ -91,20 +91,20 @@ tests = [testGroup "sunDetails" [
                testRiseSet "Venice at 2016-08-12; Rise: 06:08, DD 68; Set: 20:22, DD 292"
                    0.000001
                    (RiseSet
-                      (Just (lctFromYMDHMS 2 2016 8 12 6 8 1.1251, DD 67.6606896))
-                      (Just (lctFromYMDHMS 2 2016 8 12 20 22 17.3914, DD 292.0719405)))
+                      (Just (lctFromYMDHMS 2 2016 8 12 6 8 1.2955, DD 67.6609383))
+                      (Just (lctFromYMDHMS 2 2016 8 12 20 22 17.5593, DD 292.0714064)))
                    (sunRiseAndSet (GeoC (DD 45.43713) (12.33265)) 0.833333 (lcdFromYMD 2 2016 8 12))
                , testRiseSet "Ulaanbaatar at 2016-08-13; Rise: 06:45, DD 67; Set: 21:09, DD 293"
                    0.000001
                    (RiseSet
-                      (Just (lctFromYMDHMS 9 2016 8 13 6 44 43.4166, DD 66.8649010))
-                      (Just (lctFromYMDHMS 9 2016 8 13 21 8 49.7771, DD 292.8475452)))
+                      (Just (lctFromYMDHMS 9 2016 8 13 6 44 43.1358, DD 66.8644763))
+                      (Just (lctFromYMDHMS 9 2016 8 13 21 8 49.7896, DD 292.8475000)))
                    (sunRiseAndSet (GeoC (DD 47.90771) (106.88324)) 0.833333 (lcdFromYMD 9 2016 8 13))
                , testRiseSet "Lima at 2016-08-12; Rise: 06:22, DD 75; Set: 18:04, DD 285"
                    0.000001
                    (RiseSet
-                      (Just (lctFromYMDHMS (-5) 2016 8 12 6 22 21.9365, DD 75.0818488))
-                      (Just (lctFromYMDHMS (-5) 2016 8 12 18 3 40.8970, DD 284.7672950)))
+                      (Just (lctFromYMDHMS (-5) 2016 8 12 6 22 22.2308, DD 75.0822853))
+                      (Just (lctFromYMDHMS (-5) 2016 8 12 18 3 41.7631, DD 284.7661756)))
                    (sunRiseAndSet (GeoC (DD $ -12.04318) (DD $ -77.02824)) 0.833333 (lcdFromYMD (-5) 2016 8 12))
                , testRiseSet "Longyearbyen at 2016-08-12; Circumpolar"
                    0.000001
@@ -117,14 +117,14 @@ tests = [testGroup "sunDetails" [
                , testRiseSet "Anchorage at 2016-08-13; Rise: 06:05, DD 57; Set: 22:02, DD 302"
                    0.000001
                    (RiseSet
-                     (Just (lctFromYMDHMS (-8) 2016 8 13 6 4 27.9935, DD 57.0568583))
-                     (Just (lctFromYMDHMS (-8) 2016 8 13 22 2 8.2308, DD 302.4505098)))
+                      (Just (lctFromYMDHMS (-8) 2016 8 13 6 4 29.3945, DD 57.0595036))
+                      (Just (lctFromYMDHMS (-8) 2016 8 13 22 2 8.3067, DD 302.4495529)))
                    (sunRiseAndSet (GeoC (DD 61.21806) (-149.90028)) 0.833333 (lcdFromYMD (-8) 2016 8 13))
                , testRiseSet "Kazan at 2016-08-18; Rise: 04:21, DD 65; Set: 19:12, DD 295"
                    0.000001
                    (RiseSet
-                     (Just (lctFromYMDHMS 3 2016 8 18 4 21 19.3322, DD 65.0507514))
-                     (Just (lctFromYMDHMS 3 2016 8 18 19 11 46.6709, DD 294.566213)))
+                      (Just (lctFromYMDHMS 3 2016 8 18 4 21 19.3153, DD 65.0507218))
+                      (Just (lctFromYMDHMS 3 2016 8 18 19 11 46.7175,DD 294.5658995)))
                    (sunRiseAndSet (GeoC 55.78874 49.1221400) 0.833333 $ lcdFromYMD 3 2016 8 18)
                ],
              testGroup "equationOfTime" [
