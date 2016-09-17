@@ -19,7 +19,6 @@ module Data.Astro.Sun
 (
   SunDetails(..)
   , RiseSet(..)
-  , SunRiseSet(..)
   , sunDetails
   , j2010SunDetails
   , sunMeanAnomaly2
@@ -162,17 +161,6 @@ sunDistance jd = r0 / (dasf $ sunDetails jd)
 -- | Calculate the Sun's angular size (i.e. its angular diameter).
 sunAngularSize :: JulianDate -> DecimalDegrees
 sunAngularSize jd = theta0 * (DD $ dasf $ sunDetails jd)
-
-
--- | The Sun's Rise And Set Information (LocalCivilTime and Azimuth)
--- type SunRiseSet = RiseSet (Maybe (RSInfo LocalCivilTime))
-type SunRiseSet = RiseSetMB
-
-data SetOrRise = SOR (RSInfo LocalCivilTime)
-               | SCircumpolar
-               | SNeverRises
-               deriving (Eq)
-
 
 
 -- | Calculatesthe Sun's rise and set
