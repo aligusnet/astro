@@ -63,6 +63,10 @@ tests = [testGroup "DecimalDegrees <-> DecimalHours" [
               , testCase "compare: LT" $ LT @=? (DD 15.3) `compare` (DD 15.5)
               , testCase "compare: EQ" $ EQ @=? (DD 15.5) `compare` (DD 15.5)
               , testCase "compare: GT" $ GT @=? (DD 15.7) `compare` (DD 15.5)
+              , testCase "abs" $ (DD 15.7) @=? abs (DD (-15.7))
+              , testCase "signum > 0" $ (DD 1.0) @=? signum (DD 15.5)
+              , testCase "signum = 0" $ (DD 0.0) @=? signum (DD 0.0)
+              , testCase "signum < 0" $ (DD $ -1.0) @=? signum (DD $ -15.5)
               ]
         ]
 
