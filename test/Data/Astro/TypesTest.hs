@@ -57,6 +57,8 @@ tests = [testGroup "DecimalDegrees <-> DecimalHours" [
               ]
           , testGroup "DD: standard typeclasses" [
               testCase "show" $ "DD 15.5" @=? show (DD 15.5)
+              , testCase "showList" $ "[DD 15.3,DD 15.7]" @=? showList [DD 15.3, DD 15.7] ""
+              , testCase "showsPrec" $ "DD 15.5" @=? showsPrec 0 (DD 15.5) ""
               , testCase "== (True)" $ True @=? (DD 15.5) == (DD 15.5)
               , testCase "== (False)" $ False @=? (DD 15.3) == (DD 15.5)
               , testCase "/= (True)" $ True @=? (DD 15.3) /= (DD 15.5)
@@ -64,6 +66,12 @@ tests = [testGroup "DecimalDegrees <-> DecimalHours" [
               , testCase "compare: LT" $ LT @=? (DD 15.3) `compare` (DD 15.5)
               , testCase "compare: EQ" $ EQ @=? (DD 15.5) `compare` (DD 15.5)
               , testCase "compare: GT" $ GT @=? (DD 15.7) `compare` (DD 15.5)
+              , testCase "<" $ True @=? (DD 15.3) < (DD 15.7)
+              , testCase "<=" $ True @=? (DD 15.3) <= (DD 15.7)
+              , testCase ">" $ False @=? (DD 15.3) > (DD 15.7)
+              , testCase ">=" $ False @=? (DD 15.3) >= (DD 15.7)
+              , testCase "max" $ (DD 15.7) @=? max (DD 15.3) (DD 15.7)
+              , testCase "min" $ (DD 15.3) @=? min (DD 15.3) (DD 15.7)
               , testCase "abs" $ (DD 15.7) @=? abs (DD (-15.7))
               , testCase "signum > 0" $ (DD 1.0) @=? signum (DD 15.5)
               , testCase "signum = 0" $ (DD 0.0) @=? signum (DD 0.0)
@@ -74,6 +82,8 @@ tests = [testGroup "DecimalDegrees <-> DecimalHours" [
               ]
           , testGroup "DH: standard typeclasses" [
               testCase "show" $ "DH 15.5" @=? show (DH 15.5)
+              , testCase "showList" $ "[DH 15.3,DH 15.7]" @=? showList [DH 15.3, DH 15.7] ""
+              , testCase "showsPrec" $ "DH 15.5" @=? showsPrec 0 (DH 15.5) ""
               , testCase "== (True)" $ True @=? (DH 15.5) == (DH 15.5)
               , testCase "== (False)" $ False @=? (DH 15.3) == (DH 15.5)
               , testCase "/= (True)" $ True @=? (DH 15.3) /= (DH 15.5)
@@ -81,6 +91,12 @@ tests = [testGroup "DecimalDegrees <-> DecimalHours" [
               , testCase "compare: LT" $ LT @=? (DH 15.3) `compare` (DH 15.5)
               , testCase "compare: EQ" $ EQ @=? (DH 15.5) `compare` (DH 15.5)
               , testCase "compare: GT" $ GT @=? (DH 15.7) `compare` (DH 15.5)
+              , testCase "<" $ True @=? (DH 15.3) < (DH 15.7)
+              , testCase "<=" $ True @=? (DH 15.3) <= (DH 15.7)
+              , testCase ">" $ False @=? (DH 15.3) > (DH 15.7)
+              , testCase ">=" $ False @=? (DH 15.3) >= (DH 15.7)
+              , testCase "max" $ (DH 15.7) @=? max (DH 15.3) (DH 15.7)
+              , testCase "min" $ (DH 15.3) @=? min (DH 15.3) (DH 15.7)
               , testCase "abs" $ (DH 15.7) @=? abs (DH (-15.7))
               , testCase "signum > 0" $ (DH 1.0) @=? signum (DH 15.5)
               , testCase "signum = 0" $ (DH 0.0) @=? signum (DH 0.0)
