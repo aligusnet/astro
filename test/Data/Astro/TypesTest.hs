@@ -14,6 +14,7 @@ import Test.HUnit
 import Test.HUnit.Approx
 import Test.QuickCheck
 
+import Data.Ratio ((%))
 import Data.Astro.Types
 
 tests = [testGroup "DecimalDegrees <-> DecimalHours" [
@@ -54,7 +55,7 @@ tests = [testGroup "DecimalDegrees <-> DecimalHours" [
           , testGroup "Light travel time" [
               testDecimalHours "7.7 AU" 0.0000001 1.06722 (lightTravelTime 7.7)
               ]
-          , testGroup "standard typeclasses" [
+          , testGroup "DD: standard typeclasses" [
               testCase "show" $ "DD 15.5" @=? show (DD 15.5)
               , testCase "== (True)" $ True @=? (DD 15.5) == (DD 15.5)
               , testCase "== (False)" $ False @=? (DD 15.3) == (DD 15.5)
@@ -67,6 +68,26 @@ tests = [testGroup "DecimalDegrees <-> DecimalHours" [
               , testCase "signum > 0" $ (DD 1.0) @=? signum (DD 15.5)
               , testCase "signum = 0" $ (DD 0.0) @=? signum (DD 0.0)
               , testCase "signum < 0" $ (DD $ -1.0) @=? signum (DD $ -15.5)
+              , testCase "toRational" $ (31 % 2) @=? toRational (DD 15.5)
+              , testCase "recip" $ (DD 0.01) @=? recip (DD 100)
+              , testCase "properFraction" $ (15, DD 0.5) @=? properFraction (DD 15.5)
+              ]
+          , testGroup "DH: standard typeclasses" [
+              testCase "show" $ "DH 15.5" @=? show (DH 15.5)
+              , testCase "== (True)" $ True @=? (DH 15.5) == (DH 15.5)
+              , testCase "== (False)" $ False @=? (DH 15.3) == (DH 15.5)
+              , testCase "/= (True)" $ True @=? (DH 15.3) /= (DH 15.5)
+              , testCase "/= (False)" $ False @=? (DH 15.5) /= (DH 15.5)
+              , testCase "compare: LT" $ LT @=? (DH 15.3) `compare` (DH 15.5)
+              , testCase "compare: EQ" $ EQ @=? (DH 15.5) `compare` (DH 15.5)
+              , testCase "compare: GT" $ GT @=? (DH 15.7) `compare` (DH 15.5)
+              , testCase "abs" $ (DH 15.7) @=? abs (DH (-15.7))
+              , testCase "signum > 0" $ (DH 1.0) @=? signum (DH 15.5)
+              , testCase "signum = 0" $ (DH 0.0) @=? signum (DH 0.0)
+              , testCase "signum < 0" $ (DH $ -1.0) @=? signum (DH $ -15.5)
+              , testCase "toRational" $ (31 % 2) @=? toRational (DH 15.5)
+              , testCase "recip" $ (DH 0.01) @=? recip (DH 100)
+              , testCase "properFraction" $ (15, DH 0.5) @=? properFraction (DH 15.5)
               ]
         ]
 
