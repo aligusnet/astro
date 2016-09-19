@@ -11,6 +11,7 @@ the beginning of the Julian Period.
 module Data.Astro.Time.JulianDate
 (
   JulianDate(..)
+  , julianStartDateTime
   , LocalCivilTime(..)
   , LocalCivilDate(..)
   , TimeBaseType
@@ -26,6 +27,7 @@ module Data.Astro.Time.JulianDate
   , lctFromYMDHMS
   , lctToYMDHMS
   , lcdFromYMD
+  , printLctHs
 )
 
 where
@@ -52,7 +54,7 @@ data LocalCivilTime = LCT {
 
 
 instance Show LocalCivilTime where
-  show = printLCT
+  show = printLct
 
 
 -- | Local Civil Date, used for time conversions when base date is needed
@@ -180,16 +182,16 @@ lcdFromYMD tz y m d = LCD tz (fromYMD y m d)
 
 
 -- | Print Local Civil Time in human-readable format
-printLCT :: LocalCivilTime -> String
-printLCT lct =
+printLct :: LocalCivilTime -> String
+printLct lct =
   printf "%d-%02d-%02d %02d:%02d:%07.4f %+03.1f" y m d hs ms ss tz
   where (y, m, d, hs, ms, ss) = lctToYMDHMS lct
         DH tz = lctTimeZone lct
 
 
 -- | Print local civil time in machine readable format
-printLCT2 :: LocalCivilTime -> String
-printLCT2 lct =
-  printf "lctFromYMDHMS %1.0f %d %d %d %d %d %.4f" tz y m d hs ms ss
+printLctHs :: LocalCivilTime -> String
+printLctHs lct =
+  printf "lctFromYMDHMS (%1.0f) %d %d %d %d %d %.4f" tz y m d hs ms ss
   where (y, m, d, hs, ms, ss) = lctToYMDHMS lct
         DH tz = lctTimeZone lct

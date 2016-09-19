@@ -93,6 +93,23 @@ tests = [testGroup "to julian day" [
                 (JD 109.75)
                 (addHours (-6) 110)
             ]
+        , testJD "julian start date" 0.000001 (JD 0) julianStartDateTime
+        , testGroup "print" [
+            testCase "show" $ "1999-09-19 19:29:59.0000 -2.0" @=? show (lctFromYMDHMS (-2) 1999 9 19 19 29 59)
+            , testCase "printLtcHs" $ "lctFromYMDHMS (-2) 1999 9 19 19 29 59.0000" @=? printLctHs (lctFromYMDHMS (-2) 1999 9 19 19 29 59)
+            ]
+        , testCase "lctToYMDHMS" $ (1999, 9, 19, 12, 0, 0)  @=? lctToYMDHMS (lctFromYMDHMS (-2) 1999 9 19 12 0 0)
+        , testGroup "JD: Num instance" [
+            testCase "+" $ (JD 17.5) @=? (JD 15.5) + (JD 2)
+            , testCase "-" $ (JD 13.5) @=? (JD 15.5) - (JD 2)
+            , testCase "*" $ (JD 31) @=? (JD 15.5) * (JD 2)
+            , testCase "negate" $ (JD 15.5) @=? negate (JD $ -15.5)
+            , testCase "abs" $ (JD 15.7) @=? abs (JD (-15.7))
+            , testCase "signum > 0" $ (JD 1.0) @=? signum (JD 15.5)
+            , testCase "signum = 0" $ (JD 0.0) @=? signum (JD 0.0)
+            , testCase "signum < 0" $ (JD $ -1.0) @=? signum (JD $ -15.5)
+            , testCase "fromInteger" $ (JD 17) @=? fromInteger 17
+            ]
         ]
 
 prop_JulianConversionsAfterGeorge =
