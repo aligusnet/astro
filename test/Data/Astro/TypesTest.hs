@@ -54,6 +54,16 @@ tests = [testGroup "DecimalDegrees <-> DecimalHours" [
           , testGroup "Light travel time" [
               testDecimalHours "7.7 AU" 0.0000001 1.06722 (lightTravelTime 7.7)
               ]
+          , testGroup "standard typeclasses" [
+              testCase "show" $ "DD 15.5" @=? show (DD 15.5)
+              , testCase "== (True)" $ True @=? (DD 15.5) == (DD 15.5)
+              , testCase "== (False)" $ False @=? (DD 15.3) == (DD 15.5)
+              , testCase "/= (True)" $ True @=? (DD 15.3) /= (DD 15.5)
+              , testCase "/= (False)" $ False @=? (DD 15.5) /= (DD 15.5)
+              , testCase "compare: LT" $ LT @=? (DD 15.3) `compare` (DD 15.5)
+              , testCase "compare: EQ" $ EQ @=? (DD 15.5) `compare` (DD 15.5)
+              , testCase "compare: GT" $ GT @=? (DD 15.7) `compare` (DD 15.5)
+              ]
         ]
 
 
