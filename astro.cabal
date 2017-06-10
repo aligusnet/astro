@@ -20,6 +20,7 @@ library
                      , Data.Astro.Time.JulianDate
                      , Data.Astro.Time.Sidereal
                      , Data.Astro.Time.Epoch
+                     , Data.Astro.Time.Conv
                      , Data.Astro.Coordinate
                      , Data.Astro.Types
                      , Data.Astro.Utils
