@@ -1,0 +1,67 @@
+# project params
+cidfile=".cidfile"
+zip_path="lambda.zip"
+
+# docker params
+docker_repository="haskell-aws"
+docker_container="haskell-aws-build"
+
+# AWS params
+aws_lambda_function_name="astro"
+aws_lambda_role_name="arn:aws:iam::053560134488:role/lambda_basic_execution"
+
+
+desc 'builds docker image'
+task :docker_build do
+  system "docker build -t #{docker_repository} ."
+end
+
+
+desc 'removes all docker containers created by the tool'
+task :docker_clean do
+  system "rm .cidfile"
+  system "docker rm $(docker ps -aq -f 'ancestor=#{docker_repository}')"
+end
+
+
+desc 'removes all docker containers and images created by the tool'
+task :docker_clean_all => [:docker_clean] do
+    system "docker rmi #{docker_repository}"
+end
+
+
+desc 'builds docker image and astro app'
+task :build => [:docker_build] do
+  build_dir=`dirname $(pwd)`.chomp()
+  system "touch #{cidfile}"
+  cid = File.read(cidfile)
+  system "rm #{cidfile}"
+  volumes_from = ''
+  if not cid.empty?()
+    volumes_from="--volumes-from=#{cid}"
+  end
+  system "docker run --cidfile=.cidfile #{volumes_from} -v #{build_dir}:/build -v /root/.stack -w /build #{docker_repository} sh aws/build.sh"
+  system "zip #{zip_path} main run.js"
+end
+
+
+# AWS Lambda
+desc 'creates AWS Lambda function for astro app'
+task :aws_lambda_create do
+  system "aws lambda create-function --function-name #{aws_lambda_function_name} --runtime nodejs6.10 --zip-file fileb://./#{zip_path}  --handler run.handle --role #{aws_lambda_role_name}"
+end
+
+
+desc 'updates AWS Lambda function for astro app'
+task :aws_lambda_update do
+  system "aws lambda update-function-code --function-name #{aws_lambda_function_name} --zip-file fileb://./#{zip_path}"
+end
+
+
+desc 'invokes AWS Lambda function'
+task :aws_lambda_invoke do
+  payload = '{"coordinates": {"latitude":51, "longitude":0}, "datetime":"2017-05-10T12:12:12.111111+01:00"}'
+  outfile = 'invoke.out'
+  system "aws lambda invoke --function-name #{aws_lambda_function_name} --invocation-type RequestResponse --payload '#{payload}' #{outfile}"
+  system "cat #{outfile} && echo ''"
+end
