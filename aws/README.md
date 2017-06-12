@@ -64,3 +64,14 @@ You need to create the function only once.
 ```
 % rake aws_lambda_invoke
 ```
+
+### Test query
+
+```
+{
+    "coordinates": {
+        "latitude":51, "longitude":0
+    },
+    "datetime":"2017-05-10T12:12:12.111111+01:00"
+}
+```
