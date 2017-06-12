@@ -1,8 +1,8 @@
-const exec = require('child_process').exec;
+const { execFile } = require('child_process');
 
 exports.handle = function(event, context) {
     console.log('starting app with event', event);
-    exec('./main --json="'+ JSON.stringify(event) + '"', function(error, stdout) {
+    execFile('./main', ['--json', '"'+ JSON.stringify(event) + '"'], function(error, stdout) {
         console.log('app exited');
         console.log('error:', error);
         console.log('stdout:', stdout);
