@@ -26,7 +26,9 @@ import Data.Astro.Utils (fromFixed)
 import Data.Astro.Time.JulianDate (JulianDate(..)
                                   , LocalCivilTime(..)
                                   , LocalCivilDate(..)
-                                  , fromYMDHMS, toYMDHMS)
+                                  , fromYMDHMS, toYMDHMS
+                                  , lctFromYMDHMS, lcdFromYMD
+                                  , lctToYMDHMS)
 
 
 -----------------------------------------------------------
@@ -37,25 +39,21 @@ timeZoneToDH  tz = DH hours
         hours = (toMinutes tz) / 60.0
 
 
-localTimeToJulianDate :: LocalTime -> JulianDate
-localTimeToJulianDate lt =
-  let (y, m, d) = toGregorian (localDay lt)
-      TimeOfDay hours mins secs = localTimeOfDay lt
-  in fromYMDHMS y m d hours mins (fromFixed secs)
-
-
 -- | Convert ZonedTime to LocalCivilTime
 zonedTimeToLCT :: ZonedTime -> LocalCivilTime
-zonedTimeToLCT zonedTime = LCT { lctTimeZone = tz, lctUniversalTime = jd }
+zonedTimeToLCT zonedTime = lctFromYMDHMS tz y m d hours mins (fromFixed secs)
   where tz = timeZoneToDH (zonedTimeZone zonedTime)
-        jd = localTimeToJulianDate $ zonedTimeToLocalTime zonedTime
+        lt = zonedTimeToLocalTime zonedTime
+        (y, m, d) = toGregorian (localDay lt)
+        TimeOfDay hours mins secs = localTimeOfDay lt
 
 
 -- | Convert ZonedTime to LocalCivilDate
 zonedTimeToLCD :: ZonedTime -> LocalCivilDate
-zonedTimeToLCD zonedTime = LCD { lcdTimeZone = tz, lcdDate = jd }
+zonedTimeToLCD zonedTime = lcdFromYMD tz y m d
   where tz = timeZoneToDH (zonedTimeZone zonedTime)
-        jd = localTimeToJulianDate $ zonedTimeToLocalTime zonedTime
+        lt = zonedTimeToLocalTime zonedTime
+        (y, m, d) = toGregorian (localDay lt)
 
 
 -----------------------------------------------------------
@@ -66,15 +64,11 @@ dhToTimeZone (DH hours) = minutesToTimeZone minutes
   where minutes = round (60*hours)
 
 
-julianDateToLocalTime :: JulianDate -> LocalTime
-julianDateToLocalTime jd = LocalTime { localDay = day, localTimeOfDay = time }
-  where (y, m, d, hours, mins, secs) = toYMDHMS jd
-        day = fromGregorian y m d
-        time = TimeOfDay hours mins (realToFrac secs)
-
-
 -- | Convert LocalCivilTime to ZonedTime
 lctToZonedTime :: LocalCivilTime -> ZonedTime
-lctToZonedTime lcd = ZonedTime { zonedTimeToLocalTime = lt, zonedTimeZone = tz }
-  where tz = dhToTimeZone $ lctTimeZone lcd
-        lt = julianDateToLocalTime $ lctUniversalTime lcd
+lctToZonedTime lct = ZonedTime { zonedTimeToLocalTime = lt, zonedTimeZone = tz }
+  where tz = dhToTimeZone $ lctTimeZone lct
+        (y, m, d, hours, mins, secs) = lctToYMDHMS lct
+        day = fromGregorian y m d
+        time = TimeOfDay hours mins (realToFrac secs)
+        lt = LocalTime { localDay = day, localTimeOfDay = time }

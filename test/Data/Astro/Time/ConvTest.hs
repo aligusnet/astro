@@ -39,11 +39,12 @@ prop_LCTConversion tz = forAll (choose (0, 999999999)) check
           in abs(n - n2) < 0.00000001
 
 
--- this is a bit hucky test, but underlying JulianDate should stay the same after conversions
 prop_LCDConversion tz = forAll (choose (0, 999999999)) check
   where check n = 
-          let jd = LCT (DH tz) (JD n)
-              jd2 = zonedTimeToLCD $ lctToZonedTime jd
-              LCD _ (JD n2) = jd2
-          in abs(n - n2) < 0.00000001
+          let (jd, _) = splitToDayAndTime (JD n)  -- drop time part
+              lct = LCT (DH tz) jd
+              lcd2 = zonedTimeToLCD $ lctToZonedTime lct
+              LCD _ (JD n2) = lcd2
+              JD n1 = jd
+          in abs(n1 - n2) < 0.00000001
 
