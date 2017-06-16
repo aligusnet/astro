@@ -107,29 +107,31 @@ riseAndSet2 eps getPosition geoc shift lcd =
   let day = lcdDate lcd
       pos = getPosition (addHours 12 day)
       rs = riseAndSetLCT geoc lcd shift pos
-      rise = calc getRiseTime (getRiseTime rs)
-      set = calc getSetTime (getSetTime rs)
+      rise = calc getRiseTime (getRiseTime rs) 0
+      set = calc getSetTime (getSetTime rs) 0
   in case rs of
     Circumpolar -> Circumpolar
     NeverRises -> NeverRises
     _ -> buildResult rise set
 
-  where calc :: (RiseSetLCT -> RSInfo LocalCivilTime) -> RSInfo LocalCivilTime -> RiseSetLCT
-        calc getRSInfo rsi@(time, _) =
+  where calc :: (RiseSetLCT -> RSInfo LocalCivilTime) -> RSInfo LocalCivilTime -> Int -> RiseSetLCT
+        calc getRSInfo rsi@(time, _) iterNo =
           let pos = getPosition $ lctUniversalTime time
               rs = riseAndSetLCT geoc lcd shift pos
               rsi' = getRSInfo rs
           in case rs of
             Circumpolar -> Circumpolar
             NeverRises -> NeverRises
-            _ -> if isOK rsi rsi'
+            _ -> if isOK rsi rsi' || iterNo >= maxIters
                  then rs
-                 else calc getRSInfo rsi'
+                 else calc getRSInfo rsi' (iterNo+1)
 
         isOK :: RSInfo LocalCivilTime -> RSInfo LocalCivilTime -> Bool
         isOK (t1, _) (t2, _) = (abs d) < (h/24)
           where JD d = (lctUniversalTime t1) - (lctUniversalTime t2)
                 DH h = eps
+
+        maxIters = 10
 
         getRiseTime :: RiseSetLCT -> RSInfo LocalCivilTime
         getRiseTime (RiseSet r _) = r
@@ -140,6 +142,7 @@ riseAndSet2 eps getPosition geoc shift lcd =
         buildResult (RiseSet r _) (RiseSet _ s) = RiseSet (Just r) (Just s)
         buildResult (RiseSet r _) _ = RiseSet (Just r) Nothing
         buildResult _ (RiseSet _ s) = RiseSet Nothing (Just s)
+        
 
 
 -- | Calculates set and rise of the celestial object

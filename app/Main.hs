@@ -10,10 +10,21 @@ import Data.Time.LocalTime (ZonedTime, getZonedTime)
 import Options.Applicative
 import Data.Monoid((<>))
 
-import Data.Astro.Sun
-import Data.Astro.Types
+-- Astro Imports
 import Data.Astro.Time.JulianDate
 import Data.Astro.Time.Conv (zonedTimeToLCT, zonedTimeToLCD, lctToZonedTime)
+
+import Data.Astro.Effects (refract)
+import Data.Astro.CelestialObject.RiseSet(riseAndSet2, RiseSetMB(..))
+
+import Data.Astro.Sun
+import Data.Astro.Types
+
+import Data.Astro.Moon (moonPosition1)
+import Data.Astro.Moon.MoonDetails (j2010MoonDetails)
+
+import Data.Astro.Planet (Planet(..), planetPosition, planetTrueAnomaly1)
+import Data.Astro.Planet.PlanetDetails (j2010PlanetDetails)
 
 
 main :: IO ()
@@ -32,17 +43,59 @@ run cmdOptions = do
 
 
 -- Calcs
-calculateSunResult :: Params -> SunResult
+calculateSunResult :: Params -> RiseSetResult
 calculateSunResult params = case r of
-  RiseSet rise set -> SunResult { rise = lctToZonedTime <$> fst <$> rise, set = lctToZonedTime <$> fst <$> set }
-  _ -> SunResult Nothing Nothing 
+  RiseSet rise set -> RiseSetResult { rise = lctToZonedTime <$> fst <$> rise
+                                    , set = lctToZonedTime <$> fst <$> set
+                                    , state = "Rise and/or set"}
+  Circumpolar -> RiseSetResult Nothing Nothing "Circumpolar"
+  NeverRises -> RiseSetResult Nothing Nothing "NeverRises"
   where coords = paramsCoordinates params
         date = paramsDate params
         r = sunRiseAndSet coords 0.833333 date
 
+
+calculateMoonResult :: Params -> RiseSetResult
+calculateMoonResult params = toRiseSetResult rs
+  where position = moonPosition1 j2010MoonDetails
+        coords = paramsCoordinates params
+        verticalShift = refract (DD 0) 12 1012
+        date = paramsDate params
+        rs :: RiseSetMB
+        rs = riseAndSet2 0.000001 position coords verticalShift date
+
+
+calculatePlanetResult :: Params -> Planet -> RiseSetResult
+calculatePlanetResult params planet = toRiseSetResult rs
+  where coords = paramsCoordinates params
+        verticalShift = refract (DD 0) 12 1012
+        date = paramsDate params
+        planetDetails = j2010PlanetDetails planet
+        earthDetails = j2010PlanetDetails Earth
+        position = planetPosition planetTrueAnomaly1 planetDetails earthDetails
+        rs = riseAndSet2 0.000001 position coords verticalShift date
+
+
+toRiseSetResult :: RiseSetMB -> RiseSetResult
+toRiseSetResult rs = case rs of
+  RiseSet rise set -> RiseSetResult { rise = lctToZonedTime <$> fst <$> rise
+                                    , set = lctToZonedTime <$> fst <$> set
+                                    , state = "Rise and/or set"}
+  Circumpolar -> RiseSetResult Nothing Nothing "Circumpolar"
+  NeverRises -> RiseSetResult Nothing Nothing "NeverRises"
+
+
 processQuery :: Params -> AstroResult
 processQuery params = AstroResult {
   sun = calculateSunResult params
+  , moon = calculateMoonResult params
+  , mercury = calculatePlanetResult params Mercury
+  , venus = calculatePlanetResult params Venus
+  , mars = calculatePlanetResult params Mars
+  , jupiter = calculatePlanetResult params Jupiter
+  , saturn = calculatePlanetResult params Saturn
+  , uranus = calculatePlanetResult params Uranus
+  , neptune = calculatePlanetResult params Neptune
   }
 
 
@@ -55,6 +108,7 @@ data CmdOptions = CmdOptions {
 cmdOptions :: Parser CmdOptions
 cmdOptions = CmdOptions
   <$> (optional $ strOption ( long "json" <> short 'j' <> help "JSON-encoded params") )
+
 
 -- Params
 data CoordinatesParam = CoordinatesParam {
@@ -102,15 +156,24 @@ defaultParams = do
 
 
 -- Result
-data SunResult = SunResult {
+data RiseSetResult = RiseSetResult {
   rise :: Maybe ZonedTime
   , set :: Maybe ZonedTime
+  , state :: String
   } deriving (Generic, Show)
 
-instance ToJSON SunResult
+instance ToJSON RiseSetResult
 
 data AstroResult = AstroResult {
-  sun :: SunResult
+  sun :: RiseSetResult
+  , moon :: RiseSetResult
+  , mercury :: RiseSetResult
+  , venus :: RiseSetResult
+  , mars :: RiseSetResult
+  , jupiter :: RiseSetResult
+  , saturn :: RiseSetResult
+  , uranus :: RiseSetResult
+  , neptune :: RiseSetResult
   } deriving (Generic, Show)
 
 instance ToJSON AstroResult
