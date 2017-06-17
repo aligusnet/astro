@@ -15,9 +15,11 @@ import Data.Astro.Time.JulianDate
 import Data.Astro.Time.Conv (zonedTimeToLCT, zonedTimeToLCD, lctToZonedTime)
 
 import Data.Astro.Effects (refract)
-import Data.Astro.CelestialObject.RiseSet(riseAndSet2, RiseSetMB(..))
+import Data.Astro.CelestialObject.RiseSet(riseAndSetLCT, riseAndSet2, RiseSetMB(..), RiseSetLCT(..))
 
 import Data.Astro.Sun
+
+import Data.Astro.Star
 
 import Data.Astro.Types
 import Data.Astro.Coordinate
@@ -110,15 +112,48 @@ calculatePlanetResult params planet = PR {
         hcPosition = toHorizonCoordinatesResult coords jd ec1
 
 
+calculateStarResult :: Params -> Star -> StarResult
+calculateStarResult params star = SR {
+  starRiseSet = riseSet
+  , starPosition = hcPosition
+  }
+  where coords = paramsCoordinates params
+        verticalShift = refract (DD 0) 12 1012
+        date = paramsDate params
+        lct = paramsDateTime params
+        jd = lctUniversalTime lct
+        ec1 = starCoordinates star
+        rs = riseAndSetLCT coords date verticalShift ec1
+        riseSet = fromRiseSetLCT rs
+        hcPosition = toHorizonCoordinatesResult coords jd ec1
+
 
 toRiseSetResult :: RiseSetMB -> RiseSetResult
 toRiseSetResult rs = case rs of
   RiseSet rise set -> RSR { rise = lctToZonedTime <$> fst <$> rise
+                          , riseAzimuth = ddValue <$> snd <$> rise
                           , set = lctToZonedTime <$> fst <$> set
-                          , state = "Rise and/or set"}
-  Circumpolar -> RSR Nothing Nothing "Circumpolar"
-  NeverRises -> RSR Nothing Nothing "NeverRises"
+                          , setAzimuth = ddValue <$> snd <$> set
+                          , state = "Rise and/or set"
+                          }
+  Circumpolar -> RSR Nothing Nothing Nothing Nothing "Circumpolar"
+  NeverRises -> RSR Nothing Nothing Nothing Nothing "NeverRises"
 
+
+fromRiseSetLCT :: RiseSetLCT -> RiseSetResult
+fromRiseSetLCT rs = case rs of
+  RiseSet rise set -> RSR { rise = Just $ lctToZonedTime $ fst rise
+                          , riseAzimuth = Just $ ddValue $ snd $ rise
+                          , set = Just $ lctToZonedTime $ fst set
+                          , setAzimuth = Just $ ddValue $ snd $ set
+                          , state = "Rise and Set"
+                          }
+  Circumpolar -> RSR Nothing Nothing Nothing Nothing "Circumpolar"
+  NeverRises -> RSR Nothing Nothing Nothing Nothing "NeverRises"
+
+
+ddValue :: DecimalDegrees -> Double
+ddValue (DD value) = value
 
 toHorizonCoordinatesResult :: GeographicCoordinates
                            -> JulianDate
@@ -143,6 +178,9 @@ processQuery params = AstroResult {
   , saturn = calculatePlanetResult params Saturn
   , uranus = calculatePlanetResult params Uranus
   , neptune = calculatePlanetResult params Neptune
+  , polaris = calculateStarResult params Polaris
+  , alphaCrucis = calculateStarResult params AlphaCrucis
+  , sirius = calculateStarResult params Sirius
   }
 
 
@@ -212,7 +250,9 @@ instance ToJSON HorizonCoordinatesResult
 
 data RiseSetResult = RSR {
   rise :: Maybe ZonedTime
+  , riseAzimuth :: Maybe Double
   , set :: Maybe ZonedTime
+  , setAzimuth :: Maybe Double
   , state :: String
   } deriving (Generic, Show)
 
@@ -235,6 +275,13 @@ data PlanetaiResult = PR {
 
 instance ToJSON PlanetaiResult
 
+data StarResult = SR {
+  starRiseSet :: RiseSetResult
+  , starPosition :: HorizonCoordinatesResult
+  } deriving (Generic, Show)
+
+instance ToJSON StarResult
+
 data AstroResult = AstroResult {
   sun :: PlanetaiResult
   , moon :: PlanetaiResult
@@ -245,6 +292,9 @@ data AstroResult = AstroResult {
   , saturn :: PlanetaiResult
   , uranus :: PlanetaiResult
   , neptune :: PlanetaiResult
+  , polaris :: StarResult
+  , alphaCrucis :: StarResult
+  , sirius :: StarResult
   } deriving (Generic, Show)
 
 instance ToJSON AstroResult
