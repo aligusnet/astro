@@ -28,6 +28,7 @@ library
                      , Data.Astro.CelestialObject.RiseSet
                      , Data.Astro.Effects
                      , Data.Astro.Effects.Parallax
+                     , Data.Astro.Star
                      , Data.Astro.Sun
                      , Data.Astro.Sun.SunInternals
                      , Data.Astro.Planet

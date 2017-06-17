@@ -19,6 +19,7 @@ import Data.Astro.Types (DecimalDegrees(..), DecimalHours(..), fromDMS, fromHMS)
 import Data.Astro.Coordinate (EquatorialCoordinates1(..))
 import Data.Astro.Time.Sidereal (lstToDH, dhToLST)
 import Data.Astro.CelestialObject.RiseSet
+import Data.Astro.Star
 
 tests = [testGroup "riseAndSet" [
              testRiseAndSet "a star, NH"
@@ -53,9 +54,9 @@ tests = [testGroup "riseAndSet" [
         ]
 
 
-ecPolaris = EC1 (fromDMS 89 15 51) (fromHMS 2 31 48.7)
-ecAlphaCrucis = EC1 (-(fromDMS 63 5 56.73)) (fromHMS 12 26 35.9)
-ecSirius = EC1 (-(fromDMS 16 42 58.02)) (fromHMS 6 45 8.92)
+ecPolaris = starCoordinates Polaris
+ecAlphaCrucis = starCoordinates AlphaCrucis
+ecSirius = starCoordinates Sirius
 
 verticalShift = (fromDMS 0 34 0)
 

@@ -146,6 +146,8 @@ riseAndSet2 eps getPosition geoc shift lcd =
 
 
 -- | Calculates set and rise of the celestial object
+-- It takes geographic coordinates of the observer, local civil date, vertical shift
+-- and equatorial coordinates of the celestial object.
 riseAndSetLCT :: GeographicCoordinates
                 -> LocalCivilDate
                 -> DecimalDegrees
@@ -156,6 +158,9 @@ riseAndSetLCT (GeoC latitude longitude) lcd shift ec
 
 
 -- | Converts Rise and Set in Local Sidereal Time to Rise and Set in Local Civil Time.
+-- It takes longutude of the observer and local civil date.
+-- To calculate /vertical shift/ for stars use function 'refract' from "Data.Astro.Effects".
+-- In most cases you can assume that /vertical shift/ equals 0.566569 (34 arcmins ~ 'refract (DD 0) 12 1012').
 toRiseSetLCT :: DecimalDegrees
                -> LocalCivilDate
                -> RiseSetLST
