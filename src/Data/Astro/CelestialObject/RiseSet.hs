@@ -15,6 +15,7 @@ module Data.Astro.CelestialObject.RiseSet
   , RiseSetMB(..)
   , riseAndSet
   , riseAndSet2
+  , riseAndSetLCT
   , toRiseSetLCT
 )
 
