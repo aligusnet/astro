@@ -18,12 +18,14 @@ import Data.Astro.Effects (refract)
 import Data.Astro.CelestialObject.RiseSet(riseAndSet2, RiseSetMB(..))
 
 import Data.Astro.Sun
+
 import Data.Astro.Types
+import Data.Astro.Coordinate
 
-import Data.Astro.Moon (moonPosition1)
-import Data.Astro.Moon.MoonDetails (j2010MoonDetails)
+import Data.Astro.Moon (moonPosition1, moonDistance1, moonAngularSize)
+import Data.Astro.Moon.MoonDetails (j2010MoonDetails, mduToKm)
 
-import Data.Astro.Planet (Planet(..), planetPosition, planetTrueAnomaly1)
+import Data.Astro.Planet (Planet(..), planetPosition, planetTrueAnomaly1, planetDistance1, planetAngularDiameter)
 import Data.Astro.Planet.PlanetDetails (j2010PlanetDetails)
 
 
@@ -43,47 +45,92 @@ run cmdOptions = do
 
 
 -- Calcs
-calculateSunResult :: Params -> RiseSetResult
-calculateSunResult params = case r of
-  RiseSet rise set -> RiseSetResult { rise = lctToZonedTime <$> fst <$> rise
-                                    , set = lctToZonedTime <$> fst <$> set
-                                    , state = "Rise and/or set"}
-  Circumpolar -> RiseSetResult Nothing Nothing "Circumpolar"
-  NeverRises -> RiseSetResult Nothing Nothing "NeverRises"
+calculateSunResult :: Params -> PlanetaiResult
+calculateSunResult params = PR {
+  riseSet = riseSet
+  , distance = DR distance "km"
+  , angularSize = angularSize
+  , position = hcPosition
+  }
   where coords = paramsCoordinates params
         date = paramsDate params
-        r = sunRiseAndSet coords 0.833333 date
+        lct = paramsDateTime params
+        jd = lctUniversalTime lct
+        rs = sunRiseAndSet coords 0.833333 date
+        riseSet = toRiseSetResult rs
+        distance = sunDistance jd
+        DD angularSize = sunAngularSize jd
+        ec1 = sunPosition2 jd
+        hcPosition = toHorizonCoordinatesResult coords jd ec1
 
 
-calculateMoonResult :: Params -> RiseSetResult
-calculateMoonResult params = toRiseSetResult rs
+calculateMoonResult :: Params -> PlanetaiResult
+calculateMoonResult params = PR {
+  riseSet = riseSet
+  , distance = DR distance "km"
+  , angularSize = angularSize
+  , position = hcPosition
+  }
   where position = moonPosition1 j2010MoonDetails
         coords = paramsCoordinates params
         verticalShift = refract (DD 0) 12 1012
         date = paramsDate params
-        rs :: RiseSetMB
+        lct = paramsDateTime params
+        jd = lctUniversalTime lct
         rs = riseAndSet2 0.000001 position coords verticalShift date
+        riseSet = toRiseSetResult rs
+        mdu = moonDistance1 j2010MoonDetails jd
+        distance = mduToKm mdu
+        DD angularSize = moonAngularSize mdu
+        ec1 = position jd
+        hcPosition = toHorizonCoordinatesResult coords jd ec1
 
 
-calculatePlanetResult :: Params -> Planet -> RiseSetResult
-calculatePlanetResult params planet = toRiseSetResult rs
+calculatePlanetResult :: Params -> Planet -> PlanetaiResult
+calculatePlanetResult params planet = PR {
+  riseSet = riseSet
+  , distance = DR distance "AU"
+  , angularSize = angularSize
+  , position = hcPosition
+  }
   where coords = paramsCoordinates params
         verticalShift = refract (DD 0) 12 1012
         date = paramsDate params
+        lct = paramsDateTime params
+        jd = lctUniversalTime lct
         planetDetails = j2010PlanetDetails planet
         earthDetails = j2010PlanetDetails Earth
         position = planetPosition planetTrueAnomaly1 planetDetails earthDetails
         rs = riseAndSet2 0.000001 position coords verticalShift date
+        riseSet = toRiseSetResult rs
+        au = planetDistance1 planetDetails earthDetails jd
+        AU distance = au
+        DD angularSize = planetAngularDiameter planetDetails au
+        ec1 = position jd
+        hcPosition = toHorizonCoordinatesResult coords jd ec1
+
 
 
 toRiseSetResult :: RiseSetMB -> RiseSetResult
 toRiseSetResult rs = case rs of
-  RiseSet rise set -> RiseSetResult { rise = lctToZonedTime <$> fst <$> rise
-                                    , set = lctToZonedTime <$> fst <$> set
-                                    , state = "Rise and/or set"}
-  Circumpolar -> RiseSetResult Nothing Nothing "Circumpolar"
-  NeverRises -> RiseSetResult Nothing Nothing "NeverRises"
+  RiseSet rise set -> RSR { rise = lctToZonedTime <$> fst <$> rise
+                          , set = lctToZonedTime <$> fst <$> set
+                          , state = "Rise and/or set"}
+  Circumpolar -> RSR Nothing Nothing "Circumpolar"
+  NeverRises -> RSR Nothing Nothing "NeverRises"
 
+
+toHorizonCoordinatesResult :: GeographicCoordinates
+                           -> JulianDate
+                           -> EquatorialCoordinates1
+                           -> HorizonCoordinatesResult
+toHorizonCoordinatesResult (GeoC lat long) jd (EC1 delta alpha) = HCR altitude azimuth
+  where ec2 = EC2 delta (raToHA alpha long jd)
+        hc = equatorialToHorizon lat ec2
+        HC (DD altitude) (DD azimuth) = hc
+        
+        
+        
 
 processQuery :: Params -> AstroResult
 processQuery params = AstroResult {
@@ -156,7 +203,14 @@ defaultParams = do
 
 
 -- Result
-data RiseSetResult = RiseSetResult {
+data HorizonCoordinatesResult = HCR {
+  altitude :: Double
+  , azimuth :: Double
+  } deriving (Generic, Show)
+
+instance ToJSON HorizonCoordinatesResult
+
+data RiseSetResult = RSR {
   rise :: Maybe ZonedTime
   , set :: Maybe ZonedTime
   , state :: String
@@ -164,16 +218,33 @@ data RiseSetResult = RiseSetResult {
 
 instance ToJSON RiseSetResult
 
+
+data DistanceResult = DR {
+  value :: Double
+  , units :: String
+  } deriving (Generic, Show)
+
+instance ToJSON DistanceResult
+
+data PlanetaiResult = PR {
+  riseSet :: RiseSetResult
+  , distance :: DistanceResult
+  , angularSize:: Double
+  , position :: HorizonCoordinatesResult             
+  } deriving (Generic, Show)
+
+instance ToJSON PlanetaiResult
+
 data AstroResult = AstroResult {
-  sun :: RiseSetResult
-  , moon :: RiseSetResult
-  , mercury :: RiseSetResult
-  , venus :: RiseSetResult
-  , mars :: RiseSetResult
-  , jupiter :: RiseSetResult
-  , saturn :: RiseSetResult
-  , uranus :: RiseSetResult
-  , neptune :: RiseSetResult
+  sun :: PlanetaiResult
+  , moon :: PlanetaiResult
+  , mercury :: PlanetaiResult
+  , venus :: PlanetaiResult
+  , mars :: PlanetaiResult
+  , jupiter :: PlanetaiResult
+  , saturn :: PlanetaiResult
+  , uranus :: PlanetaiResult
+  , neptune :: PlanetaiResult
   } deriving (Generic, Show)
 
 instance ToJSON AstroResult

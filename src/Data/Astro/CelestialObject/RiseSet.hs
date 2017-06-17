@@ -131,7 +131,7 @@ riseAndSet2 eps getPosition geoc shift lcd =
           where JD d = (lctUniversalTime t1) - (lctUniversalTime t2)
                 DH h = eps
 
-        maxIters = 10
+        maxIters = 3
 
         getRiseTime :: RiseSetLCT -> RSInfo LocalCivilTime
         getRiseTime (RiseSet r _) = r
