@@ -181,6 +181,12 @@ processQuery params = AstroResult {
   , polaris = calculateStarResult params Polaris
   , alphaCrucis = calculateStarResult params AlphaCrucis
   , sirius = calculateStarResult params Sirius
+  , betelgeuse = calculateStarResult params Betelgeuse
+  , rigel = calculateStarResult params Rigel
+  , vega = calculateStarResult params Vega
+  , antares = calculateStarResult params Antares
+  , canopus = calculateStarResult params Canopus
+  , pleiades = calculateStarResult params Pleiades
   }
 
 
@@ -295,6 +301,12 @@ data AstroResult = AstroResult {
   , polaris :: StarResult
   , alphaCrucis :: StarResult
   , sirius :: StarResult
+  , betelgeuse :: StarResult
+  , rigel :: StarResult
+  , vega :: StarResult
+  , antares :: StarResult
+  , canopus :: StarResult
+  , pleiades :: StarResult
   } deriving (Generic, Show)
 
 instance ToJSON AstroResult
