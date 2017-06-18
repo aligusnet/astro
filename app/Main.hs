@@ -169,7 +169,8 @@ toHorizonCoordinatesResult (GeoC lat long) jd (EC1 delta alpha) = HCR altitude a
 
 processQuery :: Params -> AstroResult
 processQuery params = AstroResult {
-  sun = calculateSunResult params
+  request = params
+  , sun = calculateSunResult params
   , moon = calculateMoonResult params
   , mercury = calculatePlanetResult params Mercury
   , venus = calculatePlanetResult params Venus
@@ -289,7 +290,8 @@ data StarResult = SR {
 instance ToJSON StarResult
 
 data AstroResult = AstroResult {
-  sun :: PlanetaiResult
+  request :: Params
+  , sun :: PlanetaiResult
   , moon :: PlanetaiResult
   , mercury :: PlanetaiResult
   , venus :: PlanetaiResult
