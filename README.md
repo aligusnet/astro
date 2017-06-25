@@ -230,8 +230,9 @@ Let calculate rise and set time of Rigel:
 import Data.Astro.Time.JulianDate
 import Data.Astro.Coordinate
 import Data.Astro.Types
-import Data.Astro.Star
 import Data.Astro.Effects
+import Data.Astro.CelestialObject.RiseSet
+import Data.Astro.Star
 
 
 ro :: GeographicCoordinates
@@ -257,3 +258,105 @@ rigelRiseSet = riseAndSetLCT ro today verticalShift rigelEC1
 As we can see Rigel rose today at 06:38:18 and will set at 17:20:33, azimuths of rise and set 102.51° and 257.49° correspondingly.
 
 We used `refract` function of `Data.Astro.Effects` module with reasonable default parameters to calculate vertical shift.
+
+### Planets
+
+The planets is completely different story. We cannot assume that the planets have "fixed" location in equatorial coordinates like stars.
+
+What we can do is to describe details of the planets' orbit and calculate their positions at any given moment.
+
+Planets and planet details are defined in `Data.Astro.Planet` module. `j2010PlanetDetails` returns details for the given planet.
+This module also defines `planetPosition`, `planetDistance1` and `planetAngularDiameter` to calculate position of the given planet, distance to the planet and angular size of the planet correspondingly.
+
+`1` at the end of the `planetDistance1` means that this function uses not very precise method to do calculations. Sometimes there are `2`-methods available in the library, but not always.
+
+Let us do some planets-related calculations.
+
+Do some initialisation:
+
+```haskell
+import Data.Astro.Time.JulianDate
+import Data.Astro.Coordinate
+import Data.Astro.Types
+import Data.Astro.Effects
+import Data.Astro.CelestialObject.RiseSet
+import Data.Astro.Planet
+
+ro :: GeographicCoordinates
+ro = GeoC (fromDMS 51 28 40) (-(fromDMS 0 0 5))
+
+dt :: LocalCivilTime
+dt = lctFromYMDHMS (DH 1) 2017 6 25 10 29 0
+
+today :: LocalCivilDate
+today = lcdFromYMD (DH 1) 2017 6 25
+
+jupiterDetails :: PlanetDetails
+jupiterDetails = j2010PlanetDetails Jupiter
+
+earthDetails :: PlanetDetails
+earthDetails = j2010PlanetDetails Earth
+
+jupiterPosition :: JulianDate -> EquatorialCoordinates1
+jupiterPosition = planetPosition planetTrueAnomaly1 jupiterDetails earthDetails
+
+```
+
+Calculate Jupiter's coordinates:
+
+```haskell
+jupiterEC1 :: EquatorialCoordinates1
+jupiterEC1 = jupiterPosition (lctUniversalTime dt)
+-- EC1 {e1Declination = DD (-4.104626810672402), e1RightAscension = DH 12.863365504382228}
+
+jupiterEC2 :: EquatorialCoordinates2
+jupiterEC2 = EC2 (e1Declination jupiterEC1) (raToHA (e1RightAscension jupiterEC1) (geoLongitude ro) (lctUniversalTime dt))
+-- EC2 {e2Declination = DD (-4.104626810672402), e2HoursAngle = DH 14.86758882339355}
+
+jupiterHC :: HorizonCoordinates
+jupiterHC = equatorialToHorizon (geoLatitude ro) jupiterEC2
+-- HC {hAltitude = DD (-30.67914598469227), hAzimuth = DD 52.29376845044007}
+```
+
+As be can see Jupiter is below the horizon now (the altitude is negative), that's unfortunate.
+
+Now let us calculate distance to Jupiter:
+
+```haskell
+jupiterDistance :: AstronomicalUnits
+jupiterDistance = planetDistance1 jupiterDetails earthDetails (lctUniversalTime dt)
+-- AU 5.193435872521039
+```
+
+1 Astronomical Unit is an average distance from the Earth to the Sun.
+
+and calculate an angular size now:
+
+```haskell
+jupiterAngularSize :: DecimalDegrees
+jupiterAngularSize = planetAngularDiameter jupiterDetails jupiterDistance
+-- DD 1.052289877865987e-2
+
+toDMS jupiterAngularSize
+-- (0,0,37.88243560317554)
+```
+
+#### Rise and Set
+
+Calculate rise and set times of planets are not easy task, because planets change their equatorial coordinates during the day.
+
+`riseAndSet2` function of `Data.Astro.CelestialObject.RiseSet` module applies iterative approach: calculates rise and set date for midday coordinates and then recalculates rise time for rise coordinates and set for set coordinates obtained from the previous step:
+
+```haskell
+verticalShift :: DecimalDegrees
+verticalShift = refract (DD 0) 12 1012
+-- DD 0.5660098245614035
+
+jupiterRiseSet :: RiseSetMB
+jupiterRiseSet = riseAndSet2 0.000001 jupiterPosition ro verticalShift today
+-- RiseSet
+--    (Just (2017-06-25 13:53:27.3109 +1.0,DD 95.88943953535569))
+--    (Just (2017-06-25 01:21:23.5835 +1.0,DD 264.1289033612776))
+```
+
+We can see now why at 10 am Jupiter is below horizon because it will rise only at 1:53 pm.
