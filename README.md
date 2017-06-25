@@ -3,6 +3,7 @@
 [![Build Status](https://travis-ci.org/Alexander-Ignatyev/astro.svg?branch=master)](https://travis-ci.org/Alexander-Ignatyev/astro)
 [![Coverage Status](https://coveralls.io/repos/github/Alexander-Ignatyev/astro/badge.svg)](https://coveralls.io/github/Alexander-Ignatyev/astro)
 [![Documentation](https://img.shields.io/badge/mltool-documentation-blue.svg)](https://alexander-ignatyev.github.io/astro-docs/doc/index.html)
+[![Hackage](https://img.shields.io/hackage/v/astro.svg)](https://hackage.haskell.org/package/astro) 
 
 
 ## Usage
