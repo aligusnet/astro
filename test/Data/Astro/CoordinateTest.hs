@@ -17,10 +17,27 @@ import Test.QuickCheck
 import Control.Monad (unless)
 
 import Data.Astro.TypesTest (testDecimalDegrees, testDecimalHours)
-import Data.Astro.Time.JulianDate (JulianDate(..), LocalCivilTime(..), fromYMDHMS)
+import Data.Astro.Time.JulianDate (JulianDate(..), LocalCivilTime(..)
+                                  , fromYMDHMS, lctFromYMDHMS)
 import Data.Astro.Coordinate
 import Data.Astro.Types
 import Data.Astro.Utils (reduceToZeroRange)
+
+ro :: GeographicCoordinates
+ro = GeoC (fromDMS 51 28 40) (-(fromDMS 0 0 5))
+
+dt :: LocalCivilTime
+dt = lctFromYMDHMS (DH 1) 2017 6 25 10 29 0
+
+jd :: JulianDate
+jd = lctUniversalTime dt
+
+sunHC :: HorizonCoordinates
+sunHC = HC (fromDMS 49 18 21.77) (fromDMS 118 55 19.53)
+
+sunEC1 :: EquatorialCoordinates1
+sunEC1 = EC1 {e1Declination = DD 23.378295912623855, e1RightAscension = DH 6.29383725890224}
+
 
 tests = [testGroup "RA <-> HA" [
             testDecimalHours "RA 18.53 in 1980-04-22 18:36:51.67 to HA"
@@ -34,7 +51,7 @@ tests = [testGroup "RA <-> HA" [
              , testProperty "RA <-> HA property for Novosibirsk" $ prop_HARAConv (DD 83) (JD 2457607.97281)
              , testProperty "RA <-> HA property for Rio de Janeiro" $ prop_HARAConv (DD (-43)) (JD 2457607.97281)
              ]
-         , testGroup "EC <-> HC" [
+         , testGroup "EC2 <-> HC" [
              testHC "EC2 23.219 5.862 -> HC 19.334 283.271"
                  0.00000001
                  (HC (DD 19.334345224) (DD 283.27102726))
@@ -44,6 +61,10 @@ tests = [testGroup "RA <-> HA" [
                  (EC2 (DD 23.219444444) (DH 5.862222222222222))
                  (horizonToEquatorial (DD 52) (HC (DD 19.334345224) (DD 283.27102726)))
              , testProperty "property" prop_EC2HCConv
+             ]
+         , testGroup "EC1 <-> HC" [
+             testHC "sunEC1 -> sunHC" 0.00000001 sunHC (ec1ToHC ro jd sunEC1)
+             , testEC1 "sunHC -> sunEC1" 0.00000001 sunEC1 (hcToEC1 ro jd sunHC)
              ]
            , testGroup "obliquity" [
                testDecimalDegrees "2009-07-06"

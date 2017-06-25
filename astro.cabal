@@ -1,13 +1,13 @@
 name:                astro
-version:             0.4.0.0
+version:             0.4.1.0
 synopsis:            Astro
 description:         Please see README.md
-homepage:            https://bitbucket.org/alexander-ignatyev/astro
+homepage:            https://github.com/alexander-ignatyev/astro
 license:             BSD3
 license-file:        LICENSE
 author:              Alexander Ignatyev
 maintainer:          Alexander Ignatyev
-copyright:           2016 Alexander Ignatyev
+copyright:           2016-2017 Alexander Ignatyev
 category:            Science
 build-type:          Simple
 -- extra-source-files:

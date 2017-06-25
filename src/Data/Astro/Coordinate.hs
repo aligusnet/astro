@@ -104,6 +104,34 @@ sunHC' :: HorizonCoordinates
 sunHC' = equatorialToHorizon (geoLatitude ro) sunEC2'
 -- HC {hAltitude = DD 49.30604722222222, hAzimuth = DD 118.92209166666666}
 @
+
+=== /Function-shortcuts/
+
+@
+```haskell
+import Data.Astro.Time.JulianDate
+import Data.Astro.Coordinate
+import Data.Astro.Types
+
+ro :: GeographicCoordinates
+ro = GeoC (fromDMS 51 28 40) (-(fromDMS 0 0 5))
+
+dt :: LocalCivilTime
+dt = lctFromYMDHMS (DH 1) 2017 6 25 10 29 0
+
+sunHC :: HorizonCoordinates
+sunHC = HC (fromDMS 49 18 21.77) (fromDMS 118 55 19.53)
+-- HC {hAltitude = DD 49.30604722222222, hAzimuth = DD 118.92209166666666}
+
+sunEC1 :: EquatorialCoordinates1
+sunEC1 = hcToEC1 ro (lctUniversalTime dt) sunHC
+-- EC1 {e1Declination = DD 23.378295912623855, e1RightAscension = DH 6.29383725890224}
+
+sunHC' :: HorizonCoordinates
+sunHC' = ec1ToHC ro (lctUniversalTime dt) sunEC1
+-- HC {hAltitude = DD 49.30604722222222, hAzimuth = DD 118.92209166666666}
+```
+@
 -}
 
 module Data.Astro.Coordinate
@@ -119,6 +147,8 @@ module Data.Astro.Coordinate
   , haToRA
   , equatorialToHorizon
   , horizonToEquatorial
+  , ec1ToHC
+  , hcToEC1
   , ecHCConv
   , obliquity
   , eclipticToEquatorial
@@ -133,7 +163,10 @@ import Data.Astro.Time (utToLST)
 import Data.Astro.Time.JulianDate (JulianDate(..), numberOfCenturies, splitToDayAndTime)
 import Data.Astro.Time.Epoch (j2000)
 import Data.Astro.Time.Sidereal (LocalSiderealTime(..), lstToDH)
-import Data.Astro.Types (DecimalDegrees(..), DecimalHours(..), fromDecimalHours, toDecimalHours, toRadians, fromRadians, fromDMS)
+import Data.Astro.Types (DecimalDegrees(..), DecimalHours(..)
+                        , fromDecimalHours, toDecimalHours
+                        , toRadians, fromRadians, fromDMS
+                        , GeographicCoordinates(..))
 import Data.Astro.Utils (fromFixed)
 import Data.Astro.Effects.Nutation (nutationObliquity)
 
@@ -192,8 +225,10 @@ haRAConv dh longitude ut =
 
 
 -- | Convert Equatorial Coordinates to Horizon Coordinates.
--- It takes a latitude of the observer and 'EquatorialCoordinates2'. If you need to convert 'EquatorialCoordinates1'
--- you should use 'raToHa' function to obtain 'EquatorialCoordinates2'.
+-- It takes a latitude of the observer and 'EquatorialCoordinates2'.
+-- If you need to convert 'EquatorialCoordinates1'
+-- you may use 'raToHa' function to obtain 'EquatorialCoordinates2'
+-- or just use function-shortcut 'ec1ToHC' straightaway.
 -- The functions returns 'HorizonCoordinates'.
 equatorialToHorizon :: DecimalDegrees -> EquatorialCoordinates2 -> HorizonCoordinates
 equatorialToHorizon latitude (EC2 dec hourAngle) =
@@ -205,11 +240,30 @@ equatorialToHorizon latitude (EC2 dec hourAngle) =
 -- | Convert Horizon Coordinates to Equatorial Coordinates.
 -- It takes a latitude of the observer and 'HorizonCoordinates'.
 -- The functions returns 'EquatorialCoordinates2'.
--- If you need to obtain 'EquatorialCoordinates1' you should use 'haToRa' function.
+-- If you need to obtain 'EquatorialCoordinates1' you may use 'haToRa' function,
+-- or function-shortcut `hcToEC1`.
 horizonToEquatorial :: DecimalDegrees -> HorizonCoordinates -> EquatorialCoordinates2
 horizonToEquatorial latitude (HC altitude azimuth) =
   let (dec, hourAngle) = ecHCConv latitude (altitude, azimuth)
   in EC2 dec $ toDecimalHours hourAngle
+
+
+-- | Convert Equatorial Coordinates (Type 1) to Horizon Coordinates.
+-- This is function shortcut - tt combines `equatorialToHorizon` and `raToHA`.
+-- It takes geographic coordinates of the observer, universal time and equatorial coordinates.
+ec1ToHC :: GeographicCoordinates -> JulianDate -> EquatorialCoordinates1 -> HorizonCoordinates
+ec1ToHC (GeoC latitude longitude) jd (EC1 delta alpha) =
+  let ec2 = EC2 delta (raToHA alpha longitude jd)
+  in equatorialToHorizon latitude ec2
+
+
+-- | Convert Horizon Coordinates to Equatorial Coordinates (Type 1).
+-- This is function shortcut - tt combines `horizonToEquatorial` and `haToRA`.
+-- It takes geographic coordinates of the observer, universal time and horizon coordinates.
+hcToEC1 :: GeographicCoordinates -> JulianDate -> HorizonCoordinates -> EquatorialCoordinates1
+hcToEC1 (GeoC latitude longitude) jd hc =
+  let (EC2 dec hourAngle) = horizonToEquatorial latitude hc
+  in EC1 dec (haToRA hourAngle longitude jd)
 
 
 -- | Function converts Equatorial Coordinates To Horizon Coordinates and vice versa

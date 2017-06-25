@@ -42,12 +42,8 @@ jupiterEC1 :: EquatorialCoordinates1
 jupiterEC1 = jupiterPosition (lctUniversalTime dt)
 -- EC1 {e1Declination = DD (-4.104626810672402), e1RightAscension = DH 12.863365504382228}
 
-jupiterEC2 :: EquatorialCoordinates2
-jupiterEC2 = EC2 (e1Declination jupiterEC1) (raToHA (e1RightAscension jupiterEC1) (geoLongitude ro) (lctUniversalTime dt))
--- EC2 {e2Declination = DD (-4.104626810672402), e2HoursAngle = DH 14.86758882339355}
-
 jupiterHC :: HorizonCoordinates
-jupiterHC = equatorialToHorizon (geoLatitude ro) jupiterEC2
+jupiterHC = ec1ToHC ro (lctUniversalTime dt) jupiterEC1
 -- HC {hAltitude = DD (-30.67914598469227), hAzimuth = DD 52.29376845044007}
 @
 

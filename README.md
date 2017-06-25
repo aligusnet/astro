@@ -182,6 +182,32 @@ sunHC' = equatorialToHorizon (geoLatitude ro) sunEC2'
 -- HC {hAltitude = DD 49.30604722222222, hAzimuth = DD 118.92209166666666}
 ```
 
+You can use function-shortcuts to simplify transformation EquatorialCoordinates1 <-> HorizonCoordinates: `ec1ToHC` and `hcToEC1`:
+
+```haskell
+import Data.Astro.Time.JulianDate
+import Data.Astro.Coordinate
+import Data.Astro.Types
+
+ro :: GeographicCoordinates
+ro = GeoC (fromDMS 51 28 40) (-(fromDMS 0 0 5))
+
+dt :: LocalCivilTime
+dt = lctFromYMDHMS (DH 1) 2017 6 25 10 29 0
+
+sunHC :: HorizonCoordinates
+sunHC = HC (fromDMS 49 18 21.77) (fromDMS 118 55 19.53)
+-- HC {hAltitude = DD 49.30604722222222, hAzimuth = DD 118.92209166666666}
+
+sunEC1 :: EquatorialCoordinates1
+sunEC1 = hcToEC1 ro (lctUniversalTime dt) sunHC
+-- EC1 {e1Declination = DD 23.378295912623855, e1RightAscension = DH 6.29383725890224}
+
+sunHC' :: HorizonCoordinates
+sunHC' = ec1ToHC ro (lctUniversalTime dt) sunEC1
+-- HC {hAltitude = DD 49.30604722222222, hAzimuth = DD 118.92209166666666}
+```
+
 ### Stars
 
 The ancient astronomers noted that there were 2 types of stars: some of them were fixed, travelling the same way across the sky every sidereal day and another were wanderers (planetai in ancient Greek).
@@ -211,12 +237,8 @@ betelgeuseEC1 :: EquatorialCoordinates1
 betelgeuseEC1 = starCoordinates Betelgeuse
 -- EC1 {e1Declination = DD 7.407064, e1RightAscension = DH 5.919529}
 
-betelgeuseEC2 :: EquatorialCoordinates2
-betelgeuseEC2 = EC2 (e1Declination betelgeuseEC1) (raToHA (e1RightAscension betelgeuseEC1) (geoLongitude ro) (lctUniversalTime dt))
--- EC2 {e2Declination = DD 7.407064, e2HoursAngle = DH 21.811425}
-
 betelgeuseHC :: HorizonCoordinates
-betelgeuseHC = equatorialToHorizon (geoLatitude ro) betelgeuseEC2
+betelgeuseHC = ec1ToHC ro (lctUniversalTime dt) betelgeuseEC1
 -- HC {hAltitude = DD 38.30483892505852, hAzimuth = DD 136.75755644642248}
 ```
 
@@ -309,12 +331,8 @@ jupiterEC1 :: EquatorialCoordinates1
 jupiterEC1 = jupiterPosition (lctUniversalTime dt)
 -- EC1 {e1Declination = DD (-4.104626810672402), e1RightAscension = DH 12.863365504382228}
 
-jupiterEC2 :: EquatorialCoordinates2
-jupiterEC2 = EC2 (e1Declination jupiterEC1) (raToHA (e1RightAscension jupiterEC1) (geoLongitude ro) (lctUniversalTime dt))
--- EC2 {e2Declination = DD (-4.104626810672402), e2HoursAngle = DH 14.86758882339355}
-
 jupiterHC :: HorizonCoordinates
-jupiterHC = equatorialToHorizon (geoLatitude ro) jupiterEC2
+jupiterHC = ec1ToHC ro (lctUniversalTime dt) jupiterEC1
 -- HC {hAltitude = DD (-30.67914598469227), hAzimuth = DD 52.29376845044007}
 ```
 
@@ -402,12 +420,8 @@ ec1 :: EquatorialCoordinates1
 ec1 = sunPosition2 jd
 -- EC1 {e1Declination = DD 23.37339098989099, e1RightAscension = DH 6.29262026252748}
 
-ec2 :: EquatorialCoordinates2
-ec2 = EC2 (e1Declination ec1) (raToHA (e1RightAscension ec1) (geoLongitude ro) jd)
--- EC2 {e2Declination = DD 23.37339098989099, e2HoursAngle = DH 21.4383340652483}
-
 hc :: HorizonCoordinates
-hc = equatorialToHorizon (geoLatitude ro) ec2
+hc = ec1ToHC ro jd ec1
 -- HC {hAltitude = DD 49.312050979507404, hAzimuth = DD 118.94723825710143}
 
 
@@ -467,12 +481,8 @@ ec1 :: EquatorialCoordinates1
 ec1 = position jd
 -- EC1 {e1Declination = DD 18.706180658927323, e1RightAscension = DH 7.56710547682055}
 
-ec2 :: EquatorialCoordinates2
-ec2 = EC2 (e1Declination ec1) (raToHA (e1RightAscension ec1) (geoLongitude ro) jd)
--- EC2 {e2Declination = DD 18.706180658927323, e2HoursAngle = DH 20.16384885095523}
-
 hc :: HorizonCoordinates
-hc = equatorialToHorizon (geoLatitude ro) ec2
+hc = ec1ToHC ro jd ec1
 -- HC {hAltitude = DD 34.57694951316064, hAzimuth = DD 103.91119101451832}
 
 -- Rise and Set

@@ -28,12 +28,8 @@ betelgeuseEC1 :: EquatorialCoordinates1
 betelgeuseEC1 = starCoordinates Betelgeuse
 -- EC1 {e1Declination = DD 7.407064, e1RightAscension = DH 5.919529}
 
-betelgeuseEC2 :: EquatorialCoordinates2
-betelgeuseEC2 = EC2 (e1Declination betelgeuseEC1) (raToHA (e1RightAscension betelgeuseEC1) (geoLongitude ro) (lctUniversalTime dt))
--- EC2 {e2Declination = DD 7.407064, e2HoursAngle = DH 21.811425}
-
 betelgeuseHC :: HorizonCoordinates
-betelgeuseHC = equatorialToHorizon (geoLatitude ro) betelgeuseEC2
+betelgeuseHC = ec1ToHC ro (lctUniversalTime dt) betelgeuseEC1
 -- HC {hAltitude = DD 38.30483892505852, hAzimuth = DD 136.75755644642248}
 @
 

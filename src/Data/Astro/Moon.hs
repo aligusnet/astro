@@ -49,12 +49,8 @@ ec1 :: EquatorialCoordinates1
 ec1 = position jd
 -- EC1 {e1Declination = DD 18.706180658927323, e1RightAscension = DH 7.56710547682055}
 
-ec2 :: EquatorialCoordinates2
-ec2 = EC2 (e1Declination ec1) (raToHA (e1RightAscension ec1) (geoLongitude ro) jd)
--- EC2 {e2Declination = DD 18.706180658927323, e2HoursAngle = DH 20.16384885095523}
-
 hc :: HorizonCoordinates
-hc = equatorialToHorizon (geoLatitude ro) ec2
+hc = ec1ToHC ro jd ec1
 -- HC {hAltitude = DD 34.57694951316064, hAzimuth = DD 103.91119101451832}
 
 -- Rise and Set
