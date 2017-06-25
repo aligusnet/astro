@@ -150,6 +150,7 @@ Say, now is 2017-06-25 10:29 BST and we are somewhere near the Royal Observatory
 Let convert the current location of the Sun in horizon coordinates (altitude: 49°18′21.77″, azimuth: 118°55′19.53″) to equatorial coordinates and back to horizon ones:
 
 ```haskell
+import Data.Astro.Time.JulianDate
 import Data.Astro.Coordinate
 import Data.Astro.Types
 
@@ -192,6 +193,7 @@ Given the "fixed" equatorial coordinates of the star we only need to transform t
 In the example below we will use `Data.Astro.Star` module which defines equatorial coordinates of some stars:
 
 ```haskell
+import Data.Astro.Time.JulianDate
 import Data.Astro.Coordinate
 import Data.Astro.Types
 import Data.Astro.Star
@@ -217,3 +219,41 @@ betelgeuseHC :: HorizonCoordinates
 betelgeuseHC = equatorialToHorizon (geoLatitude ro) betelgeuseEC2
 -- HC {hAltitude = DD 38.30483892505852, hAzimuth = DD 136.75755644642248}
 ```
+
+#### Rise and Set
+
+`Data.Astro.CelestialObject.RiseSet` module defines `RiseSet` type to represent time and azimuth of rise and set.
+
+Let calculate rise and set time of Rigel:
+
+```haskell
+import Data.Astro.Time.JulianDate
+import Data.Astro.Coordinate
+import Data.Astro.Types
+import Data.Astro.Star
+import Data.Astro.Effects
+
+
+ro :: GeographicCoordinates
+ro = GeoC (fromDMS 51 28 40) (-(fromDMS 0 0 5))
+
+today :: LocalCivilDate
+today = lcdFromYMD (DH 1) 2017 6 25
+
+-- Calculate location of Betelgeuse
+
+rigelEC1 :: EquatorialCoordinates1
+rigelEC1 = starCoordinates Rigel
+
+verticalShift :: DecimalDegrees
+verticalShift = refract (DD 0) 12 1012
+-- DD 0.5660098245614035
+
+rigelRiseSet :: RiseSetLCT
+rigelRiseSet = riseAndSetLCT ro today verticalShift rigelEC1
+-- RiseSet (2017-06-25 06:38:18.4713 +1.0,DD 102.51249855335433) (2017-06-25 17:20:33.4902 +1.0,DD 257.48750144664564)
+```
+
+As we can see Rigel rose today at 06:38:18 and will set at 17:20:33, azimuths of rise and set 102.51° and 257.49° correspondingly.
+
+We used `refract` function of `Data.Astro.Effects` module with reasonable default parameters to calculate vertical shift.
