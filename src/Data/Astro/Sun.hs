@@ -3,9 +3,9 @@ Module: Data.Astro.Sun
 Description: Calculation characteristics of the Sun
 Copyright: Alexander Ignatyev, 2016
 
-== Calculation characteristics of the Sun.
+= Calculation characteristics of the Sun.
 
-=== /Terms/
+== /Terms/
 
 * __perihelion__ - minimal distance from the Sun to the planet
 * __aphelion__ - maximal distance from the Sun to the planet
@@ -13,6 +13,61 @@ Copyright: Alexander Ignatyev, 2016
 * __perigee__ - minimal distance from the Sun to the Earth
 * __apogee__ - maximal distance from the Sun to the Earth
 
+
+= Example
+
+@
+import Data.Astro.Time.JulianDate
+import Data.Astro.Coordinate
+import Data.Astro.Types
+import Data.Astro.Sun
+
+ro :: GeographicCoordinates
+ro = GeoC (fromDMS 51 28 40) (-(fromDMS 0 0 5))
+
+dt :: LocalCivilTime
+dt = lctFromYMDHMS (DH 1) 2017 6 25 10 29 0
+
+today :: LocalCivilDate
+today = lcdFromYMD (DH 1) 2017 6 25
+
+jd :: JulianDate
+jd = lctUniversalTime dt
+
+verticalShift :: DecimalDegrees
+verticalShift = refract (DD 0) 12 1012
+
+-- distance from the Earth to the Sun in kilometres
+distance :: Double
+distance = sunDistance jd
+-- 1.5206375976421073e8
+
+-- Angular Size
+angularSize :: DecimalDegrees
+angularSize = sunAngularSize jd
+-- DD 0.5244849215333616
+
+-- The Sun's coordinates
+ec1 :: EquatorialCoordinates1
+ec1 = sunPosition2 jd
+-- EC1 {e1Declination = DD 23.37339098989099, e1RightAscension = DH 6.29262026252748}
+
+ec2 :: EquatorialCoordinates2
+ec2 = EC2 (e1Declination ec1) (raToHA (e1RightAscension ec1) (geoLongitude ro) jd)
+-- EC2 {e2Declination = DD 23.37339098989099, e2HoursAngle = DH 21.4383340652483}
+
+hc :: HorizonCoordinates
+hc = equatorialToHorizon (geoLatitude ro) ec2
+-- HC {hAltitude = DD 49.312050979507404, hAzimuth = DD 118.94723825710143}
+
+
+-- Rise and Set
+riseSet :: RiseSetMB
+riseSet = sunRiseAndSet ro 0.833333 today
+-- RiseSet
+--    (Just (2017-06-25 04:44:04.3304 +1.0,DD 49.043237261724215))
+--    (Just (2017-06-25 21:21:14.4565 +1.0,DD 310.91655607595595))
+@
 -}
 
 module Data.Astro.Sun
@@ -199,4 +254,3 @@ solarElongation (EC1 deltaP alphaP) jd =
       alphaS' = toRadians $ fromDecimalHours alphaS
       eps = acos $ (sin deltaP')*(sin deltaS') + (cos $ alphaP' - alphaS')*(cos deltaP')*(cos deltaS')
   in fromRadians eps
-

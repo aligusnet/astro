@@ -44,6 +44,66 @@ Accoring to the ecliptic coordinates system the Sun moves eastwards along the tr
 * __obliquity of the ecliptic, &#x3B2;__ - the angle between the plane of the Earth's equator and the ecliptic
 * __north selestial pole, P__ - the point on the selestial sphere, right above the Earth's North Pole
 
+
+= Examples
+
+== /Horizontal Coordinate System/
+@
+import Data.Astro.Coordinate
+import Data.Astro.Types
+
+hc :: HorizonCoordinates
+hc = HC (DD 30.5) (DD 180)
+-- HC {hAltitude = DD 30.0, hAzimuth = DD 180.0}
+@
+
+== /Equatorial Coordinate System/
+@
+import Data.Astro.Coordinate
+import Data.Astro.Types
+
+ec1 :: EquatorialCoordinates1
+ec1 = EC1 (DD 71.7) (DH 8)
+-- EC1 {e1Declination = DD 71.7, e1RightAscension = DH 8.0}
+
+ec2 :: EquatorialCoordinates2
+ec2 = EC1 (DD 77.7) (DH 11)
+-- EC2 {e2Declination = DD 77.7, e2HoursAngle = DH 11.0}
+@
+
+== /Transformations/
+@
+import Data.Astro.Time.JulianDate
+import Data.Astro.Coordinate
+import Data.Astro.Types
+
+ro :: GeographicCoordinates
+ro = GeoC (fromDMS 51 28 40) (-(fromDMS 0 0 5))
+
+dt :: LocalCivilTime
+dt = lctFromYMDHMS (DH 1) 2017 6 25 10 29 0
+
+sunHC :: HorizonCoordinates
+sunHC = HC (fromDMS 49 18 21.77) (fromDMS 118 55 19.53)
+-- HC {hAltitude = DD 49.30604722222222, hAzimuth = DD 118.92209166666666}
+
+sunEC2 :: EquatorialCoordinates2
+sunEC2 = horizonToEquatorial (geoLatitude ro) sunHC
+-- EC2 {e2Declination = DD 23.378295912623855, e2HoursAngle = DH 21.437117068873537}
+
+sunEC1 :: EquatorialCoordinates1
+sunEC1 = EC1 (e2Declination sunEC2) (haToRA (e2HoursAngle sunEC2) (geoLongitude ro) (lctUniversalTime dt))
+-- EC1 {e1Declination = DD 23.378295912623855, e1RightAscension = DH 6.29383725890224}
+
+
+sunEC2' :: EquatorialCoordinates2
+sunEC2' = EC2 (e1Declination sunEC1) (raToHA (e1RightAscension sunEC1) (geoLongitude ro) (lctUniversalTime dt))
+-- EC2 {e2Declination = DD 23.378295912623855, e2HoursAngle = DH 21.437117068873537}
+
+sunHC' :: HorizonCoordinates
+sunHC' = equatorialToHorizon (geoLatitude ro) sunEC2'
+-- HC {hAltitude = DD 49.30604722222222, hAzimuth = DD 118.92209166666666}
+@
 -}
 
 module Data.Astro.Coordinate
@@ -189,7 +249,7 @@ eclipticToEquatorial (EcC beta gamma) jd =
   in EC1 (fromRadians delta) (toDecimalHours $ fromRadians alpha)
 
 
--- | Converts Equatorial Coordinates to Ecliptic Coordinates on specified Julian Date 
+-- | Converts Equatorial Coordinates to Ecliptic Coordinates on specified Julian Date
 equatorialToEcliptic :: EquatorialCoordinates1 -> JulianDate -> EclipticCoordinates
 equatorialToEcliptic (EC1 delta alpha) jd =
   let epsilon' = toRadians $ obliquity jd

@@ -6,6 +6,49 @@ Copyright: Alexander Ignatyev, 2016
 
 Julian date is the continuous count of days since noon on January 1, 4713 BC,
 the beginning of the Julian Period.
+
+= Examples
+
+== /JulianDate/
+@
+import Data.Astro.Time.JulianDate
+
+-- 2017-06-25 9:29:00 (GMT)
+jd :: JulianDate
+jd = fromYMDHMS 2017 6 25 9 29 0
+-- JD 2457929.895138889
+@
+
+== /LocalCiviTime and LocalCivilDate/
+
+@
+import Data.Astro.Time.JulianDate
+import Data.Astro.Types
+
+-- 2017-06-25 10:29:00 +0100 (BST)
+lct :: LocalCivilTime
+lct = lctFromYMDHMS (DH 1) 2017 6 25 10 29 0
+-- 2017-06-25 10:29:00.0000 +1.0
+
+lctJD :: JulianDate
+lctJD = lctUniversalTime lct
+-- JD 2457929.895138889
+
+lctTZ :: DecimalHours
+lctTZ = lctTimeZone lct
+-- DH 1.0
+
+lcd :: LocalCivilDate
+lcd = lcdFromYMD (DH 1) 2017 6 25
+
+lcdJD :: JulianDate
+lcdJD = lcdDate lcd
+-- JD 2457929.5
+
+lcdTZ :: DecimalHours
+lcdTZ = lcdTimeZone lcd
+-- DH 1.0
+@
 -}
 
 module Data.Astro.Time.JulianDate
@@ -173,7 +216,7 @@ lctFromYMDHMS tz y m d hs ms ss =
 
 -- | Get from LocalCivilTime local year, local month, local day, local hours, local minutes and local secunds.
 lctToYMDHMS :: LocalCivilTime -> (Integer, Int, Int, Int, Int, TimeBaseType)
-lctToYMDHMS (LCT tz jd)= toYMDHMS (addHours tz jd) 
+lctToYMDHMS (LCT tz jd)= toYMDHMS (addHours tz jd)
 
 
 -- Create LocalCivilDate from time zone, local year, local month, local day

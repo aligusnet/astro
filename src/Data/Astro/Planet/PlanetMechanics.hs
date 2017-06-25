@@ -103,7 +103,7 @@ planetProjectedLongitude pd hcl =
 
 
 -- | Calculate Heliocentric Radius Vector projected to the ecliptic.
--- It takes Planet Details, planetHeliocentric latitude and Radius Vector 
+-- It takes Planet Details, planetHeliocentric latitude and Radius Vector
 planetProjectedRadiusVector :: PlanetDetails -> DecimalDegrees -> AstronomicalUnits -> AstronomicalUnits
 planetProjectedRadiusVector pd psi (AU hcr) = AU $ hcr*cos(toRadians psi)
 
@@ -143,7 +143,7 @@ planetEclipticLongitude pd
 -- It takes the planet's: heliocentric latitude, projected heliocentric longutide,
 -- projected heliocentric longitude;
 -- the Earth's: heliocentric longitede and heliocentric radius vector.
--- Also it takes the planet's ecliptic longitude. 
+-- Also it takes the planet's ecliptic longitude.
 planetEclipticLatitude :: DecimalDegrees
                           -> DecimalDegrees
                           -> AstronomicalUnits
@@ -204,7 +204,7 @@ planetDistance1 pd ed jd =
     in AU ro
 
 
--- | Calculates the planet's angulat diameter for the given distance.
+-- | Calculates the planet's angular diameter for the given distance.
 planetAngularDiameter :: PlanetDetails -> AstronomicalUnits -> DecimalDegrees
 planetAngularDiameter pd (AU ro) = (pdBigTheta pd)/(DD ro)
 
@@ -226,7 +226,7 @@ planetPhase1 pd ed jd =
       nue = planetTrueAnomaly1 ed jd
       le = planetHeliocentricLongitude ed nue
       re = planetHeliocentricRadiusVector ed nue
-      
+
       lambda = planetEclipticLongitude pd lp' rp' le re
       d = toRadians $ lambda - lp
     in (1+ (cos d)) * 0.5

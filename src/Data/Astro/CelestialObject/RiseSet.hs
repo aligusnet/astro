@@ -4,6 +4,16 @@ Description: Computations rise and set of selestial objects
 Copyright: Alexander Ignatyev, 2016
 
 Computations rise and set of selestial objects.
+
+= Examples
+
+== /Stars/
+
+See "Data.Astro.Star" module for example.
+
+== /Planets/
+
+See "Data.Astro.Planet" module for example.
 -}
 
 module Data.Astro.CelestialObject.RiseSet
@@ -143,7 +153,7 @@ riseAndSet2 eps getPosition geoc shift lcd =
         buildResult (RiseSet r _) (RiseSet _ s) = RiseSet (Just r) (Just s)
         buildResult (RiseSet r _) _ = RiseSet (Just r) Nothing
         buildResult _ (RiseSet _ s) = RiseSet Nothing (Just s)
-        
+
 
 
 -- | Calculates set and rise of the celestial object

@@ -3,7 +3,42 @@ Module: Data.Astro.Types
 Description: Common Types
 Copyright: Alexander Ignatyev, 2016
 
-Common Types are usfull across all subsystems like Time and Coordinate
+Common Types are usfull across all subsystems like Time and Coordinate.
+
+= Examples
+
+== /Decimal hours and Decimal degrees/
+
+@
+import Data.Astro.Types
+
+-- 10h 15m 19.7s
+dh :: DecimalHours
+dh = fromHMS 10 15 19.7
+-- DH 10.255472222222222
+
+(h, m, s) = toHMS dh
+-- (10,15,19.699999999999562)
+
+
+-- 51°28′40″
+dd :: DecimalDegrees
+dd = fromDMS 51 28 40
+-- DD 51.477777777777774
+
+(d, m, s) = toDMS dd
+-- (51,28,39.999999999987494)
+@
+
+== /Geographic Coordinates/
+@
+import Data.Astro.Types
+
+-- the Royal Observatory, Greenwich
+ro :: GeographicCoordinates
+ro = GeoC (fromDMS 51 28 40) (-(fromDMS 0 0 5))
+-- GeoC {geoLatitude = DD 51.4778, geoLongitude = DD (-0.0014)}
+@
 -}
 
 module Data.Astro.Types
@@ -170,4 +205,3 @@ toHMS (DH dh) =
       (m, rs) = properFraction $ 60 * rm
       s = 60 * rs
   in (h, m, s)
-

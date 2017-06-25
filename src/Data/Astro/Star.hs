@@ -4,6 +4,69 @@ Description: Stars
 Copyright: Alexander Ignatyev, 2017
 
 Stars.
+
+= Examples
+
+== /Location/
+
+@
+import Data.Astro.Time.JulianDate
+import Data.Astro.Coordinate
+import Data.Astro.Types
+import Data.Astro.Star
+
+
+ro :: GeographicCoordinates
+ro = GeoC (fromDMS 51 28 40) (-(fromDMS 0 0 5))
+
+dt :: LocalCivilTime
+dt = lctFromYMDHMS (DH 1) 2017 6 25 10 29 0
+
+-- Calculate location of Betelgeuse
+
+betelgeuseEC1 :: EquatorialCoordinates1
+betelgeuseEC1 = starCoordinates Betelgeuse
+-- EC1 {e1Declination = DD 7.407064, e1RightAscension = DH 5.919529}
+
+betelgeuseEC2 :: EquatorialCoordinates2
+betelgeuseEC2 = EC2 (e1Declination betelgeuseEC1) (raToHA (e1RightAscension betelgeuseEC1) (geoLongitude ro) (lctUniversalTime dt))
+-- EC2 {e2Declination = DD 7.407064, e2HoursAngle = DH 21.811425}
+
+betelgeuseHC :: HorizonCoordinates
+betelgeuseHC = equatorialToHorizon (geoLatitude ro) betelgeuseEC2
+-- HC {hAltitude = DD 38.30483892505852, hAzimuth = DD 136.75755644642248}
+@
+
+== /Rise and Set/
+
+@
+import Data.Astro.Time.JulianDate
+import Data.Astro.Coordinate
+import Data.Astro.Types
+import Data.Astro.Effects
+import Data.Astro.CelestialObject.RiseSet
+import Data.Astro.Star
+
+
+ro :: GeographicCoordinates
+ro = GeoC (fromDMS 51 28 40) (-(fromDMS 0 0 5))
+
+today :: LocalCivilDate
+today = lcdFromYMD (DH 1) 2017 6 25
+
+-- Calculate location of Betelgeuse
+
+rigelEC1 :: EquatorialCoordinates1
+rigelEC1 = starCoordinates Rigel
+
+verticalShift :: DecimalDegrees
+verticalShift = refract (DD 0) 12 1012
+-- DD 0.5660098245614035
+
+rigelRiseSet :: RiseSetLCT
+rigelRiseSet = riseAndSetLCT ro today verticalShift rigelEC1
+-- RiseSet (2017-06-25 06:38:18.4713 +1.0,DD 102.51249855335433) (2017-06-25 17:20:33.4902 +1.0,DD 257.48750144664564)
+@
 -}
 
 
@@ -32,7 +95,7 @@ data Star = Polaris
               deriving (Show, Eq)
 
 
--- | Returns Equatorial Coordinates for the given star 
+-- | Returns Equatorial Coordinates for the given star
 starCoordinates :: Star -> EquatorialCoordinates1
 starCoordinates Polaris = EC1 (fromDMS 89 15 51) (fromHMS 2 31 48.7)
 starCoordinates AlphaCrucis = EC1 (-(fromDMS 63 5 56.73)) (fromHMS 12 26 35.9)
@@ -43,4 +106,3 @@ starCoordinates Vega = EC1 (fromDMS 38 47 01.2802) (fromHMS 18 36 56.33635)
 starCoordinates Antares = EC1 (-(fromDMS 26 25 55.2094)) (fromHMS 16 29 24.45970)
 starCoordinates Canopus = EC1 (-(fromDMS 52 41 44.3810)) (fromHMS 6 23 57.10988)
 starCoordinates Pleiades = EC1 (fromDMS 24 7 00) (fromHMS 3 47 24)
-

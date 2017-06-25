@@ -5,6 +5,79 @@ Copyright: Alexander Ignatyev, 2016
 
 Calculation characteristics of the Moon.
 
+= Example
+
+@
+import Data.Astro.Time.JulianDate
+import Data.Astro.Coordinate
+import Data.Astro.Types
+import Data.Astro.Effects
+import Data.Astro.CelestialObject.RiseSet
+import Data.Astro.Moon
+
+ro :: GeographicCoordinates
+ro = GeoC (fromDMS 51 28 40) (-(fromDMS 0 0 5))
+
+dt :: LocalCivilTime
+dt = lctFromYMDHMS (DH 1) 2017 6 25 10 29 0
+
+today :: LocalCivilDate
+today = lcdFromYMD (DH 1) 2017 6 25
+
+jd :: JulianDate
+jd = lctUniversalTime dt
+
+-- distance from the Earth to the Moon in kilometres
+mdu :: MoonDistanceUnits
+mdu = moonDistance1 j2010MoonDetails jd
+-- MDU 0.9550170577020396
+
+distance :: Double
+distance = mduToKm mdu
+-- 367109.51199772174
+
+-- Angular Size
+angularSize :: DecimalDegrees
+angularSize = moonAngularSize mdu
+-- DD 0.5425033990980761
+
+-- The Moon's coordinates
+position :: JulianDate -> EquatorialCoordinates1
+position = moonPosition1 j2010MoonDetails
+
+ec1 :: EquatorialCoordinates1
+ec1 = position jd
+-- EC1 {e1Declination = DD 18.706180658927323, e1RightAscension = DH 7.56710547682055}
+
+ec2 :: EquatorialCoordinates2
+ec2 = EC2 (e1Declination ec1) (raToHA (e1RightAscension ec1) (geoLongitude ro) jd)
+-- EC2 {e2Declination = DD 18.706180658927323, e2HoursAngle = DH 20.16384885095523}
+
+hc :: HorizonCoordinates
+hc = equatorialToHorizon (geoLatitude ro) ec2
+-- HC {hAltitude = DD 34.57694951316064, hAzimuth = DD 103.91119101451832}
+
+-- Rise and Set
+riseSet :: RiseSetMB
+riseSet = riseAndSet2 0.000001 position ro verticalShift today
+-- RiseSet
+--    (Just (2017-06-25 06:22:51.4858 +1.0,DD 57.81458864497365))
+--    (Just (2017-06-25 22:28:20.3023 +1.0,DD 300.4168238905249))
+
+-- Phase
+phase :: Double
+phase = moonPhase j2010MoonDetails jd
+-- 2.4716141948212922e-2
+
+
+sunEC1 :: EquatorialCoordinates1
+sunEC1 = sunPosition2 jd
+-- EC1 {e1Declination = DD 23.37339098989099, e1RightAscension = DH 6.29262026252748}
+
+limbAngle :: DecimalDegrees
+limbAngle = moonBrightLimbPositionAngle ec1 sunEC1
+-- DD 287.9869373767473
+@
 -}
 
 module Data.Astro.Moon
