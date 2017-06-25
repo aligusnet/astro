@@ -108,7 +108,6 @@ sunHC' = equatorialToHorizon (geoLatitude ro) sunEC2'
 === /Function-shortcuts/
 
 @
-```haskell
 import Data.Astro.Time.JulianDate
 import Data.Astro.Coordinate
 import Data.Astro.Types
@@ -130,7 +129,6 @@ sunEC1 = hcToEC1 ro (lctUniversalTime dt) sunHC
 sunHC' :: HorizonCoordinates
 sunHC' = ec1ToHC ro (lctUniversalTime dt) sunEC1
 -- HC {hAltitude = DD 49.30604722222222, hAzimuth = DD 118.92209166666666}
-```
 @
 -}
 
