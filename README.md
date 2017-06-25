@@ -105,7 +105,7 @@ The celestical coordinate systems are defined in `Data.Astro.Coordinate`.
 
 If you would like to locate Sirius in the sky you need to know the altitude or 'how far up' angle in the sky and azimuth - 'how far round' angle from the north direction to the east. this describes the __Horizontal coordinate system__:
 
-![alt Horizontal coordinate system](hcs.svg "Horizontal coordinate system")
+![alt Horizontal coordinate system](https://upload.wikimedia.org/wikipedia/commons/f/f7/Azimuth-Altitude_schematic.svg "Horizontal coordinate system")
 
 
 ```haskell
