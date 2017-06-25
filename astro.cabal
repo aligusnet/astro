@@ -1,5 +1,5 @@
 name:                astro
-version:             0.4.1.0
+version:             0.4.1.1
 synopsis:            Astro
 description:         Please see README.md
 homepage:            https://github.com/alexander-ignatyev/astro
@@ -12,6 +12,7 @@ category:            Science
 build-type:          Simple
 -- extra-source-files:
 cabal-version:       >=1.10
+extra-source-files:  README.md
 
 library
   hs-source-dirs:      src
