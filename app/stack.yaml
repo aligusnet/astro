@@ -3,7 +3,7 @@ resolver: lts-8.17
 packages:
 - '.'
 
-extra-deps: [astro-0.4.1.1]
+extra-deps: [astro-0.4.1.2]
 
 flags: {}
 
