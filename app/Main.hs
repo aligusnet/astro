@@ -14,7 +14,7 @@ import Data.Monoid((<>))
 import Data.Astro.Time.JulianDate
 import Data.Astro.Time.Conv (zonedTimeToLCT, zonedTimeToLCD, lctToZonedTime)
 
-import Data.Astro.Effects (refract)
+import Data.Astro.Effects (refract, parallax)
 import Data.Astro.CelestialObject.RiseSet(riseAndSetLCT, riseAndSet2, RiseSetMB(..), RiseSetLCT(..))
 
 import Data.Astro.Sun
@@ -66,24 +66,36 @@ calculateSunResult params = PR {
         hcPosition = toHorizonCoordinatesResult coords jd ec1
 
 
+kmToAU :: Double -> AstronomicalUnits
+kmToAU km = AU (km / 149597870.700)
+
+
+moonPosition :: Double -> GeographicCoordinates -> JulianDate -> EquatorialCoordinates1
+moonPosition distance coords jd =
+  let p = moonPosition1 j2010MoonDetails jd
+  in parallax coords 20 (kmToAU distance) jd p
+
+
 calculateMoonResult :: Params -> PlanetaiResult
 calculateMoonResult params = PR {
   riseSet = riseSet
   , distance = DR distance "km"
-  , angularSize = angularSize
+  , angularSize = angularSize'
   , position = hcPosition
   }
-  where position = moonPosition1 j2010MoonDetails
-        coords = paramsCoordinates params
-        verticalShift = refract (DD 0) 12 1012
+  where coords = paramsCoordinates params
         date = paramsDate params
         lct = paramsDateTime params
         jd = lctUniversalTime lct
-        rs = riseAndSet2 0.000001 position coords verticalShift date
-        riseSet = toRiseSetResult rs
         mdu = moonDistance1 j2010MoonDetails jd
         distance = mduToKm mdu
-        DD angularSize = moonAngularSize mdu
+        angularSize = moonAngularSize mdu
+        DD angularSize' = angularSize
+        refractShift = refract (DD 0) 12 1012
+        verticalShift = refractShift + (0.5 * angularSize)
+        position = moonPosition distance coords
+        rs = riseAndSet2 0.000001 position coords verticalShift date
+        riseSet = toRiseSetResult rs
         ec1 = position jd
         hcPosition = toHorizonCoordinatesResult coords jd ec1
 
