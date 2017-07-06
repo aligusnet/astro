@@ -79,6 +79,7 @@ limbAngle = moonBrightLimbPositionAngle ec1 sunEC1
 module Data.Astro.Moon
 (
   moonPosition1
+  , moonPosition2
   , moonDistance1
   , moonAngularSize
   , moonHorizontalParallax
@@ -89,12 +90,13 @@ module Data.Astro.Moon
 where
 
 import qualified Data.Astro.Utils as U
-import Data.Astro.Types (DecimalDegrees(..), toRadians, fromRadians)
+import Data.Astro.Types (DecimalDegrees(..), GeographicCoordinates, toRadians, fromRadians, kmToAU)
 import Data.Astro.Time.JulianDate (JulianDate(..), numberOfDays)
 import Data.Astro.Coordinate (EquatorialCoordinates1(..), EclipticCoordinates(..), eclipticToEquatorial)
 import Data.Astro.Planet (planetBrightLimbPositionAngle)
 import Data.Astro.Sun (sunDetails, sunMeanAnomaly2, sunEclipticLongitude2)
-import Data.Astro.Moon.MoonDetails (MoonDetails(..), MoonDistanceUnits(..), j2010MoonDetails)
+import Data.Astro.Moon.MoonDetails (MoonDetails(..), MoonDistanceUnits(..), j2010MoonDetails, mduToKm)
+import Data.Astro.Effects (parallax)
 
 
 -- | Reduce the value to the range [0, 360)
@@ -119,6 +121,19 @@ moonPosition1 md ut =
       lambdaM = at + nm'
       betaM = fromRadians $ asin $ (sin a) * (sin i)
   in eclipticToEquatorial (EcC betaM lambdaM) ut
+
+
+-- | Calculate Equatorial Coordinates of the Moon with the given MoonDetails,
+-- distance to the Moon, geographic coordinates of the onserver,
+-- height above sea-level of the observer measured in metres (20 is a good reasonable value for the height)
+-- and at the given JulianDate.
+-- It is recommended to use 'j2010MoonDetails' as a first parameter,
+-- to obtain the distance to the Moon you can use `moonDistance1` function.
+-- `moonPosition2` takes into account parallax effect.
+moonPosition2 :: MoonDetails -> MoonDistanceUnits -> GeographicCoordinates -> Double -> JulianDate -> EquatorialCoordinates1
+moonPosition2 md distance coords height jd =
+  let p = moonPosition1 md jd
+  in parallax coords height (kmToAU $ mduToKm distance) jd p
 
 
 -- | Calculates the Moon's Distance at the given julian date.

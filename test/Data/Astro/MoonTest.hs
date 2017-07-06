@@ -16,16 +16,23 @@ import Test.QuickCheck
 import Data.Astro.TypesTest (testDecimalDegrees)
 import Data.Astro.CoordinateTest (testEC1)
 
+import Data.Astro.Types (GeographicCoordinates(..))
 import Data.Astro.Time.JulianDate (fromYMD)
 import Data.Astro.Coordinate (EquatorialCoordinates1(..))
 import Data.Astro.Moon.MoonDetails (MoonDetails(..), j2010MoonDetails, MoonDistanceUnits(..))
 import Data.Astro.Moon
 
-tests = [testGroup "moonPosition1"[
+tests = [testGroup "moonPosition1" [
             testEC1 "at 2003-09-01 00:00:00 UT"
                 0.000001
                 (EC1 (-11.525750) 14.211486)
                 (moonPosition1 j2010MoonDetails (fromYMD 2003 9 1))
+            ]
+         , testGroup "moonPosition2" [
+            testEC1 "at 2003-09-01 00:00:00 UT"
+                0.000001
+                (EC1 (-12.174888) 14.178731)
+                (moonPosition2 j2010MoonDetails (MDU 1) (GeoC 51 0) 20 (fromYMD 2003 9 1))
             ]
          , testGroup "moonDistance" [
             testMDU "at 2016-08-27 00:00:00"

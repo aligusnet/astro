@@ -24,7 +24,7 @@ import Data.Astro.Star
 import Data.Astro.Types
 import Data.Astro.Coordinate
 
-import Data.Astro.Moon (moonPosition1, moonDistance1, moonAngularSize)
+import Data.Astro.Moon (moonPosition2, moonDistance1, moonAngularSize)
 import Data.Astro.Moon.MoonDetails (j2010MoonDetails, mduToKm)
 
 import Data.Astro.Planet (Planet(..), planetPosition, planetTrueAnomaly1, planetDistance1, planetAngularDiameter)
@@ -69,12 +69,6 @@ calculateSunResult params = PR {
         hcPosition = toHorizonCoordinatesResult coords jd ec1
 
 
-moonPosition :: Double -> GeographicCoordinates -> JulianDate -> EquatorialCoordinates1
-moonPosition distance coords jd =
-  let p = moonPosition1 j2010MoonDetails jd
-  in parallax coords 20 (kmToAU distance) jd p
-
-
 calculateMoonResult :: Params -> PlanetaiResult
 calculateMoonResult params = PR {
   riseSet = riseSet
@@ -92,7 +86,7 @@ calculateMoonResult params = PR {
         DD angularSize' = angularSize
         refractShift = refract (DD 0) 12 1012
         verticalShift = refractShift + (0.5 * angularSize)
-        position = moonPosition distance coords
+        position = moonPosition2 j2010MoonDetails mdu coords 20
         rs = riseAndSet2 0.000001 position coords verticalShift date
         riseSet = toRiseSetResult rs
         ec1 = position jd
