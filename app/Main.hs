@@ -51,17 +51,20 @@ calculateSunResult :: Params -> PlanetaiResult
 calculateSunResult params = PR {
   riseSet = riseSet
   , distance = DR distance "km"
-  , angularSize = angularSize
+  , angularSize = angularSize'
   , position = hcPosition
   }
   where coords = paramsCoordinates params
         date = paramsDate params
         lct = paramsDateTime params
         jd = lctUniversalTime lct
-        rs = sunRiseAndSet coords 0.833333 date
-        riseSet = toRiseSetResult rs
         distance = sunDistance jd
-        DD angularSize = sunAngularSize jd
+        angularSize = sunAngularSize jd
+        DD angularSize' = angularSize
+        refractShift = refract (DD 0) 12 1012
+        verticalShift = refractShift + (0.5 * angularSize)
+        rs = sunRiseAndSet coords verticalShift date
+        riseSet = toRiseSetResult rs
         ec1 = sunPosition2 jd
         hcPosition = toHorizonCoordinatesResult coords jd ec1
 
