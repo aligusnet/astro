@@ -48,6 +48,8 @@ module Data.Astro.Types
   , GeographicCoordinates(..)
   , AstronomicalUnits(..)
   , lightTravelTime
+  , kmToAU
+  , auToKM
   , toDecimalHours
   , fromDecimalHours
   , toRadians
@@ -164,6 +166,21 @@ instance RealFrac AstronomicalUnits where
 -- | Light travel time of the distance in Astronomical Units
 lightTravelTime :: AstronomicalUnits -> DecimalHours
 lightTravelTime (AU ro) = DH $ 0.1386*ro
+
+
+kmInOneAU :: Double
+kmInOneAU = 149597870.700
+
+
+-- | Convert from kilometers to Astronomical Units
+kmToAU :: Double -> AstronomicalUnits
+kmToAU km = AU (km / kmInOneAU)
+
+
+-- | Comvert from Astronomical Units to kilometers
+auToKM :: AstronomicalUnits -> Double
+auToKM (AU au) = au * kmInOneAU
+
 
 -- | Convert from DecimalDegrees to Radians
 toRadians (DD deg) = U.toRadians deg

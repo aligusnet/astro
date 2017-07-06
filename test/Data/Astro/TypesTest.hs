@@ -55,6 +55,10 @@ tests = [testGroup "DecimalDegrees <-> DecimalHours" [
           , testGroup "Light travel time" [
               testDecimalHours "7.7 AU" 0.0000001 1.06722 (lightTravelTime 7.7)
               ]
+          , testGroup "KM <-> AU" [
+              testCase "KM -> AU" $ assertApproxEqual "" 1e-5 (AU 7.8) (kmToAU 1166863391.46)
+              , testCase "AU -> KM" $ assertApproxEqual "" 1e-5 1166863391.46 (auToKM 7.8)
+              ]
           , testGroup "DD: standard typeclasses" [
               testCase "show" $ "DD 15.5" @=? show (DD 15.5)
               , testCase "showList" $ "[DD 15.3,DD 15.7]" @=? showList [DD 15.3, DD 15.7] ""
