@@ -69,10 +69,6 @@ calculateSunResult params = PR {
         hcPosition = toHorizonCoordinatesResult coords jd ec1
 
 
-kmToAU :: Double -> AstronomicalUnits
-kmToAU km = AU (km / 149597870.700)
-
-
 moonPosition :: Double -> GeographicCoordinates -> JulianDate -> EquatorialCoordinates1
 moonPosition distance coords jd =
   let p = moonPosition1 j2010MoonDetails jd
