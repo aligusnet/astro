@@ -105,6 +105,7 @@ reduceDegrees = U.reduceToZeroRange 360
 
 
 -- | Calculate Equatorial Coordinates of the Moon with the given MoonDetails and at the given JulianDate.
+-- 
 -- It is recommended to use 'j2010MoonDetails' as a first parameter.
 moonPosition1 :: MoonDetails -> JulianDate -> EquatorialCoordinates1
 moonPosition1 md ut =
@@ -127,6 +128,7 @@ moonPosition1 md ut =
 -- distance to the Moon, geographic coordinates of the onserver,
 -- height above sea-level of the observer measured in metres (20 is a good reasonable value for the height)
 -- and at the given JulianDate.
+-- 
 -- It is recommended to use 'j2010MoonDetails' as a first parameter,
 -- to obtain the distance to the Moon you can use `moonDistance1` function.
 -- `moonPosition2` takes into account parallax effect.
