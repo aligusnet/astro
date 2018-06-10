@@ -1,8 +1,8 @@
 # Amateur astronomical computations
 
-[![Build Status](https://travis-ci.org/Alexander-Ignatyev/astro.svg?branch=master)](https://travis-ci.org/Alexander-Ignatyev/astro)
-[![Coverage Status](https://coveralls.io/repos/github/Alexander-Ignatyev/astro/badge.svg)](https://coveralls.io/github/Alexander-Ignatyev/astro)
-[![Documentation](https://img.shields.io/badge/astro-documentation-blue.svg)](https://alexander-ignatyev.github.io/astro-docs/doc/index.html)
+[![Build Status](https://travis-ci.org/aligusnet/astro.svg?branch=master)](https://travis-ci.org/aligusnet/astro)
+[![Coverage Status](https://coveralls.io/repos/github/aligusnet/astro/badge.svg)](https://coveralls.io/github/aligusnet/astro)
+[![Documentation](https://img.shields.io/badge/astro-documentation-blue.svg)](https://aligusnet.github.io/astro-docs/doc/index.html)
 [![Hackage](https://img.shields.io/hackage/v/astro.svg)](https://hackage.haskell.org/package/astro) 
 
 

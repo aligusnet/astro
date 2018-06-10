@@ -12,7 +12,7 @@ task :publish_docs do
   end
 
   repo_dir = 'astro-docs'
-  repo_url = 'https://github.com/Alexander-Ignatyev/astro-docs.git'
+  repo_url = 'https://github.com/aligusnet/astro-docs.git'
   haddock_path = `stack #{ENV['ARGS']} path --local-doc-root`
   haddock_path.strip!
   last_commit_message = `git log -1 --pretty=%B`
