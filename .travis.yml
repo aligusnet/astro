@@ -10,7 +10,7 @@ addons:
 env:
   matrix:
   - ARGS="--resolver lts-6.17" GHCVER=7.10.3 PUBLISH_DOCS=false
-  - ARGS="--resolver lts-11.13" GHCVER=8.2.2 PUBLISH_DOCS=true
+  - ARGS="--resolver lts-12.0" GHCVER=8.4.3 PUBLISH_DOCS=true
   global:
   - SHCVER=0.0.4.0
   - SHC_GHCVER=8.0.1
