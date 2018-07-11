@@ -28,7 +28,7 @@ import Data.Astro.Time.JulianDate (JulianDate(..))
 b1900 :: JulianDate
 b1900 = JD 2415020.3135
 
--- | Epoch B1950.0, January 0.9235
+-- | Epoch B1950.0, 1950 January 0.9235
 b1950 :: JulianDate
 b1950 = JD 2433282.4235
 
@@ -41,7 +41,7 @@ j1900 = JD 2415020.0
 j2000 :: JulianDate
 j2000 = JD 2451545.0
 
--- | Epoch J2050.0, 12h on 1 January 2000
+-- | Epoch J2050.0, 0h on 1 January 2050
 j2050 :: JulianDate
 j2050 = JD 2469807.50
 

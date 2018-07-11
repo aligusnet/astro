@@ -64,6 +64,7 @@ test-suite astro-test
                      , Data.Astro.Sun.SunInternalsTest
                      , Data.Astro.SunTest
                      , Data.Astro.Time.ConvTest
+                     , Data.Astro.Time.EpochTest
                      , Data.Astro.Time.GregorianCalendarTest
                      , Data.Astro.Time.JulianDateTest
                      , Data.Astro.Time.SiderealTest
