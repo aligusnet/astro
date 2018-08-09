@@ -10,6 +10,7 @@ module Data.Astro.Planet.PlanetMechanics
 (
   planetMeanAnomaly
   , planetTrueAnomaly1
+  , planetTrueAnomaly2
   , planetHeliocentricRadiusVector
   , planetHeliocentricLongitude
   , planetHeliocentricLatitude
@@ -19,6 +20,7 @@ module Data.Astro.Planet.PlanetMechanics
   , planetEclipticLatitude
   , planetPosition
   , planetPosition1
+  , planetDistance
   , planetDistance1
   , planetAngularDiameter
   , planetPhase1
@@ -61,6 +63,14 @@ planetTrueAnomaly1 pd jd =
       e = pdE pd
   in reduceDegrees $ fromRadians $ meanAnomaly + 2*e*(sin meanAnomaly)
 
+
+-- | Calculate the planet true anomaly using the second 'more accurate' method
+planetTrueAnomaly2 pd jd =
+  let meanAnomaly = toRadians $ planetMeanAnomaly pd jd
+      e = pdE pd
+      eccentricAnomaly = solveKeplerEquation e meanAnomaly 0.000000001
+      trueAnomaly = 2 * atan (sqrt((1 + e) / (1 - e)) * tan (eccentricAnomaly / 2))
+  in reduceDegrees $ fromRadians trueAnomaly
 
 -- | Calculate Heliocentric Longitude.
 -- It takes Planet Details and true anomaly.
@@ -188,15 +198,19 @@ planetPosition trueAnomaly pd ed jd =
 
 
 -- | Calculates the distance betweeth the planet and the Earth at the given date.
--- It takes the planet's detail, the Earth's details and the julian date.
-planetDistance1 :: PlanetDetails -> PlanetDetails -> JulianDate -> AstronomicalUnits
-planetDistance1 pd ed jd =
-  let nup = planetTrueAnomaly1 pd jd
+-- It takes a function to calculate true anomaly,
+-- planet details of the planet, planet details of the Earth
+-- and JulianDate.
+planetDistance :: (PlanetDetails -> JulianDate -> DecimalDegrees)
+                  -> PlanetDetails -> PlanetDetails -> JulianDate
+                  -> AstronomicalUnits
+planetDistance trueAnomaly pd ed jd =
+  let nup = trueAnomaly pd jd
       lp = planetHeliocentricLongitude pd nup
       AU rp = planetHeliocentricRadiusVector pd nup
       psi = planetHeliocentricLatitude pd lp
       -- earth
-      nue = planetTrueAnomaly1 ed jd
+      nue = trueAnomaly ed jd
       le = planetHeliocentricLongitude ed nue
       AU re = planetHeliocentricRadiusVector ed nue
       -- distance
@@ -233,12 +247,20 @@ planetPhase1 pd ed jd =
 
 
 -- | Calculate the planet's postion at the given date using the approximate algoruthm.
--- It takes a function to calculate true anomaly,
--- planet details of the planet, planet details of the Earth
+-- It takes planet details of the planet, planet details of the Earth
 -- and JulianDate.
 planetPosition1 :: PlanetDetails -> PlanetDetails -> JulianDate
                   -> EquatorialCoordinates1
 planetPosition1 = planetPosition planetTrueAnomaly1
+
+
+-- | Calculates the distance betweeth the planet and the Earth at the given date
+-- using the approximate algoruthm.
+-- It takes planet details of the planet, planet details of the Earth
+-- and JulianDate.
+planetDistance1 :: PlanetDetails -> PlanetDetails -> JulianDate
+                  -> AstronomicalUnits
+planetDistance1 = planetDistance planetTrueAnomaly1
 
 
 -- | Calculates pertubations for the planet at the given julian date.
