@@ -167,7 +167,7 @@ fromYMDHMS year month day hs ms ss = addHours (fromHMS hs ms ss) (fromYMD year m
 toYMDHMS :: JulianDate -> (Integer, Int, Int, Int, Int, TimeBaseType)
 toYMDHMS (JD jd) =
   let (i, time) = fraction (jd + 0.5)
-      b = if i > 2299160  -- 2299161 - first day of Georgian Calendar
+      b = if i > 2299160  -- 2299161 - first day of Gregorian Calendar
           then let a = trunc $ (i-1867216.25)/36524.25
                in i + a - trunc (a*0.25) + 1
           else i
@@ -182,8 +182,8 @@ toYMDHMS (JD jd) =
    in (year, month, day, h, m, s)
 
 
--- | Get Day of the Week
--- 0 is for Sunday, 1 for manday and 6 for Saturday
+-- | Get Day of the Week:
+-- 0 is for Sunday, 1 for Monday and 6 for Saturday
 dayOfWeek :: JulianDate -> Int
 dayOfWeek jd =
   let JD d = removeHours jd
@@ -206,7 +206,7 @@ removeHours jd =
   in d
 
 
--- | Create LocalCivilTime from tize zone, local year, local month, local day, local hours, local minutes and local secunds.
+-- | Create LocalCivilTime from tize zone, local year, local month, local day, local hours, local minutes and local seconds.
 lctFromYMDHMS :: DecimalHours ->Integer -> Int -> Int -> Int -> Int -> TimeBaseType -> LocalCivilTime
 lctFromYMDHMS tz y m d hs ms ss =
   let jd = fromYMDHMS y m d hs ms ss
@@ -214,7 +214,7 @@ lctFromYMDHMS tz y m d hs ms ss =
   in LCT tz jd'
 
 
--- | Get from LocalCivilTime local year, local month, local day, local hours, local minutes and local secunds.
+-- | Get from LocalCivilTime local year, local month, local day, local hours, local minutes and local seconds.
 lctToYMDHMS :: LocalCivilTime -> (Integer, Int, Int, Int, Int, TimeBaseType)
 lctToYMDHMS (LCT tz jd)= toYMDHMS (addHours tz jd)
 
