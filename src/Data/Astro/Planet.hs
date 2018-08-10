@@ -85,8 +85,10 @@ module Data.Astro.Planet
   , Details.PlanetDetails(..)
   , Details.j2010PlanetDetails
   , Mechanics.planetTrueAnomaly1
+  , Mechanics.planetTrueAnomaly2
   , Mechanics.planetPosition
   , Mechanics.planetPosition1
+  , Mechanics.planetDistance
   , Mechanics.planetDistance1
   , Mechanics.planetAngularDiameter
   , Mechanics.planetPhase1
