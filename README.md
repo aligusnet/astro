@@ -8,13 +8,19 @@
 
 ## Usage
 
+### Install stack
+
+It will take care of everything.
+
+[Get started with Stack](https://www.fpcomplete.com/haskell/get-started/)
+
 ### Build the project
 
     stack build
 
 ### Run unit tests
 
-    stack tests
+    stack test
 
 ## Documentation
 
